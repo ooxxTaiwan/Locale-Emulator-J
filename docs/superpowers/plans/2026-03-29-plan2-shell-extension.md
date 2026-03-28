@@ -611,6 +611,8 @@ void I18n::Reset()
 
 #include <unknwn.h>
 #include <windows.h>
+#include <shlwapi.h>
+#pragma comment(lib, "shlwapi.lib")
 
 class ClassFactory : public IClassFactory
 {
@@ -1264,6 +1266,7 @@ void ContextMenuHandler::LaunchLEProc(const std::wstring& command)
 #include <windows.h>
 #include <guiddef.h>
 #include <shlobj.h>
+#include <new>              // for std::nothrow
 #include "ClassFactory.h"
 #include "Resource.h"
 

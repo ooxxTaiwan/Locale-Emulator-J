@@ -1244,8 +1244,10 @@ TDD red phase - tests written before migrating source files."
 ```bash
 # 原始碼已在 Plan 1 中由 git mv 搬移至 src/LEProc/，無需複製。
 # 以下驗證檔案已就位：
-ls src/LEProc/Program.cs src/LEProc/LoaderWrapper.cs src/LEProc/RegistryEntriesLoader.cs src/LEProc/RegistryEntry.cs src/LEProc/LERegistryRedirector.cs src/LEProc/app.manifest
+ls src/LEProc/Program.cs src/LEProc/LoaderWrapper.cs src/LEProc/RegistryEntriesLoader.cs src/LEProc/RegistryEntry.cs src/LEProc/LERegistryRedirector.cs src/LEProc/Amemiya.Extensions.ArrayExtensions.cs src/LEProc/app.manifest
 ```
+
+> **注意**：`Amemiya.Extensions.ArrayExtensions.cs` 包含 `LoaderWrapper.cs` 依賴的擴充方法（如 struct-to-byte-array 轉換），必須一併遷移。
 
 **不要複製**：
 - `Properties/AssemblyInfo.cs`

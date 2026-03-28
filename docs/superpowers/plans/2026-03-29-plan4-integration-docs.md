@@ -31,34 +31,46 @@
 
 ```cpp
 // LocaleTestApp - Locale Emulator Smoke Test Target
-// 印出目前程序的 locale 相關 Windows API 回傳值，供 smoke test 腳本比對。
+// 將程序的 locale 相關 Windows API 回傳值寫入檔案，供 smoke test 腳本比對。
+//
+// 重要：LEProc 透過 LeCreateProcess 建立新程序，目標 app 的 stdout
+// 不會回傳到 LEProc 的 stdout。因此必須寫檔而非 printf。
+//
+// 用法：LocaleTestApp.exe <output-file-path>
 // 輸出格式為 KEY=VALUE，每行一個，便於 PowerShell 解析。
 
 #include <windows.h>
 #include <stdio.h>
 
-int main()
+int main(int argc, char* argv[])
 {
-    // Active Code Page (ACP)
-    UINT acp = GetACP();
-    printf("ACP=%u\n", acp);
+    // 決定輸出位置：若有參數則寫入指定檔案，否則寫入同目錄下的 locale_result.txt
+    FILE* out = NULL;
+    if (argc > 1)
+    {
+        out = fopen(argv[1], "w");
+    }
+    else
+    {
+        // 預設寫入 exe 同目錄下的 locale_result.txt
+        char path[MAX_PATH];
+        GetModuleFileNameA(NULL, path, MAX_PATH);
+        // 找到最後的反斜線，替換檔名
+        char* lastSlash = strrchr(path, '\\');
+        if (lastSlash) *(lastSlash + 1) = '\0';
+        strcat_s(path, MAX_PATH, "locale_result.txt");
+        out = fopen(path, "w");
+    }
 
-    // OEM Code Page
-    UINT oemcp = GetOEMCP();
-    printf("OEMCP=%u\n", oemcp);
+    if (!out) return 1;
 
-    // User Default Locale ID
-    LCID lcid = GetUserDefaultLCID();
-    printf("LCID=0x%04X\n", lcid);
+    fprintf(out, "ACP=%u\n", GetACP());
+    fprintf(out, "OEMCP=%u\n", GetOEMCP());
+    fprintf(out, "LCID=0x%04X\n", GetUserDefaultLCID());
+    fprintf(out, "UILANG=0x%04X\n", GetUserDefaultUILanguage());
+    fprintf(out, "THREADLOCALE=0x%04X\n", GetThreadLocale());
 
-    // User Default UI Language (informational)
-    LANGID langid = GetUserDefaultUILanguage();
-    printf("UILANG=0x%04X\n", langid);
-
-    // Thread Locale
-    LCID threadLocale = GetThreadLocale();
-    printf("THREADLOCALE=0x%04X\n", threadLocale);
-
+    fclose(out);
     return 0;
 }
 ```
@@ -365,9 +377,25 @@ foreach ($test in $TestMatrix) {
         $configXml | Out-File -FilePath $tempConfigPath -Encoding UTF8
 
         # 使用 LEProc -run 執行目標程式
-        # LEProc -run 會讀取 <target-path>.le.config（即目標程式路徑 + ".le.config"）
-        $output = & $leProcPath -run $testAppPath 2>&1 | Out-String
-        $outputLines = $output -split "`n"
+        # 重要：LEProc 透過 LeCreateProcess 建立新程序，目標 app 的 stdout
+        # 不會回傳到 LEProc。因此 LocaleTestApp 將結果寫入檔案。
+        $resultFile = Join-Path (Split-Path $testAppPath) "locale_result.txt"
+        if (Test-Path $resultFile) { Remove-Item $resultFile -Force }
+
+        & $leProcPath -run $testAppPath 2>&1 | Out-Null
+
+        # 等待目標程式完成並寫入結果檔
+        $waitCount = 0
+        while (-not (Test-Path $resultFile) -and $waitCount -lt 30) {
+            Start-Sleep -Milliseconds 500
+            $waitCount++
+        }
+
+        if (-not (Test-Path $resultFile)) {
+            throw "LocaleTestApp 未產出 locale_result.txt（等待 15 秒後逾時）"
+        }
+
+        $outputLines = Get-Content $resultFile
         $parsed = Parse-LocaleTestOutput $outputLines
 
         # 比對結果
@@ -410,10 +438,9 @@ foreach ($test in $TestMatrix) {
             Write-TestResult -TestName $test.Name -Passed $false -Detail ($details -join "; ")
         }
 
-        # 清理臨時 config
-        if (Test-Path $tempConfigPath) {
-            Remove-Item $tempConfigPath -Force
-        }
+        # 清理臨時檔案
+        if (Test-Path $tempConfigPath) { Remove-Item $tempConfigPath -Force }
+        if (Test-Path $resultFile) { Remove-Item $resultFile -Force }
 
     } catch {
         $failedTests++
@@ -633,7 +660,7 @@ jobs:
         run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x64 /m /v:minimal
 
       # --------------------------------------------------------
-      # Step 8.5: 執行 Smoke Tests
+      # Step 10: 執行 Smoke Tests
       # --------------------------------------------------------
       - name: Smoke Tests
         run: .\tests\SmokeTest\Invoke-SmokeTest.ps1
@@ -641,7 +668,7 @@ jobs:
         if: success()
 
       # --------------------------------------------------------
-      # Step 9: 上傳建置產物（可選）
+      # Step 11: 上傳建置產物（可選）
       # --------------------------------------------------------
       # 將建置輸出上傳為 artifact，方便下載測試。
       - name: Upload build artifacts
@@ -911,29 +938,31 @@ Microsoft 官方提供的 Action，尋找 Runner 上已安裝的 Visual Studio B
 
 x64 組態只會建置 ShellExtension（其他專案在 Solution 組態中標記為「不建置」）。
 
-### 3.11 Step 7: .NET Tests
+### 3.11 Step 6: .NET Tests
 
 ```yaml
 - name: Run .NET tests
-  run: dotnet test LocaleEmulator.sln --no-build --configuration Release --logger "console;verbosity=detailed"
+  run: dotnet test LocaleEmulator.sln --no-build --configuration Debug --logger "console;verbosity=detailed"
 ```
 
 - `dotnet test`：自動探索並執行所有 xUnit 測試專案
-- `--no-build`：不重複建置（已在 Step 5 建置過）
+- `--no-build`：不重複建置（已在 Step 5 以 Debug 建置過）
+- `--configuration Debug`：測試專案只在 Debug 組態建置（spec solution matrix 定義）
 - `--logger`：輸出詳細測試結果到 console
 
-### 3.12 Step 8: C++ Tests
+### 3.12 Step 7: C++ Tests
 
 ```yaml
 - name: Run C++ tests (Google Test)
   run: |
-    $testExes = Get-ChildItem -Path "Build\Release\x86" -Filter "*Tests*.exe" -Recurse
+    $testExes = Get-ChildItem -Path "Build\Debug\x86" -Filter "*Tests*.exe" -Recurse
     ...
   shell: pwsh
 ```
 
 - `run: |`：多行指令
 - `shell: pwsh`：使用 PowerShell Core 執行
+- 在 `Build\Debug\x86` 中搜尋（測試專案只在 Debug 建置）
 - Google Test 的 exe 直接跑就好，不需要特別的 test runner
 
 ### 3.13 Step 9: Upload Artifacts

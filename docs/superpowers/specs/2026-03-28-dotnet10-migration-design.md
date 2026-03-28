@@ -247,7 +247,7 @@ HKCR\*\shellex\ContextMenuHandlers\{GUID}
 
 ### COM GUID
 
-使用**新 GUID**（不沿用舊的 `C52B9871-...`），避免新舊版本 COM 註冊衝突。
+**`{A8B4F5C2-7E3D-4F1A-9C6B-2D8E0F5A3B71}`**（不沿用舊的 `C52B9871-...`），避免新舊版本 COM 註冊衝突。此 GUID 為所有 Plan 共用的唯一權威定義。
 
 ### 專案結構
 

@@ -1473,14 +1473,15 @@ nothing to commit, working tree clean
 
 ---
 
-## 下一步（Plan 2 預告）
+## 下一步
 
 Plan 1 完成後，repo 已具備：
 - 新的 `src/` 目錄結構
 - Core 原始碼（已解壓，可建置）
 - 共用建置基礎設施
 
-Plan 2 將開始 .NET 10 遷移：
-- LECommonLibrary 轉為 SDK-style csproj + .NET 10
-- 建立 LECommonLibrary.Tests（xUnit，TDD）
-- 驗證 XML config 讀寫、SystemHelper 等核心邏輯在 .NET 10 下的行為
+接下來可平行執行：
+- **Plan 2（C++ Shell Extension）**：用原生 C++ 重寫右鍵選單 Shell Extension（x86+x64）
+- **Plan 3（.NET 10 Migration）**：將 LECommonLibrary、LEProc、LEGUI 遷移至 .NET 10
+
+兩者互不依賴，可由不同 agent 在獨立 worktree 中同時進行。
