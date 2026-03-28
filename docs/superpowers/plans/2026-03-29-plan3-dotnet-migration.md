@@ -1601,7 +1601,7 @@ namespace LEGUI.Tests;
 public class ShellExtensionRegistrarTests
 {
     // 新 COM GUID — 需與 ShellExtension C++ 專案一致
-    // 此處用 ShellExtensionRegistrar.NewClsid 取得
+    // 此處用 ShellExtensionConstants.NewClsid 取得
     private const string TestClsid = "{12345678-ABCD-EF01-2345-6789ABCDEF01}";
     private const string OldClsid = "{C52B9871-E5E9-41FD-B84D-C5ACADBEC7AE}";
     private const string TestDllPath = @"C:\Program Files\LE\ShellExtension.dll";
@@ -2348,10 +2348,7 @@ namespace LEGUI;
 /// </summary>
 internal static class ShellExtensionConstants
 {
-    // TODO: 在 Plan 2（Shell Extension C++ 專案）完成後，
-    //       將此 GUID 更新為實際使用的值。
-    //       兩邊必須完全一致。
-    public const string NewClsid = "{00000000-0000-0000-0000-000000000000}";
+    public const string NewClsid = "{A8B4F5C2-7E3D-4F1A-9C6B-2D8E0F5A3B71}";
 }
 ```
 

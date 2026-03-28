@@ -112,10 +112,10 @@ See https://github.com/zeux/pugixml/blob/master/LICENSE.md
 
 ## Step 3：複製語言檔案
 
-- [ ] 從 `LEContextMenuHandler/Lang/` 複製所有 `.xml` 到 `src/ShellExtension/Lang/`
+- [ ] 從 `src/LEContextMenuHandler/Lang/` 複製所有 `.xml` 到 `src/ShellExtension/Lang/`
 
 ```bash
-cp LEContextMenuHandler/Lang/*.xml src/ShellExtension/Lang/
+cp src/LEContextMenuHandler/Lang/*.xml src/ShellExtension/Lang/
 ```
 
 **驗證**：`src/ShellExtension/Lang/` 包含 23 個 XML 檔案（含 DefaultLanguage.xml）。
@@ -124,10 +124,10 @@ cp LEContextMenuHandler/Lang/*.xml src/ShellExtension/Lang/
 
 ## Step 4：複製點陣圖資源
 
-- [ ] 從 `LEContextMenuHandler/Resources/` 複製所有 `.bmp` 到 `src/ShellExtension/Resources/`
+- [ ] 從 `src/LEContextMenuHandler/Resources/` 複製所有 `.bmp` 到 `src/ShellExtension/Resources/`
 
 ```bash
-cp LEContextMenuHandler/Resources/*.bmp src/ShellExtension/Resources/
+cp src/LEContextMenuHandler/Resources/*.bmp src/ShellExtension/Resources/
 ```
 
 **驗證**：`src/ShellExtension/Resources/` 包含 8 個 BMP 檔案。
@@ -169,7 +169,7 @@ IDB_PURPLE      BITMAP  "Resources\\purple.bmp"
 IDB_PURPLE_200  BITMAP  "Resources\\purple@200.bmp"
 IDB_GRAY        BITMAP  "Resources\\gray.bmp"
 IDB_GRAY_200    BITMAP  "Resources\\gray@200.bmp"
-IDB_BLUE        BITMAP  "Resources\\Blue.bmp"
+IDB_BLUE        BITMAP  "Resources\\blue.bmp"
 IDB_BLUE_200    BITMAP  "Resources\\blue@200.bmp"
 IDB_YELLOW      BITMAP  "Resources\\yellow.bmp"
 IDB_YELLOW_200  BITMAP  "Resources\\yellow@200.bmp"
@@ -628,7 +628,7 @@ public:
 
 private:
     ~ClassFactory();
-    long m_refCount;
+    LONG m_refCount;
 };
 ```
 
@@ -640,7 +640,7 @@ private:
 #include "ContextMenuHandler.h"
 #include <new>
 
-extern long g_dllRefCount;
+extern LONG g_dllRefCount;
 
 ClassFactory::ClassFactory()
     : m_refCount(1)
@@ -780,7 +780,7 @@ private:
     // Launch LEProc.exe with the given command
     void LaunchLEProc(const std::wstring& command);
 
-    long m_refCount;
+    LONG m_refCount;
     std::wstring m_selectedFile;
     std::vector<MenuItem> m_menuItems;
 
@@ -806,7 +806,7 @@ private:
 #pragma comment(lib, "shlwapi.lib")
 
 extern HMODULE g_hModule;
-extern long g_dllRefCount;
+extern LONG g_dllRefCount;
 
 // ========================================================================
 // Constructor / Destructor
@@ -1269,7 +1269,7 @@ void ContextMenuHandler::LaunchLEProc(const std::wstring& command)
 
 // Global variables
 HMODULE g_hModule = nullptr;
-long g_dllRefCount = 0;
+LONG g_dllRefCount = 0;
 
 // New COM GUID: {A8B4F5C2-7E3D-4F1A-9C6B-2D8E0F5A3B71}
 // clang-format off
@@ -1617,8 +1617,8 @@ Files:
 - Resource.h/rc: Bitmap resources for menu icons (4K support)
 - ShellExtension.def: DLL export definitions
 - pugixml/ (vendored, MIT license)
-- Lang/*.xml (copied from LEContextMenuHandler)
-- Resources/*.bmp (copied from LEContextMenuHandler)
+- Lang/*.xml (copied from src/LEContextMenuHandler)
+- Resources/*.bmp (copied from src/LEContextMenuHandler)
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ```
@@ -1842,7 +1842,7 @@ src/ShellExtension/
     ├── purple@200.bmp
     ├── gray.bmp
     ├── gray@200.bmp
-    ├── Blue.bmp
+    ├── blue.bmp
     ├── blue@200.bmp
     ├── yellow.bmp
     └── yellow@200.bmp

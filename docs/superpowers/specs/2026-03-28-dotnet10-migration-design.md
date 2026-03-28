@@ -240,7 +240,7 @@ HKCR\*\shellex\ContextMenuHandlers\{GUID}
 
 ### 多語系
 
-- 沿用現有 XML 格式與檔案結構（24 語言）
+- 沿用現有 XML 格式與檔案結構（22 語言）
 - 用 pugixml 讀取語言檔
 - `GetUserDefaultUILanguage()` 偵測系統語言
 - Fallback 至 `DefaultLanguage.xml`（英文）
@@ -264,7 +264,7 @@ src/ShellExtension/
 ├── pugixml/                    # pugixml（vendored）
 │   ├── pugixml.hpp
 │   └── pugixml.cpp
-└── Lang/                       # 語言檔案（24 語言）
+└── Lang/                       # 語言檔案（22 語言）
 ```
 
 ### 註冊與安裝（整合至 LEGUI）
@@ -382,7 +382,7 @@ Registry view（關鍵）：
 | 專案格式 | 舊式 `.csproj` | SDK-style（`<UseWPF>true</UseWPF>`） |
 | 輸出類型 | WinExe | WinExe |
 | 平台 | AnyCPU | AnyCPU |
-| i18n | XAML 資源字典（24 語言） | 沿用 |
+| i18n | XAML 資源字典（22 語言） | 沿用 |
 
 **新增功能**（從 LEInstaller 整合）：
 - Shell Extension 安裝/解除安裝 UI（支援 per-user 與 all-users 雙模式）

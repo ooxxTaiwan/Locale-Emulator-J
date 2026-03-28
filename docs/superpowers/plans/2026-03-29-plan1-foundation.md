@@ -211,6 +211,8 @@ EOF
 cd E:/Code/Locale-Emulator
 
 # 計算所有 key.snk 的 SHA-256 hash，應該全部一樣
+# 注意：sha256sum 在 Git Bash (Windows) 中可用
+# PowerShell 替代方案：Get-FileHash -Algorithm SHA256 <檔案路徑>
 sha256sum src/LECommonLibrary/key.snk src/LEContextMenuHandler/key.snk src/LEGUI/key.snk src/LEInstaller/key.snk src/LEProc/key.snk src/LEUpdater/key.snk
 ```
 
@@ -312,17 +314,17 @@ ae7160dc5deb97947396abcd784f9b98b6ee38b3 ...
 ```bash
 cd E:/Code/Locale-Emulator
 mkdir -p src/Core
-# 使用 rsync 排除 .git 目錄
-rsync -av --exclude='.git' _tmp_core/ src/Core/
+# 複製內容並排除 .git 目錄
+cp -r _tmp_core/* src/Core/
+cp -r _tmp_core/.gitignore src/Core/ 2>/dev/null || true
+cp -r _tmp_core/.gitattributes src/Core/ 2>/dev/null || true
+# 確保不複製 .git 目錄
+rm -rf src/Core/.git 2>/dev/null || true
 ```
 
-> 如果 `rsync` 不可用，替代方案：
+> 替代方案：如果有 `rsync` 可用，可一步完成：
 > ```bash
-> cp -r _tmp_core/* src/Core/
-> cp -r _tmp_core/.gitignore src/Core/ 2>/dev/null || true
-> cp -r _tmp_core/.gitattributes src/Core/ 2>/dev/null || true
-> # 確保不複製 .git 目錄
-> rm -rf src/Core/.git 2>/dev/null || true
+> rsync -av --exclude='.git' _tmp_core/ src/Core/
 > ```
 
 - [ ] 移除臨時 clone 目錄
@@ -411,6 +413,8 @@ EOF
 
 ```bash
 cd E:/Code/Locale-Emulator
+# 注意：sha256sum 在 Git Bash (Windows) 中可用
+# PowerShell 替代方案：Get-FileHash -Algorithm SHA256 <檔案路徑>
 find src/Core -name "*.7z" -type f -exec sha256sum {} \;
 ```
 

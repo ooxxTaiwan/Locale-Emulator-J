@@ -344,9 +344,9 @@ foreach ($test in $TestMatrix) {
         # 透過 LEProc -run 啟動 LocaleTestApp
         # LEProc 會根據 Location 參數設定 locale 並建立程序
         # 注意：實際參數格式可能因遷移後 LEProc CLI 變化而需調整
-        $tempConfigPath = Join-Path $env:TEMP "le_smoketest_$($test.Location).le.config"
+        $tempConfigPath = $testAppPath + ".le.config"
 
-        # 產生臨時 .le.config 檔案
+        # 產生臨時 .le.config 檔案（必須放在目標程式旁邊，LEProc -run 會讀取 <target-path>.le.config）
         $configXml = @"
 <?xml version="1.0" encoding="utf-8"?>
 <LEConfig>
@@ -365,7 +365,7 @@ foreach ($test in $TestMatrix) {
         $configXml | Out-File -FilePath $tempConfigPath -Encoding UTF8
 
         # 使用 LEProc -run 執行目標程式
-        # LEProc 會尋找同目錄的 .le.config 或使用指定的 config
+        # LEProc -run 會讀取 <target-path>.le.config（即目標程式路徑 + ".le.config"）
         $output = & $leProcPath -run $testAppPath 2>&1 | Out-String
         $outputLines = $output -split "`n"
         $parsed = Parse-LocaleTestOutput $outputLines
@@ -532,7 +532,7 @@ Smoke test 驗證 LEProc + Core DLL 的 locale hook 是否正確生效。
 # ============================================================
 # 觸發條件：push 至 master、所有 Pull Request
 # 執行內容：建置全部專案（x86 + x64）、執行 .NET 測試、執行 C++ 測試
-# Runner：windows-latest（Windows Server 2025 + VS 2022/2026 Build Tools）
+# Runner：windows-2025-vs2026（Windows Server 2025 + VS 2026 Build Tools）
 # ============================================================
 
 name: CI
@@ -552,7 +552,7 @@ env:
 jobs:
   build-and-test:
     name: Build & Test
-    runs-on: windows-latest     # 使用 GitHub 提供的最新 Windows runner
+    runs-on: windows-2025-vs2026     # 使用 Windows Server 2025 + VS 2026 Build Tools
 
     steps:
       # --------------------------------------------------------
@@ -618,7 +618,7 @@ jobs:
       # --gtest_output=xml 產生 XML 報告供未來整合。
       - name: Run C++ tests (Google Test)
         run: |
-          $testExes = Get-ChildItem -Path "Build\Debug\x86" -Filter "*Tests*.exe" -Recurse
+          $testExes = Get-ChildItem -Path "Build\Release\x86" -Filter "*Tests*.exe" -Recurse
           $failed = $false
           foreach ($exe in $testExes) {
             Write-Host "Running: $($exe.FullName)" -ForegroundColor Cyan
@@ -630,6 +630,14 @@ jobs:
           }
           if ($failed) { exit 1 }
         shell: pwsh
+
+      # --------------------------------------------------------
+      # Step 8.5: 執行 Smoke Tests
+      # --------------------------------------------------------
+      - name: Smoke Tests
+        run: .\tests\SmokeTest\Invoke-SmokeTest.ps1
+        shell: pwsh
+        if: success()
 
       # --------------------------------------------------------
       # Step 9: 上傳建置產物（可選）
@@ -784,10 +792,10 @@ Workflow (工作流程)
 
 - 執行 Job 的機器
 - GitHub 提供免費的 Hosted Runner（雲端虛擬機器）
-- 可選 `ubuntu-latest`、`windows-latest`、`macos-latest`
+- 可選 `ubuntu-latest`、`windows-2025-vs2026`、`macos-latest`
 - 也可以自架 Self-hosted Runner
 
-**在我們的專案中**：使用 `windows-latest`，因為要建置 Windows 專案（C#、C++、WPF）。
+**在我們的專案中**：使用 `windows-2025-vs2026`，因為要建置 Windows 專案（C#、C++、WPF），需要 VS 2026 Build Tools。
 
 ---
 
@@ -833,7 +841,7 @@ env:
 jobs:
   build-and-test:
     name: Build & Test
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
 ```
 
 - `build-and-test`：Job 的 ID（用於引用）
@@ -918,7 +926,7 @@ x64 組態只會建置 ShellExtension（其他專案在 Solution 組態中標記
 ```yaml
 - name: Run C++ tests (Google Test)
   run: |
-    $testExes = Get-ChildItem -Path "Build\Debug\x86" -Filter "*Tests*.exe" -Recurse
+    $testExes = Get-ChildItem -Path "Build\Release\x86" -Filter "*Tests*.exe" -Recurse
     ...
   shell: pwsh
 ```
@@ -1018,12 +1026,12 @@ Runner 是執行 CI 的虛擬機器。GitHub 提供免費的 Hosted Runner：
 | Runner | OS | 用途 |
 |--------|-----|------|
 | `ubuntu-latest` | Ubuntu 24.04 | Linux 專案、Node.js、Python 等 |
-| `windows-latest` | Windows Server 2025 | .NET、C++/MSVC、WPF 等 Windows 專案 |
+| `windows-2025-vs2026` | Windows Server 2025 | .NET、C++/MSVC、WPF 等 Windows 專案 |
 | `macos-latest` | macOS 15 | iOS/macOS 開發、Swift |
 
 ### 5.2 Windows Runner 預裝軟體
 
-`windows-latest` Runner 預裝了大量工具。與我們相關的：
+`windows-2025-vs2026` Runner 預裝了大量工具。與我們相關的：
 
 - **Visual Studio Build Tools**（含 MSVC 編譯器和 MSBuild）
 - **.NET SDK**（通常是最新的 LTS 版本，可能需要額外安裝 .NET 10）
@@ -1261,7 +1269,7 @@ on:
 
 jobs:
   release:
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
     steps:
       - uses: actions/checkout@v4
       # ... build steps ...
@@ -1311,7 +1319,7 @@ jobs:
 ```yaml
 strategy:
   matrix:
-    os: [windows-latest, windows-2022]
+    os: [windows-2025-vs2026, windows-2022]
     dotnet: ['10.0.x']
 runs-on: ${{ matrix.os }}
 ```
@@ -1467,7 +1475,7 @@ XML files (`LEConfig.xml` and `*.le.config`) share the same schema:
 | Layer | Framework | Command |
 |-------|-----------|---------|
 | .NET unit tests | xUnit + NSubstitute | `dotnet test` |
-| C++ unit tests | Google Test | Run `*Tests*.exe` binaries from `Build/Debug/x86/` |
+| C++ unit tests | Google Test | Run `*Tests*.exe` binaries from `Build/Release/x86/` |
 | Smoke tests | PowerShell + LocaleTestApp | `.\tests\SmokeTest\Invoke-SmokeTest.ps1` |
 
 ### Test Projects

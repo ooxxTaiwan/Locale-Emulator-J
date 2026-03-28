@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /e/Code/Locale-Emulator -type f -name *Test* -o -name *test*)",
+      "Bash(wc -l /e/Code/Locale-Emulator/LEGUI/*.xaml.cs /e/Code/Locale-Emulator/LEGUI/*.cs /e/Code/Locale-Emulator/LEProc/*.cs /e/Code/Locale-Emulator/LEContextMenuHandler/*.cs)",
+      "Bash(gh repo:*)",
+      "Bash(git remote:*)",
+      "Bash(where gh:*)",
+      "mcp__plugin_github_github__issue_write",
+      "Bash(for dir:*)",
+      "Bash(do echo:*)",
+      "Read(//e/Code/Locale-Emulator/**)",
+      "Bash(grep -E \"\\\\.cs$|\\\\.xaml$|\\\\.csproj$|\\\\.snk$|manifest\")",
+      "Bash(done)",
+      "Bash(grep -r \"DllImport\\\\|GuidAttribute\\\\|ComVisible\" LEProc/*.cs LEContextMenuHandler/*.cs)",
+      "Bash(dotnet tool:*)",
+      "Bash(gh api:*)",
+      "Bash(gh.exe --version)",
+      "WebFetch(domain:github.com)",
+      "mcp__plugin_github_github__get_file_contents",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebSearch",
+      "mcp__plugin_github_github__list_commits",
+      "mcp__plugin_github_github__search_code",
+      "Bash(wc -l docs/superpowers/plans/*.md)"
+    ]
+  }
+}
