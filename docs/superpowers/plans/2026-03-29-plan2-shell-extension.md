@@ -118,7 +118,7 @@ See https://github.com/zeux/pugixml/blob/master/LICENSE.md
 cp src/LEContextMenuHandler/Lang/*.xml src/ShellExtension/Lang/
 ```
 
-**驗證**：`src/ShellExtension/Lang/` 包含 23 個 XML 檔案（含 DefaultLanguage.xml）。
+**驗證**：`src/ShellExtension/Lang/` 包含 22 個 XML 檔案（含 DefaultLanguage.xml）。
 
 ---
 
@@ -1783,7 +1783,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 | `dllmain.cpp` 匯出 4 個 COM 函式 | |
 | `ShellExtension.def` 定義匯出 | |
 | `Resource.h` + `Resource.rc` 含 8 個點陣圖資源 | |
-| Lang/*.xml 已複製（23 檔） | |
+| Lang/*.xml 已複製（22 檔） | |
 | PE 標頭讀取判斷 x86/x64 | |
 | 4K 顯示器偵測載入 @200 變體 | |
 | x86 建置成功 | |
@@ -1817,7 +1817,7 @@ src/ShellExtension/
 │   ├── pugixml.cpp
 │   ├── pugiconfig.hpp
 │   └── LICENSE.md
-├── Lang/                           # 語言檔案（23 檔）
+├── Lang/                           # 語言檔案（22 檔）
 │   ├── DefaultLanguage.xml
 │   ├── ca.xml
 │   ├── cs.xml
