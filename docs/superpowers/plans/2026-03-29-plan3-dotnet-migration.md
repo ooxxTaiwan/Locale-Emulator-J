@@ -68,7 +68,7 @@ Part D: 清理
 - [ ] **A1.2** 驗證 `key.snk` 存在於專案根目錄（`E:\Code\Locale-Emulator\key.snk`），若不存在則從任一子專案複製
 
 ```bash
-ls E:/Code/Locale-Emulator/key.snk || cp E:/Code/Locale-Emulator/LECommonLibrary/key.snk E:/Code/Locale-Emulator/key.snk
+ls E:/Code/Locale-Emulator/key.snk  # Plan 1 已將 key.snk 統一至根目錄
 ```
 
 - [ ] **A1.3** 提交
@@ -602,12 +602,9 @@ TDD red phase - tests written before migrating source files."
 - [ ] **A4.1** 複製原始碼到新目錄
 
 ```bash
-cp E:/Code/Locale-Emulator/LECommonLibrary/LEConfig.cs E:/Code/Locale-Emulator/src/LECommonLibrary/
-cp E:/Code/Locale-Emulator/LECommonLibrary/LEProfile.cs E:/Code/Locale-Emulator/src/LECommonLibrary/
-cp E:/Code/Locale-Emulator/LECommonLibrary/SystemHelper.cs E:/Code/Locale-Emulator/src/LECommonLibrary/
-cp E:/Code/Locale-Emulator/LECommonLibrary/GlobalHelper.cs E:/Code/Locale-Emulator/src/LECommonLibrary/
-cp E:/Code/Locale-Emulator/LECommonLibrary/PEFileReader.cs E:/Code/Locale-Emulator/src/LECommonLibrary/
-cp E:/Code/Locale-Emulator/LECommonLibrary/AssociationReader.cs E:/Code/Locale-Emulator/src/LECommonLibrary/
+# 原始碼已在 Plan 1 中由 git mv 搬移至 src/LECommonLibrary/，無需複製。
+# 以下驗證檔案已就位：
+ls src/LECommonLibrary/LEConfig.cs src/LECommonLibrary/LEProfile.cs src/LECommonLibrary/SystemHelper.cs src/LECommonLibrary/GlobalHelper.cs src/LECommonLibrary/PEFileReader.cs src/LECommonLibrary/AssociationReader.cs
 ```
 
 **不要複製** `Properties/AssemblyInfo.cs`（SDK-style csproj 自動產生組件屬性）。
@@ -1245,13 +1242,9 @@ TDD red phase - tests written before migrating source files."
 - [ ] **B4.1** 複製原始碼到新目錄
 
 ```bash
-cp E:/Code/Locale-Emulator/LEProc/Program.cs E:/Code/Locale-Emulator/src/LEProc/
-cp E:/Code/Locale-Emulator/LEProc/LoaderWrapper.cs E:/Code/Locale-Emulator/src/LEProc/
-cp E:/Code/Locale-Emulator/LEProc/RegistryEntriesLoader.cs E:/Code/Locale-Emulator/src/LEProc/
-cp E:/Code/Locale-Emulator/LEProc/RegistryEntry.cs E:/Code/Locale-Emulator/src/LEProc/
-cp E:/Code/Locale-Emulator/LEProc/LERegistryRedirector.cs E:/Code/Locale-Emulator/src/LEProc/
-cp E:/Code/Locale-Emulator/LEProc/Amemiya.Extensions.ArrayExtensions.cs E:/Code/Locale-Emulator/src/LEProc/
-cp E:/Code/Locale-Emulator/LEProc/app.manifest E:/Code/Locale-Emulator/src/LEProc/
+# 原始碼已在 Plan 1 中由 git mv 搬移至 src/LEProc/，無需複製。
+# 以下驗證檔案已就位：
+ls src/LEProc/Program.cs src/LEProc/LoaderWrapper.cs src/LEProc/RegistryEntriesLoader.cs src/LEProc/RegistryEntry.cs src/LEProc/LERegistryRedirector.cs src/LEProc/app.manifest
 ```
 
 **不要複製**：
@@ -2156,27 +2149,22 @@ git commit -m "test(LEGUI): add i18n tests for language loading"
 
 ```bash
 # XAML 檔案
-cp E:/Code/Locale-Emulator/LEGUI/App.xaml E:/Code/Locale-Emulator/src/LEGUI/
-cp E:/Code/Locale-Emulator/LEGUI/App.xaml.cs E:/Code/Locale-Emulator/src/LEGUI/
-cp E:/Code/Locale-Emulator/LEGUI/GlobalConfig.xaml E:/Code/Locale-Emulator/src/LEGUI/
-cp E:/Code/Locale-Emulator/LEGUI/GlobalConfig.xaml.cs E:/Code/Locale-Emulator/src/LEGUI/
-cp E:/Code/Locale-Emulator/LEGUI/AppConfig.xaml E:/Code/Locale-Emulator/src/LEGUI/
-cp E:/Code/Locale-Emulator/LEGUI/AppConfig.xaml.cs E:/Code/Locale-Emulator/src/LEGUI/
-cp E:/Code/Locale-Emulator/LEGUI/InputBox.xaml E:/Code/Locale-Emulator/src/LEGUI/
-cp E:/Code/Locale-Emulator/LEGUI/InputBox.xaml.cs E:/Code/Locale-Emulator/src/LEGUI/
-cp E:/Code/Locale-Emulator/LEGUI/MaskedTextBox.xaml E:/Code/Locale-Emulator/src/LEGUI/
-cp E:/Code/Locale-Emulator/LEGUI/MaskedTextBox.xaml.cs E:/Code/Locale-Emulator/src/LEGUI/
+# 原始碼已在 Plan 1 中由 git mv 搬移至 src/LEGUI/，無需複製。
+# 以下驗證檔案已就位：
+ls src/LEGUI/App.xaml src/LEGUI/App.xaml.cs src/LEGUI/GlobalConfig.xaml src/LEGUI/GlobalConfig.xaml.cs src/LEGUI/AppConfig.xaml src/LEGUI/AppConfig.xaml.cs
 
 # C# 檔案
-cp E:/Code/Locale-Emulator/LEGUI/I18n.cs E:/Code/Locale-Emulator/src/LEGUI/
-cp E:/Code/Locale-Emulator/LEGUI/ShellLink.cs E:/Code/Locale-Emulator/src/LEGUI/
+# I18n.cs 和 ShellLink.cs 已在 src/LEGUI/ 中
+ls src/LEGUI/I18n.cs src/LEGUI/ShellLink.cs 2>/dev/null
 
 # 語言檔案
 mkdir -p E:/Code/Locale-Emulator/src/LEGUI/Lang
-cp E:/Code/Locale-Emulator/LEGUI/Lang/*.xaml E:/Code/Locale-Emulator/src/LEGUI/Lang/
+# Lang/ 目錄已在 src/LEGUI/Lang/ 中
+ls src/LEGUI/Lang/*.xaml | head -5
 
 # 圖示
-cp E:/Code/Locale-Emulator/LEGUI/icon.ico E:/Code/Locale-Emulator/src/LEGUI/
+# icon.ico 已在 src/LEGUI/ 中
+ls src/LEGUI/icon.ico
 ```
 
 **不要複製**：
@@ -2398,32 +2386,32 @@ dotnet test tests/LECommonLibrary.Tests/ tests/LEProc.Tests/ tests/LEGUI.Tests/ 
 - [ ] **D1.1** 刪除 LEUpdater
 
 ```bash
-rm -rf E:/Code/Locale-Emulator/LEUpdater/
+rm -rf E:/Code/Locale-Emulator/src/LEUpdater/
 ```
 
 - [ ] **D1.2** 刪除 LEInstaller
 
 ```bash
-rm -rf E:/Code/Locale-Emulator/LEInstaller/
+rm -rf E:/Code/Locale-Emulator/src/LEInstaller/
 ```
 
 - [ ] **D1.3** 刪除 LEContextMenuHandler
 
 ```bash
-rm -rf E:/Code/Locale-Emulator/LEContextMenuHandler/
+rm -rf E:/Code/Locale-Emulator/src/LEContextMenuHandler/
 ```
 
-- [ ] **D1.4** 刪除 LEProc/LEVersion.xml（舊位置）
+- [ ] **D1.4** 刪除 LEVersion.xml
 
 ```bash
-rm -f E:/Code/Locale-Emulator/LEProc/LEVersion.xml
+rm -f E:/Code/Locale-Emulator/src/LEProc/LEVersion.xml
 ```
 
 - [ ] **D1.5** 提交
 
 ```bash
 cd E:/Code/Locale-Emulator
-git add -A LEUpdater/ LEInstaller/ LEContextMenuHandler/ LEProc/LEVersion.xml
+git add -A src/LEUpdater/ src/LEInstaller/ src/LEContextMenuHandler/ src/LEProc/LEVersion.xml
 git commit -m "chore: remove LEUpdater, LEInstaller, LEContextMenuHandler, LEVersion.xml
 
 LEUpdater: removed entirely (future redesign if needed)
@@ -2476,12 +2464,12 @@ git commit -m "chore: update sign-package.ps1 paths for new build output structu
 cd E:/Code/Locale-Emulator
 
 # 移除舊專案
-dotnet sln remove LEUpdater/LEUpdater.csproj 2>/dev/null
-dotnet sln remove LEInstaller/LEInstaller.csproj 2>/dev/null
-dotnet sln remove LEContextMenuHandler/LEContextMenuHandler.csproj 2>/dev/null
-dotnet sln remove LECommonLibrary/LECommonLibrary.csproj 2>/dev/null
-dotnet sln remove LEProc/LEProc.csproj 2>/dev/null
-dotnet sln remove LEGUI/LEGUI.csproj 2>/dev/null
+dotnet sln remove src/LEUpdater/LEUpdater.csproj 2>/dev/null
+dotnet sln remove src/LEInstaller/LEInstaller.csproj 2>/dev/null
+dotnet sln remove src/LEContextMenuHandler/LEContextMenuHandler.csproj 2>/dev/null
+dotnet sln remove src/LECommonLibrary/LECommonLibrary.csproj 2>/dev/null
+dotnet sln remove src/LEProc/LEProc.csproj 2>/dev/null
+dotnet sln remove src/LEGUI/LEGUI.csproj 2>/dev/null
 
 # 加入新專案
 dotnet sln add src/LECommonLibrary/LECommonLibrary.csproj
@@ -2514,14 +2502,22 @@ git add LocaleEmulator.sln
 git commit -m "chore: update solution - remove old projects, add new .NET 10 projects and test projects"
 ```
 
-### Task D4: 刪除舊版原始碼目錄（可選，在確認新版完全可用後）
+### Task D4: 移除舊版 csproj 與 AssemblyInfo（可選，在確認新版完全可用後）
 
-- [ ] **D4.1** 刪除舊版原始碼
+Plan 1 已將所有專案搬至 `src/`。此步驟移除 `src/` 下的舊式 `.csproj`（已被 SDK-style 取代）和 `AssemblyInfo.cs`。
+
+- [ ] **D4.1** 移除舊版 csproj 和 AssemblyInfo
 
 ```bash
-rm -rf E:/Code/Locale-Emulator/LECommonLibrary/
-rm -rf E:/Code/Locale-Emulator/LEProc/
-rm -rf E:/Code/Locale-Emulator/LEGUI/
+cd E:/Code/Locale-Emulator
+# 移除舊式 csproj（已被新的 SDK-style csproj 取代）
+rm -f src/LECommonLibrary/LECommonLibrary.csproj.old 2>/dev/null
+rm -f src/LEProc/LEProc.csproj.old 2>/dev/null
+rm -f src/LEGUI/LEGUI.csproj.old 2>/dev/null
+# 移除 AssemblyInfo.cs（屬性已移至 csproj）
+rm -f src/LECommonLibrary/Properties/AssemblyInfo.cs 2>/dev/null
+rm -f src/LEProc/Properties/AssemblyInfo.cs 2>/dev/null
+rm -f src/LEGUI/Properties/AssemblyInfo.cs 2>/dev/null
 ```
 
 **注意**：此步驟應在確認新版全部建置、測試通過後才執行。
@@ -2530,10 +2526,11 @@ rm -rf E:/Code/Locale-Emulator/LEGUI/
 
 ```bash
 cd E:/Code/Locale-Emulator
-git add -A LECommonLibrary/ LEProc/ LEGUI/
-git commit -m "chore: remove legacy .NET Framework 4.0 source directories
+git add -A
+git commit -m "chore: remove legacy csproj and AssemblyInfo.cs files
 
-All code has been migrated to src/ with SDK-style csproj targeting .NET 10."
+All projects now use SDK-style csproj targeting .NET 10.
+Assembly attributes are defined in csproj properties."
 ```
 
 ### Task D5: 最終驗證

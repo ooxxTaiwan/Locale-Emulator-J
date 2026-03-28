@@ -22,7 +22,9 @@
       "WebSearch",
       "mcp__plugin_github_github__list_commits",
       "mcp__plugin_github_github__search_code",
-      "Bash(wc -l docs/superpowers/plans/*.md)"
+      "Bash(wc -l docs/superpowers/plans/*.md)",
+      "Bash(rm \"C:\\\\Users\\\\ooxxt\\\\.claude\\\\projects\\\\E--Code-Locale-Emulator\\\\memory\\\\feedback_factual_rigor.md\")",
+      "Bash(rm \"C:\\\\Users\\\\ooxxt\\\\.claude\\\\projects\\\\E--Code-Locale-Emulator\\\\memory\\\\feedback_no_parallel_plan_writing.md\")"
     ]
   }
 }

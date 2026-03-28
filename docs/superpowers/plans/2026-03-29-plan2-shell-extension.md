@@ -4,7 +4,7 @@
 
 **Goal:** 用原生 C++ 重寫 Shell Extension，取代現有的 .NET COM DLL，提供 x86+x64 雙版本
 
-**Architecture:** 標準 COM DLL (IShellExtInit + IContextMenu)，使用 pugixml 解析 XML config，支援 24 語言 i18n
+**Architecture:** 標準 COM DLL (IShellExtInit + IContextMenu)，使用 pugixml 解析 XML config，支援 22 語言 i18n
 
 **Tech Stack:** C++17, MSVC v145, COM, pugixml, Win32 API
 

@@ -1497,7 +1497,7 @@ Verifies end-to-end locale hooking by launching a Win32 test app through LEProc 
 - **`[Core]` commit prefix**: All modifications to files under `src/Core/` must use the `[Core]` prefix in commit messages, to distinguish from upstream code.
 - **NLS mode pending verification**: `System.Globalization.UseNls` setting needs characterization test validation before enabling. Core itself directly manipulates NLS tables and is unaffected by this .NET setting.
 - **Minimum Windows version**: Windows 10 1607+ (.NET 10 requirement)
-- **Language files**: LEGUI i18n via XAML resource dictionaries in `LEGUI/Lang/` (24 languages); Shell Extension i18n via XML in `ShellExtension/Lang/` (24 languages)
+- **Language files**: LEGUI i18n via XAML resource dictionaries in `src/LEGUI/Lang/` (22 languages); Shell Extension i18n via XML in `src/ShellExtension/Lang/` (22 languages)
 ````
 
 ---
