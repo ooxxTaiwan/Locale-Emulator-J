@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <LangVersion>14</LangVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)key.snk</AssemblyOriginatorKeyFile>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!-- UseNls 待驗證：需以 characterization test 比對 .NET Framework 4.0 與 .NET 10
+       在 ICU/NLS 兩種模式下對所有支援 locale 的 ANSICodePage/OEMCodePage/LCID 差異後決定。
+       UseNls=true 只影響 .NET 端的 CultureInfo 查詢結果，Core 本身直接操作 NLS 表不受此設定影響。 -->
+  <!--
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="System.Globalization.UseNls" Value="true" />
+  </ItemGroup>
+  -->
+</Project>
