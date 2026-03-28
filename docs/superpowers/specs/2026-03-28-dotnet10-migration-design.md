@@ -545,7 +545,7 @@ dotnet build src/LEProc/
 dotnet build src/LEGUI/
 
 # 測試
-dotnet test tests/
+dotnet test LocaleEmulator.sln
 # Google Test 二進位檔直接執行
 ```
 
