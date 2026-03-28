@@ -1429,6 +1429,11 @@ mkdir -p E:/Code/Locale-Emulator/src/LEGUI
     <Resource Include="icon.ico" />
   </ItemGroup>
 
+  <!-- 允許測試專案存取 internal 成員（如 I18n.CurrentCultureInfo） -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="LEGUI.Tests" />
+  </ItemGroup>
+
 </Project>
 ```
 
@@ -1437,6 +1442,7 @@ mkdir -p E:/Code/Locale-Emulator/src/LEGUI
 - `UseWindowsForms=true`：部分程式碼仍可能引用 WinForms 型別
 - 語言檔案使用 `CopyToOutputDirectory="PreserveNewest"` 取代 post-build `mkdir + copy` 命令
 - `DefaultLanguage.xaml` 保留在 XAML 資源字典（`<Page>`），其餘語言檔案為外部檔案
+- `InternalsVisibleTo`：允許 LEGUI.Tests 存取 `internal` 成員（如 `I18n.CurrentCultureInfo`）
 
 ### Task C2: 實作 ShellExtensionRegistrar（核心新增類別）
 
@@ -1476,13 +1482,6 @@ mkdir -p E:/Code/Locale-Emulator/tests/LEGUI.Tests
   </ItemGroup>
 
 </Project>
-```
-
-在 `src/LEGUI/LEGUI.csproj` 加入：
-```xml
-<ItemGroup>
-  <InternalsVisibleTo Include="LEGUI.Tests" />
-</ItemGroup>
 ```
 
 - [ ] **C2.2** 定義 `IRegistryOperations` 介面（可測試性抽象）
@@ -2224,6 +2223,24 @@ git commit -m "feat(LEGUI): migrate to SDK-style csproj targeting .NET 10 with W
 ```
 
 ### Task C5: 在 LEGUI 中加入 Shell Extension 安裝/解除安裝 UI
+
+- [ ] **C5.0** 在語言檔案中新增 Shell Extension 安裝相關的 i18n key
+
+在 `src/LEGUI/Lang/DefaultLanguage.xaml` 中新增以下 key（在 `<ResourceDictionary>` 內）：
+
+```xml
+<system:String x:Key="InstallSuccess">Shell Extension installed successfully. Please restart Explorer or log out to take effect.</system:String>
+<system:String x:Key="UninstallSuccess">Shell Extension uninstalled successfully. Please restart Explorer or log out to take effect.</system:String>
+<system:String x:Key="InstallShellExtTitle">Shell Extension</system:String>
+<system:String x:Key="InstallCurrentUser">Install (Current User)</system:String>
+<system:String x:Key="InstallAllUsers">Install (All Users)</system:String>
+<system:String x:Key="Uninstall">Uninstall</system:String>
+<system:String x:Key="InstallStatus">Status:</system:String>
+<system:String x:Key="Installed">Installed</system:String>
+<system:String x:Key="NotInstalled">Not Installed</system:String>
+```
+
+> **注意**：其他 21 個語言檔案也需要加入對應的翻譯 key。初期可以先保持英文，後續再翻譯。
 
 - [ ] **C5.1** 在 `GlobalConfig.xaml` 中新增安裝/解除安裝按鈕區段
 

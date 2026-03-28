@@ -552,7 +552,7 @@ env:
 jobs:
   build-and-test:
     name: Build & Test
-    runs-on: windows-2025-vs2026     # Windows Server 2025 + VS 2026 Build Tools（beta，預計 2026-05-04 併入 windows-latest）
+    runs-on: windows-2025-vs2026     # Windows Server 2025 + VS 2026 Build Tools（public preview，日後可能併入 windows-latest）
 
     steps:
       # --------------------------------------------------------
@@ -586,39 +586,28 @@ jobs:
         run: dotnet restore LocaleEmulator.sln
 
       # --------------------------------------------------------
-      # Step 5: 建置 Solution (x86)
+      # Step 5: 建置 Debug|Win32（含測試專案）
       # --------------------------------------------------------
-      # x86 組態建置所有專案：
-      #   - .NET 專案（LECommonLibrary, LEProc, LEGUI）
-      #   - C++ 專案（Core/LoaderDll, Core/LocaleEmulator, ShellExtension）
-      #   - 測試專案（所有 .Tests）
-      - name: Build Solution (x86)
-        run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=Win32 /m /v:minimal
+      # Debug 組態建置所有專案（含測試專案）。
+      # 根據 spec solution matrix，測試專案只在 Debug 建置。
+      - name: Build Solution (Debug|Win32)
+        run: msbuild LocaleEmulator.sln /p:Configuration=Debug /p:Platform=Win32 /m /v:minimal
 
       # --------------------------------------------------------
-      # Step 6: 建置 Solution (x64)
-      # --------------------------------------------------------
-      # x64 組態僅建置 ShellExtension（其他專案標記為不建置）
-      - name: Build Solution (x64)
-        run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x64 /m /v:minimal
-
-      # --------------------------------------------------------
-      # Step 7: 執行 .NET 測試（xUnit）
+      # Step 6: 執行 .NET 測試（xUnit）
       # --------------------------------------------------------
       # dotnet test 會自動探索並執行所有 xUnit 測試專案。
-      # --no-build 避免重複建置（已在 Step 5 建置過）。
-      # --logger 產生 GitHub Actions 可讀的測試結果。
+      # --no-build 避免重複建置（已在 Step 5 以 Debug 建置過）。
       - name: Run .NET tests
-        run: dotnet test LocaleEmulator.sln --no-build --configuration Release --logger "console;verbosity=detailed"
+        run: dotnet test LocaleEmulator.sln --no-build --configuration Debug --logger "console;verbosity=detailed"
 
       # --------------------------------------------------------
-      # Step 8: 執行 C++ 測試（Google Test）
+      # Step 7: 執行 C++ 測試（Google Test）
       # --------------------------------------------------------
-      # Google Test 產出獨立的 .exe，直接執行即可。
-      # --gtest_output=xml 產生 XML 報告供未來整合。
+      # Google Test 產出獨立的 .exe，在 Debug 建置輸出中尋找。
       - name: Run C++ tests (Google Test)
         run: |
-          $testExes = Get-ChildItem -Path "Build\Release\x86" -Filter "*Tests*.exe" -Recurse
+          $testExes = Get-ChildItem -Path "Build\Debug\x86" -Filter "*Tests*.exe" -Recurse
           $failed = $false
           foreach ($exe in $testExes) {
             Write-Host "Running: $($exe.FullName)" -ForegroundColor Cyan
@@ -630,6 +619,18 @@ jobs:
           }
           if ($failed) { exit 1 }
         shell: pwsh
+
+      # --------------------------------------------------------
+      # Step 8: 建置 Release|Win32（產品建置，不含測試）
+      # --------------------------------------------------------
+      - name: Build Solution (Release|Win32)
+        run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=Win32 /m /v:minimal
+
+      # --------------------------------------------------------
+      # Step 9: 建置 Release|x64（僅 ShellExtension）
+      # --------------------------------------------------------
+      - name: Build Solution (Release|x64)
+        run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x64 /m /v:minimal
 
       # --------------------------------------------------------
       # Step 8.5: 執行 Smoke Tests
