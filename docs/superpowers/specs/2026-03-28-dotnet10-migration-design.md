@@ -535,8 +535,8 @@ Step 6:  清理            → 全部測試 + smoke test 確認無回歸
 ### CLI 建置方式
 
 ```bash
-# 完整建置
-msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x86
+# 完整建置（solution platform 為 Win32/x64，非 x86）
+msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=Win32
 msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x64
 
 # 僅 .NET 專案

@@ -1602,7 +1602,7 @@ git commit -m "feat: add C++ COM Shell Extension project (x86+x64)
 
 Create native C++ Shell Extension to replace the .NET COM DLL
 (LEContextMenuHandler). Implements IShellExtInit + IContextMenu
-with pugixml for XML config parsing and 24-language i18n support.
+with pugixml for XML config parsing and 22-language i18n support.
 
 New COM GUID: {A8B4F5C2-7E3D-4F1A-9C6B-2D8E0F5A3B71}
 

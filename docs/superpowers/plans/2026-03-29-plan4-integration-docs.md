@@ -552,7 +552,7 @@ env:
 jobs:
   build-and-test:
     name: Build & Test
-    runs-on: windows-2025-vs2026     # 使用 Windows Server 2025 + VS 2026 Build Tools
+    runs-on: windows-2025-vs2026     # Windows Server 2025 + VS 2026 Build Tools（beta，預計 2026-05-04 併入 windows-latest）
 
     steps:
       # --------------------------------------------------------
@@ -593,7 +593,7 @@ jobs:
       #   - C++ 專案（Core/LoaderDll, Core/LocaleEmulator, ShellExtension）
       #   - 測試專案（所有 .Tests）
       - name: Build Solution (x86)
-        run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x86 /m /v:minimal
+        run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=Win32 /m /v:minimal
 
       # --------------------------------------------------------
       # Step 6: 建置 Solution (x64)
@@ -893,11 +893,11 @@ Microsoft 官方提供的 Action，尋找 Runner 上已安裝的 Visual Studio B
 
 ```yaml
 - name: Build Solution (x86)
-  run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x86 /m /v:minimal
+  run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=Win32 /m /v:minimal
 ```
 
 - `/p:Configuration=Release`：使用 Release 組態
-- `/p:Platform=x86`：建置 x86 平台
+- `/p:Platform=Win32`：建置 Win32 平台（C++ 專案編譯為 x86，.NET 專案映射為 AnyCPU，靠 csproj 的 PlatformTarget 控制實際位元數）
 - `/m`：啟用多核心平行建置
 - `/v:minimal`：最少輸出量（減少 log 雜訊）
 
@@ -1359,7 +1359,7 @@ The project consists of three .NET 10 managed projects and two C++ native compon
 
 ```bash
 # Full build (all projects, both platforms)
-msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x86
+msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=Win32
 msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x64
 
 # .NET projects only
@@ -1558,7 +1558,7 @@ The native hooking core (`src/Core/`) originates from [Locale-Emulator-Core](htt
 
 ```bash
 # Build all projects (x86 + x64)
-msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x86
+msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=Win32
 msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x64
 
 # Run tests
