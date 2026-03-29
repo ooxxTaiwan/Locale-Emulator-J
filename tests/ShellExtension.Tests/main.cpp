@@ -20,32 +20,9 @@ struct ModuleGuard
     ModuleGuard& operator=(const ModuleGuard&) = delete;
 };
 
-struct RegKeyGuard
-{
-    HKEY h;
-    explicit RegKeyGuard(HKEY k = nullptr) : h(k) {}
-    ~RegKeyGuard() { if (h) RegCloseKey(h); }
-    RegKeyGuard(const RegKeyGuard&) = delete;
-    RegKeyGuard& operator=(const RegKeyGuard&) = delete;
-};
-
 // ========================================================================
 // Helpers
 // ========================================================================
-
-static bool IsElevated()
-{
-    HANDLE token = nullptr;
-    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token))
-        return false;
-
-    TOKEN_ELEVATION elevation = {};
-    DWORD size = sizeof(elevation);
-    BOOL ok = GetTokenInformation(token, TokenElevation, &elevation,
-                                  sizeof(elevation), &size);
-    CloseHandle(token);
-    return ok && elevation.TokenIsElevated != 0;
-}
 
 static bool FileExists(const wchar_t* path)
 {
@@ -112,11 +89,6 @@ int wmain()
         "DllCanUnloadNow",
     };
 
-    using DllRegUnregFn = HRESULT(STDAPICALLTYPE*)();
-
-    DllRegUnregFn pfnRegister = nullptr;
-    DllRegUnregFn pfnUnregister = nullptr;
-
     for (int i = 0; i < 4; ++i)
     {
         FARPROC proc = GetProcAddress(hDll, exports[i]);
@@ -128,8 +100,6 @@ int wmain()
         else
         {
             wprintf(L"PASS: Export '%hs' found\n", exports[i]);
-            if (i == 0) pfnRegister   = reinterpret_cast<DllRegUnregFn>(proc);
-            if (i == 1) pfnUnregister = reinterpret_cast<DllRegUnregFn>(proc);
         }
     }
 
@@ -139,83 +109,12 @@ int wmain()
         return 1;
     }
 
-    // ------------------------------------------------------------------
-    // 3. Registration round-trip (requires elevation)
-    // ------------------------------------------------------------------
-    if (!IsElevated())
-    {
-        wprintf(L"\nSKIP: registration test requires elevation\n");
-        wprintf(L"\nRESULT: all export checks passed (registration skipped)\n");
-        return 0;
-    }
+    // Registration test (DllRegisterServer / DllUnregisterServer round-trip)
+    // is intentionally NOT automated. It modifies HKCR and could interfere
+    // with an existing Shell Extension installation. Use manual testing:
+    //   regsvr32 ShellExtension.dll
+    //   regsvr32 /u ShellExtension.dll
 
-    // 3a. Call DllRegisterServer
-    HRESULT hr = pfnRegister();
-    if (FAILED(hr))
-    {
-        wprintf(L"FAIL: DllRegisterServer returned 0x%08lX\n",
-                static_cast<unsigned long>(hr));
-        return 1;
-    }
-    wprintf(L"PASS: DllRegisterServer succeeded\n");
-
-    // 3b. Verify registry key exists
-    const wchar_t* keyPath =
-        L"CLSID\\{A8B4F5C2-7E3D-4F1A-9C6B-2D8E0F5A3B71}\\InprocServer32";
-
-    {
-        HKEY hKey = nullptr;
-        LONG rc = RegOpenKeyExW(HKEY_CLASSES_ROOT, keyPath, 0, KEY_READ, &hKey);
-        RegKeyGuard keyGuard(hKey);
-
-        if (rc != ERROR_SUCCESS)
-        {
-            wprintf(L"FAIL: Registry key not found after DllRegisterServer\n");
-            wprintf(L"  Key: HKCR\\%s\n", keyPath);
-            // Best-effort cleanup
-            pfnUnregister();
-            return 1;
-        }
-        wprintf(L"PASS: Registry key exists after DllRegisterServer\n");
-    }
-
-    // 3c. Call DllUnregisterServer
-    hr = pfnUnregister();
-    if (FAILED(hr))
-    {
-        wprintf(L"FAIL: DllUnregisterServer returned 0x%08lX\n",
-                static_cast<unsigned long>(hr));
-        return 1;
-    }
-    wprintf(L"PASS: DllUnregisterServer succeeded\n");
-
-    // 3d. Verify registry key is gone
-    {
-        HKEY hKey = nullptr;
-        LONG rc = RegOpenKeyExW(HKEY_CLASSES_ROOT, keyPath, 0, KEY_READ, &hKey);
-        RegKeyGuard keyGuard(hKey);
-
-        if (rc == ERROR_SUCCESS)
-        {
-            wprintf(L"FAIL: Registry key still exists after DllUnregisterServer\n");
-            wprintf(L"  Key: HKCR\\%s\n", keyPath);
-            ++failures;
-        }
-        else
-        {
-            wprintf(L"PASS: Registry key removed after DllUnregisterServer\n");
-        }
-    }
-
-    // ------------------------------------------------------------------
-    // Summary
-    // ------------------------------------------------------------------
-    if (failures > 0)
-    {
-        wprintf(L"\nRESULT: %d test(s) FAILED\n", failures);
-        return 1;
-    }
-
-    wprintf(L"\nRESULT: all tests passed\n");
+    wprintf(L"\nRESULT: all export checks passed\n");
     return 0;
 }
