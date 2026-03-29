@@ -52,7 +52,7 @@ private:
     static bool Is4KDisplay();
 
     // Load a bitmap from resource, choosing @200 variant for 4K
-    HBITMAP LoadMenuBitmap(int normalId, int hiDpiId);
+    HBITMAP LoadMenuBitmap(int normalId, int hiDpiId, bool hiDpi);
 
     // Insert a menu item
     HRESULT InsertMenuItemHelper(HMENU hMenu, UINT position,

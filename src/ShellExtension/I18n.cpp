@@ -1,30 +1,16 @@
 // src/ShellExtension/I18n.cpp
 #include "I18n.h"
+#include "StringUtils.h"
 #include "ConfigReader.h" // for GetModuleDirectory()
 #include "pugixml/pugixml.hpp"
 #include <windows.h>
 #include <shlwapi.h>
+#include <mutex>
 
 #pragma comment(lib, "shlwapi.lib")
 
-bool I18n::s_loaded = false;
+std::once_flag I18n::s_initFlag;
 std::unordered_map<std::wstring, std::wstring> I18n::s_dictionary;
-
-std::wstring I18n::Utf8ToWide(const std::string& utf8)
-{
-    if (utf8.empty())
-        return {};
-
-    int len = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(),
-                                  static_cast<int>(utf8.size()), nullptr, 0);
-    if (len <= 0)
-        return {};
-
-    std::wstring wide(len, L'\0');
-    MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(),
-                        static_cast<int>(utf8.size()), &wide[0], len);
-    return wide;
-}
 
 std::wstring I18n::GetLangDirectory()
 {
@@ -48,63 +34,60 @@ std::wstring I18n::DetectLanguageCode()
 
 void I18n::LoadDictionary()
 {
-    if (s_loaded)
-        return;
-
-    s_loaded = true;
-    s_dictionary.clear();
-
-    std::wstring langDir = GetLangDirectory();
-    std::wstring langCode = DetectLanguageCode();
-
-    // Try full locale name first (e.g., "zh-TW.xml")
-    std::wstring primaryPath = langDir + langCode + L".xml";
-
-    // Try two-letter fallback (e.g., "zh.xml")
-    std::wstring fallbackCode = langCode;
-    auto dashPos = fallbackCode.find(L'-');
-    if (dashPos != std::wstring::npos)
-        fallbackCode = fallbackCode.substr(0, dashPos);
-    std::wstring fallbackPath = langDir + fallbackCode + L".xml";
-
-    // Default language path
-    std::wstring defaultPath = langDir + L"DefaultLanguage.xml";
-
-    // Try loading in order: primary -> fallback -> default
-    pugi::xml_document doc;
-    pugi::xml_parse_result result;
-
-    if (GetFileAttributesW(primaryPath.c_str()) != INVALID_FILE_ATTRIBUTES)
+    std::call_once(s_initFlag, []
     {
-        result = doc.load_file(primaryPath.c_str());
-    }
+        std::wstring langDir = GetLangDirectory();
+        std::wstring langCode = DetectLanguageCode();
 
-    if (!result && GetFileAttributesW(fallbackPath.c_str()) != INVALID_FILE_ATTRIBUTES)
-    {
-        result = doc.load_file(fallbackPath.c_str());
-    }
+        // Try full locale name first (e.g., "zh-TW.xml")
+        std::wstring primaryPath = langDir + langCode + L".xml";
 
-    if (!result)
-    {
-        result = doc.load_file(defaultPath.c_str());
-    }
+        // Try two-letter fallback (e.g., "zh.xml")
+        std::wstring fallbackCode = langCode;
+        auto dashPos = fallbackCode.find(L'-');
+        if (dashPos != std::wstring::npos)
+            fallbackCode = fallbackCode.substr(0, dashPos);
+        std::wstring fallbackPath = langDir + fallbackCode + L".xml";
 
-    if (!result)
-        return; // All loading attempts failed
+        // Default language path
+        std::wstring defaultPath = langDir + L"DefaultLanguage.xml";
 
-    // Parse <Strings> element: each child element's tag name is the key,
-    // its text content is the value.
-    pugi::xml_node strings = doc.child("Strings");
-    if (!strings)
-        return;
+        // Try loading in order: primary -> fallback -> default
+        pugi::xml_document doc;
+        pugi::xml_parse_result result;
 
-    for (pugi::xml_node child : strings.children())
-    {
-        std::wstring key = Utf8ToWide(child.name());
-        std::wstring value = Utf8ToWide(child.child_value());
-        if (!key.empty())
-            s_dictionary[key] = value;
-    }
+        if (GetFileAttributesW(primaryPath.c_str()) != INVALID_FILE_ATTRIBUTES)
+        {
+            result = doc.load_file(primaryPath.c_str());
+        }
+
+        if (!result && GetFileAttributesW(fallbackPath.c_str()) != INVALID_FILE_ATTRIBUTES)
+        {
+            result = doc.load_file(fallbackPath.c_str());
+        }
+
+        if (!result)
+        {
+            result = doc.load_file(defaultPath.c_str());
+        }
+
+        if (!result)
+            return; // All loading attempts failed
+
+        // Parse <Strings> element: each child element's tag name is the key,
+        // its text content is the value.
+        pugi::xml_node strings = doc.child("Strings");
+        if (!strings)
+            return;
+
+        for (pugi::xml_node child : strings.children())
+        {
+            std::wstring key = StringUtils::Utf8ToWide(child.name());
+            std::wstring value = StringUtils::Utf8ToWide(child.child_value());
+            if (!key.empty())
+                s_dictionary[key] = value;
+        }
+    });
 }
 
 std::wstring I18n::GetString(const std::wstring& key)
@@ -120,6 +103,8 @@ std::wstring I18n::GetString(const std::wstring& key)
 
 void I18n::Reset()
 {
-    s_loaded = false;
+    // Reconstruct the once_flag so LoadDictionary() will run again
+    s_initFlag.~once_flag();
+    new (&s_initFlag) std::once_flag();
     s_dictionary.clear();
 }

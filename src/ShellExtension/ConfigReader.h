@@ -38,6 +38,5 @@ public:
 
 private:
     static bool ParseBool(const char* value, bool defaultValue);
-    static std::wstring Utf8ToWide(const std::string& utf8);
     static void WriteDefaultConfig(const std::wstring& path);
 };

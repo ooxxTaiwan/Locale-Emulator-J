@@ -1,5 +1,6 @@
 // src/ShellExtension/ConfigReader.cpp
 #include "ConfigReader.h"
+#include "StringUtils.h"
 #include "pugixml/pugixml.hpp"
 #include <shlwapi.h>
 #include <fstream>
@@ -13,26 +14,15 @@ extern HMODULE g_hModule;
 
 std::wstring ConfigReader::GetModuleDirectory()
 {
-    wchar_t path[MAX_PATH] = {};
-    GetModuleFileNameW(g_hModule, path, MAX_PATH);
-    PathRemoveFileSpecW(path);
-    return std::wstring(path) + L"\\";
-}
-
-std::wstring ConfigReader::Utf8ToWide(const std::string& utf8)
-{
-    if (utf8.empty())
-        return {};
-
-    int len = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(),
-                                  static_cast<int>(utf8.size()), nullptr, 0);
-    if (len <= 0)
-        return {};
-
-    std::wstring wide(len, L'\0');
-    MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(),
-                        static_cast<int>(utf8.size()), &wide[0], len);
-    return wide;
+    static std::wstring s_cachedDir;
+    if (s_cachedDir.empty())
+    {
+        wchar_t path[MAX_PATH] = {};
+        GetModuleFileNameW(g_hModule, path, MAX_PATH);
+        PathRemoveFileSpecW(path);
+        s_cachedDir = std::wstring(path) + L"\\";
+    }
+    return s_cachedDir;
 }
 
 bool ConfigReader::ParseBool(const char* value, bool defaultValue)
@@ -40,19 +30,43 @@ bool ConfigReader::ParseBool(const char* value, bool defaultValue)
     if (!value || value[0] == '\0')
         return defaultValue;
 
-    // Case-insensitive comparison
-    if (_stricmp(value, "true") == 0 || _stricmp(value, "True") == 0)
+    if (_stricmp(value, "true") == 0)
         return true;
-    if (_stricmp(value, "false") == 0 || _stricmp(value, "False") == 0)
+    if (_stricmp(value, "false") == 0)
         return false;
 
     return defaultValue;
 }
 
+// Cache for the default config file (next to this DLL)
+static std::vector<LEProfile> s_cachedProfiles;
+static FILETIME s_cachedWriteTime = {};
+static bool s_cached = false;
+
 std::vector<LEProfile> ConfigReader::LoadProfiles()
 {
     std::wstring configPath = GetModuleDirectory() + L"LEConfig.xml";
-    return LoadProfiles(configPath);
+
+    // Check file modification time; return cached result if unchanged
+    WIN32_FILE_ATTRIBUTE_DATA fileInfo = {};
+    if (!GetFileAttributesExW(configPath.c_str(), GetFileExInfoStandard, &fileInfo))
+    {
+        // File doesn't exist or error — return empty
+        s_cached = false;
+        return {};
+    }
+
+    if (s_cached &&
+        fileInfo.ftLastWriteTime.dwHighDateTime == s_cachedWriteTime.dwHighDateTime &&
+        fileInfo.ftLastWriteTime.dwLowDateTime == s_cachedWriteTime.dwLowDateTime)
+    {
+        return s_cachedProfiles;
+    }
+
+    s_cachedProfiles = LoadProfiles(configPath);
+    s_cachedWriteTime = fileInfo.ftLastWriteTime;
+    s_cached = true;
+    return s_cachedProfiles;
 }
 
 std::vector<LEProfile> ConfigReader::LoadProfiles(const std::wstring& configPath)
@@ -77,17 +91,17 @@ std::vector<LEProfile> ConfigReader::LoadProfiles(const std::wstring& configPath
         LEProfile profile;
 
         // Read attributes
-        profile.name = Utf8ToWide(profileNode.attribute("Name").as_string());
-        profile.guid = Utf8ToWide(profileNode.attribute("Guid").as_string());
+        profile.name = StringUtils::Utf8ToWide(profileNode.attribute("Name").as_string());
+        profile.guid = StringUtils::Utf8ToWide(profileNode.attribute("Guid").as_string());
         profile.showInMainMenu = ParseBool(
             profileNode.attribute("MainMenu").as_string(), false);
 
         // Read child elements
-        profile.parameter = Utf8ToWide(
+        profile.parameter = StringUtils::Utf8ToWide(
             profileNode.child_value("Parameter"));
-        profile.location = Utf8ToWide(
+        profile.location = StringUtils::Utf8ToWide(
             profileNode.child_value("Location"));
-        profile.timezone = Utf8ToWide(
+        profile.timezone = StringUtils::Utf8ToWide(
             profileNode.child_value("Timezone"));
         profile.runAsAdmin = ParseBool(
             profileNode.child_value("RunAsAdmin"), false);
@@ -182,4 +196,7 @@ void ConfigReader::WriteDefaultConfig(const std::wstring& path)
     }
 
     doc.save_file(path.c_str());
+
+    // Invalidate cache so next LoadProfiles() re-reads
+    s_cached = false;
 }

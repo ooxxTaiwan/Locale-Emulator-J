@@ -143,6 +143,7 @@
     <ClInclude Include="ContextMenuHandler.h" />
     <ClInclude Include="ConfigReader.h" />
     <ClInclude Include="I18n.h" />
+    <ClInclude Include="StringUtils.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="pugixml\pugixml.hpp" />
     <ClInclude Include="pugixml\pugiconfig.hpp" />
