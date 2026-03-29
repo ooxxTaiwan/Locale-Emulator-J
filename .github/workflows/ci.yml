@@ -14,6 +14,10 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
@@ -59,11 +63,34 @@ jobs:
 
       - name: Run .NET tests (x64)
         run: |
-          dotnet test tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj --no-build -c Debug --logger "console;verbosity=detailed"
-          dotnet test tests/LEGUI.Tests/LEGUI.Tests.csproj --no-build -c Debug --logger "console;verbosity=detailed"
+          dotnet test tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj --no-build -c Debug --logger "console;verbosity=detailed" --collect:"XPlat Code Coverage" --results-directory coverage
+          dotnet test tests/LEGUI.Tests/LEGUI.Tests.csproj --no-build -c Debug --logger "console;verbosity=detailed" --collect:"XPlat Code Coverage" --results-directory coverage
 
       - name: Run LEProc.Tests (x86)
-        run: dotnet test tests/LEProc.Tests/LEProc.Tests.csproj --arch x86 -c Debug --logger "console;verbosity=detailed"
+        run: dotnet test tests/LEProc.Tests/LEProc.Tests.csproj --arch x86 -c Debug --logger "console;verbosity=detailed" --collect:"XPlat Code Coverage" --results-directory coverage
+
+      # ---- Code Coverage Report ----
+
+      - name: Install ReportGenerator
+        if: '!cancelled()'
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      - name: Generate Coverage Report
+        if: '!cancelled()'
+        run: reportgenerator "-reports:coverage/*/coverage.cobertura.xml" "-targetdir:coveragereport" "-reporttypes:MarkdownSummaryGithub"
+        shell: pwsh
+
+      - name: Write Coverage to Job Summary
+        if: '!cancelled()'
+        run: Get-Content coveragereport/SummaryGithub.md | Add-Content $env:GITHUB_STEP_SUMMARY
+        shell: pwsh
+
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request' && !cancelled()
+        with:
+          recreate: true
+          path: coveragereport/SummaryGithub.md
 
       # ---- C++ Build ----
       # Pass SolutionDir so $(SolutionDir) resolves correctly in vcxproj OutDir
