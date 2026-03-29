@@ -135,7 +135,7 @@ XML files (`LEConfig.xml` and `*.le.config`) share the same schema:
 |-------|-----------|---------|
 | .NET unit tests (LECommonLibrary, LEGUI) | xUnit + NSubstitute | `dotnet test` |
 | .NET unit tests (LEProc) | xUnit + NSubstitute | `dotnet test --arch x86` (requires Windows Desktop Runtime x86) |
-| C++ unit tests | Google Test | Run `*Tests*.exe` binaries from `Build/Debug/x86/` and `Build/Debug/x64/` |
+| C++ unit tests | Standalone (no framework) | Run `*Tests*.exe` binaries from `Build/Debug/x86/` and `Build/Debug/x64/` |
 | Smoke tests | PowerShell + LocaleTestApp | `.\tests\SmokeTest\Invoke-SmokeTest.ps1` |
 
 ### Test Projects
@@ -143,7 +143,7 @@ XML files (`LEConfig.xml` and `*.le.config`) share the same schema:
 - `tests/LECommonLibrary.Tests/` -- XML config parsing, profile model, system helpers
 - `tests/LEProc.Tests/` -- codepage mapping, CultureInfo queries, CLI argument parsing, registry redirect
 - `tests/LEGUI.Tests/` -- Shell Extension registration logic, i18n loading, ViewModel logic
-- `tests/Core.Tests/` -- LEB/LEPEB struct layout, registry redirect entry serialization
+- `tests/Core.Tests/` -- C++/C# struct layout contract verification: LEB, RTL_TIME_ZONE_INFORMATION, REGISTRY_REDIRECTION_ENTRY64 sizes and field offsets (standalone C++ exe, x86)
 - `tests/ShellExtension.Tests/` -- COM export verification, DllRegisterServer/Unregister round-trip (x64)
 
 ### Smoke Test
