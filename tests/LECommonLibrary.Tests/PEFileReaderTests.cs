@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Sdk;
 
 namespace LECommonLibrary.Tests;
 
@@ -86,7 +87,7 @@ public class PEFileReaderTests : IDisposable
             "notepad.exe");
 
         if (!File.Exists(notepadPath))
-            return;
+            throw SkipException.ForSkip("notepad.exe not found on this system");
 
         var result = PEFileReader.GetPEType(notepadPath);
         Assert.NotEqual(PEType.Unknown, result);

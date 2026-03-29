@@ -15,7 +15,7 @@ public static class LEConfig
     {
         try
         {
-            return GetProfiles(GlobalConfigPath).Where(p => p.Name == name).ToArray()[0];
+            return GetProfiles(GlobalConfigPath).First(p => p.Name == name);
         }
         catch
         {

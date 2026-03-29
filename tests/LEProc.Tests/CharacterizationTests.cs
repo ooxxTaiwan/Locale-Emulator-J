@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using Xunit;
+using Xunit.Sdk;
 
 namespace LEProc.Tests;
 
@@ -33,8 +34,7 @@ public class CharacterizationTests
 
         if (!File.Exists(baselinePath))
         {
-            // Baseline file not yet generated, skip
-            return;
+            throw SkipException.ForSkip("Baseline file not yet generated");
         }
 
         var json = File.ReadAllText(baselinePath);

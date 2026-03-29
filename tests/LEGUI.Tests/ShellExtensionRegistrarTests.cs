@@ -7,7 +7,7 @@ namespace LEGUI.Tests;
 public class ShellExtensionRegistrarTests
 {
     private const string TestClsid = "{12345678-ABCD-EF01-2345-6789ABCDEF01}";
-    private const string OldClsid = "{C52B9871-E5E9-41FD-B84D-C5ACADBEC7AE}";
+    private const string OldClsid = ShellExtensionRegistrar.OldClsid;
     private const string TestDllPath = @"C:\Program Files\LE\ShellExtension.dll";
     private const string FriendlyName = "LocaleEmulator Shell Extension";
 
