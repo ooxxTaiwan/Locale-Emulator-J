@@ -57,7 +57,7 @@ Desktop.ini
 _tmp_*/
 
 ## ----- Claude Code -----
-.claude/
+.claude/settings.local.json
 
 ## ----- 例外：Core 解壓後的二進位檔需要追蹤 -----
 ## _Compilers、_Libs、_WDK 中的 .lib / .exe 等二進位檔
