@@ -94,25 +94,22 @@ jobs:
           msbuild tests/ShellExtension.Tests/ShellExtension.Tests.vcxproj /p:Configuration=Release /p:Platform=x64 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
         shell: pwsh
 
-      # ---- Assemble runtime ----
-      # Core outputs to src/Core/*/Release/, not Build/Release/x86/.
-      # Copy Core DLLs + .NET outputs to Build/Release/x86/ for smoke test.
+      # ---- Assemble runtime directory ----
+      # Smoke test expects all files in Build/Release/x86/:
+      #   LEProc.exe + LECommonLibrary.dll (.NET)
+      #   LoaderDll.dll + LocaleEmulator.dll (Core native)
+      #   LocaleTestApp.exe (C++ test app, already here via vcxproj OutDir)
+      #
+      # dotnet publish puts LEProc + all .NET deps into the output dir.
+      # Core DLLs need manual copy (they output to src/Core/*/Release/).
 
       - name: Assemble runtime directory
         run: |
-          New-Item -ItemType Directory -Force -Path Build/Release/x86 | Out-Null
-          # Core DLLs
+          dotnet publish src/LEProc/LEProc.csproj -c Release -o Build/Release/x86/
           Copy-Item src/Core/LoaderDll/Release/LoaderDll.dll Build/Release/x86/ -Force
           Copy-Item src/Core/LocaleEmulator/Release/LocaleEmulator.dll Build/Release/x86/ -Force
-          # .NET outputs (build Release for deployment)
-          dotnet build src/LECommonLibrary/LECommonLibrary.csproj -c Release --no-restore
-          dotnet build src/LEProc/LEProc.csproj -c Release --no-restore
-          dotnet build src/LEGUI/LEGUI.csproj -c Release --no-restore
-          # Copy .NET outputs to Build/Release/x86/
-          $leprocOut = "src/LEProc/bin/Release/net10.0-windows/win-x86"
-          if (Test-Path $leprocOut) {
-            Copy-Item "$leprocOut/*" Build/Release/x86/ -Recurse -Force
-          }
+          Write-Host "Assembled files:" -ForegroundColor Cyan
+          Get-ChildItem Build/Release/x86/ -Name | ForEach-Object { Write-Host "  $_" }
         shell: pwsh
 
       # ---- C++ Tests ----
@@ -143,7 +140,6 @@ jobs:
         run: .\tests\SmokeTest\Invoke-SmokeTest.ps1
         shell: pwsh
         if: success()
-        continue-on-error: true
 
       # ---- Artifacts ----
 

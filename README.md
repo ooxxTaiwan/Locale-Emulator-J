@@ -46,11 +46,10 @@ The native hooking core (`src/Core/`) originates from [Locale-Emulator-Core](htt
 msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=Win32
 msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x64
 
-# Run tests (LECommonLibrary.Tests + LEGUI.Tests)
-dotnet test LocaleEmulator.sln
-
-# Run LEProc.Tests (requires --arch x86 and Windows Desktop Runtime x86)
-dotnet test tests/LEProc.Tests/LEProc.Tests.csproj --arch x86
+# Run .NET tests
+dotnet test tests/LECommonLibrary.Tests/
+dotnet test tests/LEGUI.Tests/
+dotnet test tests/LEProc.Tests/ --arch x86    # needs Windows Desktop Runtime x86
 ```
 
 ### Build Output
