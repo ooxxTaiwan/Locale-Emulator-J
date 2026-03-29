@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup .NET 10 SDK (x64)
         uses: actions/setup-dotnet@v5
@@ -45,7 +45,7 @@ jobs:
           architecture: x86
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
 
       # ---- .NET Build & Test ----
 
@@ -86,7 +86,7 @@ jobs:
         shell: pwsh
 
       - name: Add Coverage PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         if: github.event_name == 'pull_request' && !cancelled()
         with:
           recreate: true
@@ -164,7 +164,7 @@ jobs:
       # ---- Artifacts ----
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: build-output
