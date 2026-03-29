@@ -19,6 +19,7 @@ private:
     static std::wstring GetLangDirectory();
     static std::wstring DetectLanguageCode();
 
-    static std::once_flag s_initFlag;
+    static std::mutex s_mutex;
+    static bool s_loaded;
     static std::unordered_map<std::wstring, std::wstring> s_dictionary;
 };

@@ -208,5 +208,8 @@ void ConfigReader::WriteDefaultConfig(const std::wstring& path)
     doc.save_file(path.c_str());
 
     // Invalidate cache so next LoadProfiles() re-reads
-    s_cached = false;
+    {
+        std::lock_guard<std::mutex> lock(s_cacheMutex);
+        s_cached = false;
+    }
 }

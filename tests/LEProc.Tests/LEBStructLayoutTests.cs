@@ -9,8 +9,7 @@ public class LEBStructLayoutTests
     public void LEB_HasExpectedSize()
     {
         var size = Marshal.SizeOf<LoaderWrapper.LEB>();
-        Assert.True(size > 200, $"LEB size should be > 200 bytes, got {size}");
-        Assert.True(size < 512, $"LEB size should be < 512 bytes, got {size}");
+        Assert.Equal(256, size);
     }
 
     [Fact]

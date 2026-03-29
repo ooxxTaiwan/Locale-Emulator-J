@@ -47,18 +47,12 @@ jobs:
 
       - name: Restore .NET dependencies
         run: |
-          dotnet restore src/LECommonLibrary/LECommonLibrary.csproj
-          dotnet restore src/LEProc/LEProc.csproj
-          dotnet restore src/LEGUI/LEGUI.csproj
           dotnet restore tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj
           dotnet restore tests/LEProc.Tests/LEProc.Tests.csproj
           dotnet restore tests/LEGUI.Tests/LEGUI.Tests.csproj
 
       - name: Build .NET projects (Debug)
         run: |
-          dotnet build src/LECommonLibrary/LECommonLibrary.csproj -c Debug --no-restore
-          dotnet build src/LEProc/LEProc.csproj -c Debug --no-restore
-          dotnet build src/LEGUI/LEGUI.csproj -c Debug --no-restore
           dotnet build tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj -c Debug --no-restore
           dotnet build tests/LEProc.Tests/LEProc.Tests.csproj -c Debug --no-restore
           dotnet build tests/LEGUI.Tests/LEGUI.Tests.csproj -c Debug --no-restore

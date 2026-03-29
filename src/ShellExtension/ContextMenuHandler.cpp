@@ -6,6 +6,7 @@
 #include <shlwapi.h>
 #include <shellapi.h>
 #include <strsafe.h>
+#include <mutex>
 
 #pragma comment(lib, "shlwapi.lib")
 
@@ -21,14 +22,22 @@ ContextMenuHandler::ContextMenuHandler()
 {
     InterlockedIncrement(&g_dllRefCount);
 
-    // Detect DPI once, pass result to all LoadMenuBitmap calls
-    bool hiDpi = Is4KDisplay();
+    // Load bitmaps once per DLL lifetime (static cache)
+    static std::once_flag s_bmpFlag;
+    static HBITMAP s_bmpPurple, s_bmpGray, s_bmpBlue, s_bmpYellow;
 
-    // Load bitmaps based on DPI
-    m_bmpPurple = LoadMenuBitmap(IDB_PURPLE, IDB_PURPLE_200, hiDpi);
-    m_bmpGray   = LoadMenuBitmap(IDB_GRAY, IDB_GRAY_200, hiDpi);
-    m_bmpBlue   = LoadMenuBitmap(IDB_BLUE, IDB_BLUE_200, hiDpi);
-    m_bmpYellow = LoadMenuBitmap(IDB_YELLOW, IDB_YELLOW_200, hiDpi);
+    std::call_once(s_bmpFlag, [this]() {
+        bool hiDpi = Is4KDisplay();
+        s_bmpPurple = LoadMenuBitmap(IDB_PURPLE, IDB_PURPLE_200, hiDpi);
+        s_bmpGray   = LoadMenuBitmap(IDB_GRAY, IDB_GRAY_200, hiDpi);
+        s_bmpBlue   = LoadMenuBitmap(IDB_BLUE, IDB_BLUE_200, hiDpi);
+        s_bmpYellow = LoadMenuBitmap(IDB_YELLOW, IDB_YELLOW_200, hiDpi);
+    });
+
+    m_bmpPurple = s_bmpPurple;
+    m_bmpGray   = s_bmpGray;
+    m_bmpBlue   = s_bmpBlue;
+    m_bmpYellow = s_bmpYellow;
 
     // Build default menu items
     m_menuItems.push_back({I18n::GetString(L"Submenu"),
@@ -56,11 +65,7 @@ ContextMenuHandler::ContextMenuHandler()
 
 ContextMenuHandler::~ContextMenuHandler()
 {
-    if (m_bmpPurple) DeleteObject(m_bmpPurple);
-    if (m_bmpGray)   DeleteObject(m_bmpGray);
-    if (m_bmpBlue)   DeleteObject(m_bmpBlue);
-    if (m_bmpYellow) DeleteObject(m_bmpYellow);
-
+    // Bitmaps are static (live for DLL lifetime), do not DeleteObject here.
     InterlockedDecrement(&g_dllRefCount);
 }
 
@@ -311,7 +316,7 @@ IFACEMETHODIMP ContextMenuHandler::QueryContextMenu(HMENU hMenu, UINT indexMenu,
 
     // Return the count of items added (largest command ID offset + 1)
     return MAKE_HRESULT(SEVERITY_SUCCESS, 0,
-                        static_cast<USHORT>(m_menuItems.size()) + 3);
+                        static_cast<USHORT>(m_menuItems.size()));
 }
 
 IFACEMETHODIMP ContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO pici)

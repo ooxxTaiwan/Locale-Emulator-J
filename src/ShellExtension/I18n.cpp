@@ -9,7 +9,8 @@
 
 #pragma comment(lib, "shlwapi.lib")
 
-std::once_flag I18n::s_initFlag;
+std::mutex I18n::s_mutex;
+bool I18n::s_loaded = false;
 std::unordered_map<std::wstring, std::wstring> I18n::s_dictionary;
 
 std::wstring I18n::GetLangDirectory()
@@ -34,60 +35,63 @@ std::wstring I18n::DetectLanguageCode()
 
 void I18n::LoadDictionary()
 {
-    std::call_once(s_initFlag, []
+    std::lock_guard<std::mutex> lock(s_mutex);
+    if (s_loaded)
+        return;
+
+    std::wstring langDir = GetLangDirectory();
+    std::wstring langCode = DetectLanguageCode();
+
+    // Try full locale name first (e.g., "zh-TW.xml")
+    std::wstring primaryPath = langDir + langCode + L".xml";
+
+    // Try two-letter fallback (e.g., "zh.xml")
+    std::wstring fallbackCode = langCode;
+    auto dashPos = fallbackCode.find(L'-');
+    if (dashPos != std::wstring::npos)
+        fallbackCode = fallbackCode.substr(0, dashPos);
+    std::wstring fallbackPath = langDir + fallbackCode + L".xml";
+
+    // Default language path
+    std::wstring defaultPath = langDir + L"DefaultLanguage.xml";
+
+    // Try loading in order: primary -> fallback -> default
+    pugi::xml_document doc;
+    pugi::xml_parse_result result;
+
+    if (GetFileAttributesW(primaryPath.c_str()) != INVALID_FILE_ATTRIBUTES)
     {
-        std::wstring langDir = GetLangDirectory();
-        std::wstring langCode = DetectLanguageCode();
+        result = doc.load_file(primaryPath.c_str());
+    }
 
-        // Try full locale name first (e.g., "zh-TW.xml")
-        std::wstring primaryPath = langDir + langCode + L".xml";
+    if (!result && GetFileAttributesW(fallbackPath.c_str()) != INVALID_FILE_ATTRIBUTES)
+    {
+        result = doc.load_file(fallbackPath.c_str());
+    }
 
-        // Try two-letter fallback (e.g., "zh.xml")
-        std::wstring fallbackCode = langCode;
-        auto dashPos = fallbackCode.find(L'-');
-        if (dashPos != std::wstring::npos)
-            fallbackCode = fallbackCode.substr(0, dashPos);
-        std::wstring fallbackPath = langDir + fallbackCode + L".xml";
+    if (!result)
+    {
+        result = doc.load_file(defaultPath.c_str());
+    }
 
-        // Default language path
-        std::wstring defaultPath = langDir + L"DefaultLanguage.xml";
+    if (!result)
+        return; // All loading attempts failed
 
-        // Try loading in order: primary -> fallback -> default
-        pugi::xml_document doc;
-        pugi::xml_parse_result result;
+    // Parse <Strings> element: each child element's tag name is the key,
+    // its text content is the value.
+    pugi::xml_node strings = doc.child("Strings");
+    if (!strings)
+        return;
 
-        if (GetFileAttributesW(primaryPath.c_str()) != INVALID_FILE_ATTRIBUTES)
-        {
-            result = doc.load_file(primaryPath.c_str());
-        }
+    for (pugi::xml_node child : strings.children())
+    {
+        std::wstring key = StringUtils::Utf8ToWide(child.name());
+        std::wstring value = StringUtils::Utf8ToWide(child.child_value());
+        if (!key.empty())
+            s_dictionary[key] = value;
+    }
 
-        if (!result && GetFileAttributesW(fallbackPath.c_str()) != INVALID_FILE_ATTRIBUTES)
-        {
-            result = doc.load_file(fallbackPath.c_str());
-        }
-
-        if (!result)
-        {
-            result = doc.load_file(defaultPath.c_str());
-        }
-
-        if (!result)
-            return; // All loading attempts failed
-
-        // Parse <Strings> element: each child element's tag name is the key,
-        // its text content is the value.
-        pugi::xml_node strings = doc.child("Strings");
-        if (!strings)
-            return;
-
-        for (pugi::xml_node child : strings.children())
-        {
-            std::wstring key = StringUtils::Utf8ToWide(child.name());
-            std::wstring value = StringUtils::Utf8ToWide(child.child_value());
-            if (!key.empty())
-                s_dictionary[key] = value;
-        }
-    });
+    s_loaded = true;
 }
 
 std::wstring I18n::GetString(const std::wstring& key)
@@ -103,8 +107,7 @@ std::wstring I18n::GetString(const std::wstring& key)
 
 void I18n::Reset()
 {
-    // Reconstruct the once_flag so LoadDictionary() will run again
-    s_initFlag.~once_flag();
-    new (&s_initFlag) std::once_flag();
+    std::lock_guard<std::mutex> lock(s_mutex);
+    s_loaded = false;
     s_dictionary.clear();
 }

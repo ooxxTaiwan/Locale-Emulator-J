@@ -24,7 +24,7 @@ public sealed class ShellExtensionRegistrar
     /// <summary>
     /// Shell Extension friendly name (written to ContextMenuHandlers Default value).
     /// </summary>
-    private const string FriendlyName = "LocaleEmulator Shell Extension";
+    private const string FriendlyName = "Locale Emulator Shell Extension";
 
     private readonly IRegistryOperations _registry;
     private readonly string _clsid;
