@@ -56,6 +56,9 @@ Desktop.ini
 ## ----- 臨時目錄 -----
 _tmp_*/
 
+## ----- Claude Code -----
+.claude/
+
 ## ----- 例外：Core 解壓後的二進位檔需要追蹤 -----
 ## _Compilers、_Libs、_WDK 中的 .lib / .exe 等二進位檔
 ## 是建置依賴，必須 commit。以下例外規則取消 *.lib 的忽略：
