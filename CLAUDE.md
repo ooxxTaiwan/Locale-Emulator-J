@@ -6,59 +6,113 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Locale Emulator (LE) is a Windows utility that emulates system locale/region settings, letting users run applications under a different locale without changing the OS setting. It hooks Windows API calls in target processes via native DLL injection.
 
+The project consists of three .NET 10 managed projects and two C++ native components, plus a C++ COM Shell Extension. The native Core (originally from [Locale-Emulator-Core](https://github.com/xupefei/Locale-Emulator-Core), commit `ae7160d`, archived 2022-04-15) is integrated directly into this repository under `src/Core/`.
+
 ## Build
 
-- **IDE**: Visual Studio 2015/2017+ (solution: `LocaleEmulator.sln`)
-- **Framework**: .NET Framework 4.0 (Client Profile)
-- **Build**: Open solution in VS and build, or use `msbuild LocaleEmulator.sln /p:Configuration=Release`
-- **Output**: `.\Build\Release\` (or `.\Build\Debug\`)
-- **Native core DLLs** (`LoaderDll.dll`, `LocaleEmulator.dll`) are built separately from [Locale-Emulator-Core](https://github.com/xupefei/Locale-Emulator-Core) and must be copied into the build output folder
+- **IDE**: Visual Studio 2026 (v18.0+) with .NET 10 SDK and MSVC Build Tools v145
+- **Framework**: .NET 10 (`net10.0-windows`) for managed projects; C++ (MSVC v145) for native projects
+- **Solution**: `LocaleEmulator.sln` (unified C# + C++ mixed solution)
+
+### CLI Build
+
+```bash
+# Full build (all projects, both platforms)
+msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=Win32
+msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x64
+
+# .NET projects only
+dotnet build src/LECommonLibrary/
+dotnet build src/LEProc/
+dotnet build src/LEGUI/
+
+# Run tests
+dotnet test LocaleEmulator.sln
+```
+
+### Build Output
+
+```
+Build/Release/
+  x86/
+    LEProc.exe              # .NET 10 (x86)
+    LECommonLibrary.dll     # .NET 10 (AnyCPU)
+    LEGUI.exe               # .NET 10 (AnyCPU)
+    LoaderDll.dll           # Core native (x86)
+    LocaleEmulator.dll      # Core native (x86)
+    ShellExtension.dll      # Shell Extension (x86)
+    Lang/                   # Language files
+  x64/
+    ShellExtension.dll      # Shell Extension (x64)
+```
+
+### Build Prerequisites
+
+- .NET 10 SDK
+- MSVC Build Tools 2026 (v145) -- via VS 2026 or standalone Build Tools
 - All assemblies are strong-name signed with `key.snk`
-- No NuGet packages; pure .NET Framework dependencies
-- No test framework exists; testing is manual
+- Shared build properties defined in `Directory.Build.props`
 
 ## Architecture
 
-Six C# projects, all targeting .NET Framework 4.0:
+### Project Relationship Diagram
 
-### LECommonLibrary (Class Library)
-Shared code consumed by all other projects. Key types:
-- `LEConfig` — reads/writes XML config files (`LEConfig.xml` for global, `*.le.config` for per-app)
-- `LEProfile` — data model for a locale profile (location, timezone, codepage, flags)
-- `SystemHelper` — OS utilities (64-bit detection, UAC elevation, DPI)
+```
+User right-clicks .exe
+    |
+    v
+ShellExtension (C++, x64)          <-- COM Shell Extension, loaded by Explorer.exe
+    | Reads LEConfig.xml
+    | Invokes LEProc.exe -runas {guid} {path}
+    v
+LEProc (.NET 10, x86)              <-- Core launcher
+    | References LECommonLibrary
+    | P/Invoke calls LoaderDll.dll
+    v
+Core/LoaderDll (C++, x86)          <-- Creates target process + injects LocaleEmulator.dll
+    | Writes LEB to shared memory
+    | Injects DLL
+    v
+Core/LocaleEmulator (C++, x86)     <-- Injected into target process, hooks Windows API
+    | Reads LEB
+    | Rewrites PEB/NLS tables
+    | Installs syscall hook + EAT hook
+    v
+Target Process                      <-- Believes it runs under target locale
+```
 
-### LEProc (Console/WinExe, x86 only)
-Core launcher that creates processes under emulated locale. This is the most critical component.
-- `Program.cs` — CLI entry point; parses `-run`, `-runas`, `-manage`, `-global` arguments
-- `LoaderWrapper.cs` — P/Invoke wrapper around native `LoaderDll.dll`; marshals `LEB` struct (codepage, locale ID, charset, timezone) and registry redirect entries to the native loader via `LeCreateProcess`
-- Profile precedence: app-specific `.le.config` > first global profile > hardcoded ja-JP default
-- `LERegistryRedirector` / `RegistryEntriesLoader` — build registry redirect table passed to the native DLL
+```
+LEGUI (.NET 10, AnyCPU)             <-- Profile management UI + Shell Extension installer
+    | References LECommonLibrary
+    | ShellExtensionRegistrar: registers/unregisters Shell Extension via Registry API
+    | Invokes LEProc.exe (manage mode)
+    v
+LECommonLibrary (.NET 10, AnyCPU)   <-- Shared code: LEConfig, LEProfile, SystemHelper
+```
 
-### LEGUI (WPF Application)
-Profile management UI with two main windows:
-- `GlobalConfig.xaml` — manage global profiles stored in `LEConfig.xml`
-- `AppConfig.xaml` — manage per-application profiles (`.le.config` files)
-- i18n via XAML resource dictionaries in `LEGUI/Lang/` (23+ languages)
+### Project Responsibilities
 
-### LEContextMenuHandler (Class Library, COM)
-Windows shell extension providing right-click context menu on executables. Implements `IShellExtInit` + `IContextMenu` via COM interop. COM GUID: `C52B9871-E5E9-41FD-B84D-C5ACADBEC7AE`. Language files in `LEContextMenuHandler/Lang/*.xml`.
-
-### LEInstaller (WinForms)
-Registers/unregisters the shell extension COM component. Handles ADS removal and DLL version checks. Supports per-user and all-users installation (latter requires admin).
-
-### LEUpdater (WinForms)
-Scheduled update checker; compares local `LEVersion.xml` against remote version.
+| Project | Language | Platform | Responsibility |
+|---------|----------|----------|----------------|
+| LECommonLibrary | C# | AnyCPU | XML config read/write, Profile data model, OS utility functions |
+| LEProc | C# | x86 | CLI entry point, CultureInfo lookup, LEB struct assembly, P/Invoke calls to Core |
+| LEGUI | C# (WPF) | AnyCPU | Profile management UI, Shell Extension install/uninstall (`ShellExtensionRegistrar`) |
+| Core/LoaderDll | C++ | x86 | Exports `LeCreateProcess`: creates target process and injects `LocaleEmulator.dll` |
+| Core/LocaleEmulator | C++ | x86 | Injected DLL: hooks syscall/EAT, rewrites PEB NLS tables, intercepts locale-related APIs |
+| ShellExtension | C++ | x86+x64 | COM Shell Extension: right-click menu, reads config, launches LEProc |
 
 ## Key Data Flow
 
-1. User right-clicks exe -> shell extension (LEContextMenuHandler) invokes `LEProc.exe -runas {guid} {path}`
+1. User right-clicks exe -> Shell Extension (C++ COM DLL) reads `LEConfig.xml` and invokes `LEProc.exe -runas {guid} {path}`
 2. LEProc loads profile from XML config, resolves codepage/locale/timezone from .NET `CultureInfo`
 3. `LoaderWrapper` marshals a `LEB` struct + registry redirect entries into unmanaged memory
-4. Native `LeCreateProcess` (from `LoaderDll.dll`) creates the target process with locale hooks injected
+4. Native `LeCreateProcess` (from `LoaderDll.dll`) creates the target process with `LocaleEmulator.dll` injected
+5. `LocaleEmulator.dll` hooks syscalls and EAT entries, rewrites PEB NLS tables so the target process sees the emulated locale
 
 ## Configuration Format
 
 XML files (`LEConfig.xml` and `*.le.config`) share the same schema:
+
 ```xml
 <LEConfig>
   <Profiles>
@@ -75,8 +129,31 @@ XML files (`LEConfig.xml` and `*.le.config`) share the same schema:
 </LEConfig>
 ```
 
+## Testing
+
+| Layer | Framework | Command |
+|-------|-----------|---------|
+| .NET unit tests | xUnit + NSubstitute | `dotnet test` |
+| C++ unit tests | Google Test | Run `*Tests*.exe` binaries from `Build/Release/x86/` |
+| Smoke tests | PowerShell + LocaleTestApp | `.\tests\SmokeTest\Invoke-SmokeTest.ps1` |
+
+### Test Projects
+
+- `tests/LECommonLibrary.Tests/` -- XML config parsing, profile model, system helpers
+- `tests/LEProc.Tests/` -- codepage mapping, CultureInfo queries, CLI argument parsing, registry redirect
+- `tests/LEGUI.Tests/` -- Shell Extension registration logic, i18n loading, ViewModel logic
+- `tests/Core.Tests/` -- LEB/LEPEB struct layout, registry redirect entry serialization
+
+### Smoke Test
+
+Verifies end-to-end locale hooking by launching a Win32 test app through LEProc with different locale profiles (ja-JP, zh-TW, zh-CN, ko-KR, en-US) and checking `GetACP()`, `GetOEMCP()`, `GetUserDefaultLCID()` return values.
+
 ## Conventions
 
-- License: LGPL-3.0 (LEContextMenuHandler includes Microsoft Public License code)
-- LEProc must remain x86 — it needs to load 32-bit `LoaderDll.dll`
-- Post-build events copy outputs between projects (e.g., LECommonLibrary DLL -> LEInstaller resources, language files -> output dirs)
+- **License**: LGPL-3.0 (Core portion: LGPL-3.0/GPL-3.0)
+- **LEProc must remain x86**: Core's syscall hooking engine (`HookSysCall_x86`) only has x86 implementation. It pattern-matches `KiFastSystemCall` opcodes, which are x86-only.
+- **Shell Extension requires x86 + x64**: x64 for 64-bit Explorer.exe, x86 for 32-bit Explorer on 32-bit Windows.
+- **`[Core]` commit prefix**: All modifications to files under `src/Core/` must use the `[Core]` prefix in commit messages, to distinguish from upstream code.
+- **NLS mode pending verification**: `System.Globalization.UseNls` setting needs characterization test validation before enabling. Core itself directly manipulates NLS tables and is unaffected by this .NET setting.
+- **Minimum Windows version**: Windows 10 1607+ (.NET 10 requirement)
+- **Language files**: LEGUI i18n via XAML resource dictionaries in `src/LEGUI/Lang/` (22 languages); Shell Extension i18n via XML in `src/ShellExtension/Lang/` (22 languages)

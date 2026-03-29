@@ -1,0 +1,126 @@
+# ============================================================
+# Locale Emulator - CI Workflow
+# ============================================================
+# 觸發條件：push 至 master、所有 Pull Request
+# 執行內容：建置全部專案（x86 + x64）、執行 .NET 測試、執行 C++ 測試
+# Runner：windows-2025-vs2026（Windows Server 2025 + VS 2026 Build Tools）
+# ============================================================
+
+name: CI
+
+# 觸發條件
+on:
+  push:
+    branches: [ master ]        # push 至 master 時觸發
+  pull_request:
+    branches: [ master ]        # 對 master 發 PR 時觸發
+
+# 環境變數（全域）
+env:
+  DOTNET_NOLOGO: true           # 不顯示 .NET 歡迎訊息
+  DOTNET_CLI_TELEMETRY_OPTOUT: true  # 關閉遙測
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: windows-2025-vs2026     # Windows Server 2025 + VS 2026 Build Tools（public preview，日後可能併入 windows-latest）
+
+    steps:
+      # --------------------------------------------------------
+      # Step 1: 取得原始碼
+      # --------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------------
+      # Step 2: 安裝 .NET 10 SDK
+      # --------------------------------------------------------
+      # GitHub runner 預裝的 .NET 版本可能不含 .NET 10，
+      # 使用 actions/setup-dotnet 確保版本正確。
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # --------------------------------------------------------
+      # Step 3: 設定 MSBuild
+      # --------------------------------------------------------
+      # 需要 MSBuild 來建置 C++ 專案（.vcxproj）。
+      # microsoft/setup-msbuild 會尋找 VS Build Tools 並加入 PATH。
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      # --------------------------------------------------------
+      # Step 4: 還原 .NET 相依性
+      # --------------------------------------------------------
+      - name: Restore .NET dependencies
+        run: dotnet restore LocaleEmulator.sln
+
+      # --------------------------------------------------------
+      # Step 5: 建置 Debug|Win32（含測試專案）
+      # --------------------------------------------------------
+      # Debug 組態建置所有專案（含測試專案）。
+      # 根據 spec solution matrix，測試專案只在 Debug 建置。
+      - name: Build Solution (Debug|Win32)
+        run: msbuild LocaleEmulator.sln /p:Configuration=Debug /p:Platform=Win32 /m /v:minimal
+
+      # --------------------------------------------------------
+      # Step 6: 執行 .NET 測試（xUnit）
+      # --------------------------------------------------------
+      # dotnet test 會自動探索並執行所有 xUnit 測試專案。
+      # --no-build 避免重複建置（已在 Step 5 以 Debug 建置過）。
+      - name: Run .NET tests
+        run: dotnet test LocaleEmulator.sln --no-build --configuration Debug --logger "console;verbosity=detailed"
+
+      # --------------------------------------------------------
+      # Step 7: 執行 C++ 測試（Google Test）
+      # --------------------------------------------------------
+      # Google Test 產出獨立的 .exe，在 Debug 建置輸出中尋找。
+      - name: Run C++ tests (Google Test)
+        run: |
+          $testExes = Get-ChildItem -Path "Build\Debug\x86" -Filter "*Tests*.exe" -Recurse
+          $failed = $false
+          foreach ($exe in $testExes) {
+            Write-Host "Running: $($exe.FullName)" -ForegroundColor Cyan
+            & $exe.FullName --gtest_output=xml:$($exe.DirectoryName)\$($exe.BaseName)_results.xml
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "FAILED: $($exe.Name)" -ForegroundColor Red
+              $failed = $true
+            }
+          }
+          if ($failed) { exit 1 }
+        shell: pwsh
+
+      # --------------------------------------------------------
+      # Step 8: 建置 Release|Win32（產品建置，不含測試）
+      # --------------------------------------------------------
+      - name: Build Solution (Release|Win32)
+        run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=Win32 /m /v:minimal
+
+      # --------------------------------------------------------
+      # Step 9: 建置 Release|x64（僅 ShellExtension）
+      # --------------------------------------------------------
+      - name: Build Solution (Release|x64)
+        run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x64 /m /v:minimal
+
+      # --------------------------------------------------------
+      # Step 10: 執行 Smoke Tests
+      # --------------------------------------------------------
+      - name: Smoke Tests
+        run: .\tests\SmokeTest\Invoke-SmokeTest.ps1
+        shell: pwsh
+        if: success()
+
+      # --------------------------------------------------------
+      # Step 11: 上傳建置產物（可選）
+      # --------------------------------------------------------
+      # 將建置輸出上傳為 artifact，方便下載測試。
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-output
+          path: |
+            Build/Release/x86/
+            Build/Release/x64/
+          retention-days: 7
