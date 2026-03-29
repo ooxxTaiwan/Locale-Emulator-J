@@ -50,24 +50,13 @@ int wmain()
 
     wchar_t dllPath[MAX_PATH] = {};
 
-    // Try 1: next to this exe
+    // ShellExtension.dll should be in the same directory as this test exe
+    // (both vcxproj use $(SolutionDir)Build\$(Configuration)\x64\ as OutDir)
     _snwprintf_s(dllPath, _TRUNCATE, L"%sShellExtension.dll", exeDir);
     if (!FileExists(dllPath))
     {
-        // Try 2: relative from Build\Release\x64\ to source build output
-        // Test exe is at Build\Release\x64\ShellExtension.Tests.exe
-        // ShellExtension.dll is also at Build\Release\x64\ShellExtension.dll
-        // (same directory, should be found by Try 1 above)
-        // Fallback: check the vcxproj output directory
-        _snwprintf_s(dllPath, _TRUNCATE,
-                     L"%s..\\..\\..\\src\\ShellExtension\\Build\\Release\\x64\\ShellExtension.dll",
-                     exeDir);
-    }
-    if (!FileExists(dllPath))
-    {
         wprintf(L"FAIL: Cannot find ShellExtension.dll\n");
-        wprintf(L"  Searched: %sShellExtension.dll\n", exeDir);
-        wprintf(L"  Searched: %s\n", dllPath);
+        wprintf(L"  Expected: %s\n", dllPath);
         return 1;
     }
 

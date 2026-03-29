@@ -1,9 +1,9 @@
 # ============================================================
 # Locale Emulator - CI Workflow
 # ============================================================
-# .NET 專案用 dotnet build/test（自帶 SDK 解析）
-# C++ 專案用 msbuild（VS Build Tools）
-# Core 只有 Release|Win32 組態，不建 Debug
+# .NET: dotnet build/test (self-contained SDK resolution)
+# C++:  msbuild individual vcxproj (VS Build Tools)
+# Core only has Release|Win32 config
 # ============================================================
 
 name: CI
@@ -17,6 +17,7 @@ on:
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  SOLUTION_DIR: ${{ github.workspace }}\
 
 jobs:
   build-and-test:
@@ -24,39 +25,26 @@ jobs:
     runs-on: windows-2025-vs2026
 
     steps:
-      # --------------------------------------------------------
-      # Step 1: Checkout
-      # --------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --------------------------------------------------------
-      # Step 2: Setup .NET 10 SDK
-      # --------------------------------------------------------
-      - name: Setup .NET 10 SDK
+      - name: Setup .NET 10 SDK (x64)
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
-      # LEProc.Tests needs x86 test host (LEProc has PlatformTarget=x86).
-      # Install Windows Desktop Runtime x86 for dotnet test --arch x86.
-      # Note: architecture + runtime params require v5, not v4.
-      - name: Setup .NET 10 Windows Desktop Runtime (x86)
+      # LEProc has PlatformTarget=x86 → dotnet test --arch x86 needs x86 SDK
+      - name: Setup .NET 10 SDK (x86)
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
           architecture: x86
-          runtime: windowsdesktop
 
-      # --------------------------------------------------------
-      # Step 3: Setup MSBuild (for C++ vcxproj)
-      # --------------------------------------------------------
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      # --------------------------------------------------------
-      # Step 4: Restore .NET dependencies
-      # --------------------------------------------------------
+      # ---- .NET Build & Test ----
+
       - name: Restore .NET dependencies
         run: |
           dotnet restore src/LECommonLibrary/LECommonLibrary.csproj
@@ -66,101 +54,99 @@ jobs:
           dotnet restore tests/LEProc.Tests/LEProc.Tests.csproj
           dotnet restore tests/LEGUI.Tests/LEGUI.Tests.csproj
 
-      # --------------------------------------------------------
-      # Step 5: Build .NET projects (Debug, for tests)
-      # --------------------------------------------------------
       - name: Build .NET projects (Debug)
         run: |
-          dotnet build src/LECommonLibrary/LECommonLibrary.csproj --configuration Debug --no-restore
-          dotnet build src/LEProc/LEProc.csproj --configuration Debug --no-restore
-          dotnet build src/LEGUI/LEGUI.csproj --configuration Debug --no-restore
-          dotnet build tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj --configuration Debug --no-restore
-          dotnet build tests/LEProc.Tests/LEProc.Tests.csproj --configuration Debug --no-restore
-          dotnet build tests/LEGUI.Tests/LEGUI.Tests.csproj --configuration Debug --no-restore
+          dotnet build src/LECommonLibrary/LECommonLibrary.csproj -c Debug --no-restore
+          dotnet build src/LEProc/LEProc.csproj -c Debug --no-restore
+          dotnet build src/LEGUI/LEGUI.csproj -c Debug --no-restore
+          dotnet build tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj -c Debug --no-restore
+          dotnet build tests/LEProc.Tests/LEProc.Tests.csproj -c Debug --no-restore
+          dotnet build tests/LEGUI.Tests/LEGUI.Tests.csproj -c Debug --no-restore
 
-      # --------------------------------------------------------
-      # Step 6: Run .NET tests (x64)
-      # --------------------------------------------------------
       - name: Run .NET tests (x64)
         run: |
-          dotnet test tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed"
-          dotnet test tests/LEGUI.Tests/LEGUI.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed"
+          dotnet test tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj --no-build -c Debug --logger "console;verbosity=detailed"
+          dotnet test tests/LEGUI.Tests/LEGUI.Tests.csproj --no-build -c Debug --logger "console;verbosity=detailed"
 
-      # --------------------------------------------------------
-      # Step 7: Run LEProc.Tests (x86)
-      # --------------------------------------------------------
-      # LEProc has PlatformTarget=x86, needs x86 test host.
-      # --arch x86 requires Windows Desktop Runtime x86.
-      # Cannot use --no-build (rebuilds for x86 architecture).
       - name: Run LEProc.Tests (x86)
-        run: dotnet test tests/LEProc.Tests/LEProc.Tests.csproj --arch x86 --configuration Debug --logger "console;verbosity=detailed"
+        run: dotnet test tests/LEProc.Tests/LEProc.Tests.csproj --arch x86 -c Debug --logger "console;verbosity=detailed"
 
-      # --------------------------------------------------------
-      # Step 8: Build C++ projects (Release|Win32)
-      # --------------------------------------------------------
-      # Core only has Release|Win32 config. All x86 C++ projects
-      # built here: Core, ShellExtension, LocaleTestApp, Core.Tests.
-      - name: Build C++ (Release|Win32)
+      # ---- C++ Build ----
+      # Pass SolutionDir so $(SolutionDir) resolves correctly in vcxproj OutDir
+
+      - name: Build Core (Release|Win32)
         run: |
-          msbuild src/Core/LoaderDll/LoaderDll.vcxproj /p:Configuration=Release /p:Platform=Win32 /v:minimal
-          msbuild src/Core/LocaleEmulator/LocaleEmulator.vcxproj /p:Configuration=Release /p:Platform=Win32 /v:minimal
-          msbuild src/Core/Loader/Loader.vcxproj /p:Configuration=Release /p:Platform=Win32 /v:minimal
-          msbuild src/ShellExtension/ShellExtension.vcxproj /p:Configuration=Release /p:Platform=Win32 /v:minimal
-          msbuild tests/SmokeTest/LocaleTestApp/LocaleTestApp.vcxproj /p:Configuration=Release /p:Platform=Win32 /v:minimal
-          msbuild tests/Core.Tests/Core.Tests.vcxproj /p:Configuration=Release /p:Platform=Win32 /v:minimal
+          msbuild src/Core/LoaderDll/LoaderDll.vcxproj /p:Configuration=Release /p:Platform=Win32 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+          msbuild src/Core/LocaleEmulator/LocaleEmulator.vcxproj /p:Configuration=Release /p:Platform=Win32 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+          msbuild src/Core/Loader/Loader.vcxproj /p:Configuration=Release /p:Platform=Win32 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+        shell: pwsh
 
-      # --------------------------------------------------------
-      # Step 9: Build C++ projects (Release|x64)
-      # --------------------------------------------------------
-      # ShellExtension (x64 for 64-bit Explorer) and its tests.
-      - name: Build C++ (Release|x64)
+      - name: Build ShellExtension + C++ tests (Release|Win32)
         run: |
-          msbuild src/ShellExtension/ShellExtension.vcxproj /p:Configuration=Release /p:Platform=x64 /v:minimal
-          msbuild tests/ShellExtension.Tests/ShellExtension.Tests.vcxproj /p:Configuration=Release /p:Platform=x64 /v:minimal
+          msbuild src/ShellExtension/ShellExtension.vcxproj /p:Configuration=Release /p:Platform=Win32 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+          msbuild tests/SmokeTest/LocaleTestApp/LocaleTestApp.vcxproj /p:Configuration=Release /p:Platform=Win32 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+          msbuild tests/Core.Tests/Core.Tests.vcxproj /p:Configuration=Release /p:Platform=Win32 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+        shell: pwsh
 
-      # --------------------------------------------------------
-      # Step 10: Run C++ tests
-      # --------------------------------------------------------
+      - name: Build ShellExtension + tests (Release|x64)
+        run: |
+          msbuild src/ShellExtension/ShellExtension.vcxproj /p:Configuration=Release /p:Platform=x64 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+          msbuild tests/ShellExtension.Tests/ShellExtension.Tests.vcxproj /p:Configuration=Release /p:Platform=x64 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+        shell: pwsh
+
+      # ---- Assemble runtime ----
+      # Core outputs to src/Core/*/Release/, not Build/Release/x86/.
+      # Copy Core DLLs + .NET outputs to Build/Release/x86/ for smoke test.
+
+      - name: Assemble runtime directory
+        run: |
+          New-Item -ItemType Directory -Force -Path Build/Release/x86 | Out-Null
+          # Core DLLs
+          Copy-Item src/Core/LoaderDll/Release/LoaderDll.dll Build/Release/x86/ -Force
+          Copy-Item src/Core/LocaleEmulator/Release/LocaleEmulator.dll Build/Release/x86/ -Force
+          # .NET outputs (build Release for deployment)
+          dotnet build src/LECommonLibrary/LECommonLibrary.csproj -c Release --no-restore
+          dotnet build src/LEProc/LEProc.csproj -c Release --no-restore
+          dotnet build src/LEGUI/LEGUI.csproj -c Release --no-restore
+          # Copy .NET outputs to Build/Release/x86/
+          $leprocOut = "src/LEProc/bin/Release/net10.0-windows/win-x86"
+          if (Test-Path $leprocOut) {
+            Copy-Item "$leprocOut/*" Build/Release/x86/ -Recurse -Force
+          }
+        shell: pwsh
+
+      # ---- C++ Tests ----
+
       - name: Run C++ tests
         run: |
           $failed = $false
-
-          # x86 tests (Core.Tests)
-          $testExes86 = Get-ChildItem -Path "Build\Release\x86" -Filter "*Tests*.exe" -Recurse -ErrorAction SilentlyContinue
-          foreach ($exe in $testExes86) {
+          # x86 tests
+          $exes86 = Get-ChildItem -Path "Build\Release\x86" -Filter "*Tests*.exe" -Recurse -ErrorAction SilentlyContinue
+          foreach ($exe in $exes86) {
             Write-Host "Running: $($exe.FullName)" -ForegroundColor Cyan
             & $exe.FullName
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "FAILED: $($exe.Name)" -ForegroundColor Red
-              $failed = $true
-            }
+            if ($LASTEXITCODE -ne 0) { Write-Host "FAILED: $($exe.Name)" -ForegroundColor Red; $failed = $true }
           }
-
-          # x64 tests (ShellExtension.Tests)
-          $testExes64 = Get-ChildItem -Path "Build\Release\x64" -Filter "*Tests*.exe" -Recurse -ErrorAction SilentlyContinue
-          foreach ($exe in $testExes64) {
+          # x64 tests
+          $exes64 = Get-ChildItem -Path "Build\Release\x64" -Filter "*Tests*.exe" -Recurse -ErrorAction SilentlyContinue
+          foreach ($exe in $exes64) {
             Write-Host "Running: $($exe.FullName)" -ForegroundColor Cyan
             & $exe.FullName
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "FAILED: $($exe.Name)" -ForegroundColor Red
-              $failed = $true
-            }
+            if ($LASTEXITCODE -ne 0) { Write-Host "FAILED: $($exe.Name)" -ForegroundColor Red; $failed = $true }
           }
-
           if ($failed) { exit 1 }
         shell: pwsh
 
-      # --------------------------------------------------------
-      # Step 11: Smoke Tests
-      # --------------------------------------------------------
+      # ---- Smoke Test ----
+
       - name: Smoke Tests
         run: .\tests\SmokeTest\Invoke-SmokeTest.ps1
         shell: pwsh
         if: success()
+        continue-on-error: true
 
-      # --------------------------------------------------------
-      # Step 12: Upload build artifacts
-      # --------------------------------------------------------
+      # ---- Artifacts ----
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         if: always()

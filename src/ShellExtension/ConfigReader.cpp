@@ -69,18 +69,14 @@ std::vector<LEProfile> ConfigReader::LoadProfiles()
         return s_cachedProfiles;
     }
 
-    // Parse XML (outside lock would be better for perf, but config is small)
-    auto profiles = LoadProfiles(configPath);
+    // Parse XML and always cache the result (including empty).
+    // Empty is a valid state (user removed all profiles).
+    // File-not-found is handled above (returns before lock, no cache update).
+    s_cachedProfiles = LoadProfiles(configPath);
+    s_cachedWriteTime = fileInfo.ftLastWriteTime;
+    s_cached = true;
 
-    // Only cache successful parse (non-empty result)
-    if (!profiles.empty())
-    {
-        s_cachedProfiles = std::move(profiles);
-        s_cachedWriteTime = fileInfo.ftLastWriteTime;
-        s_cached = true;
-    }
-
-    return s_cached ? s_cachedProfiles : profiles;
+    return s_cachedProfiles;
 }
 
 std::vector<LEProfile> ConfigReader::LoadProfiles(const std::wstring& configPath)
