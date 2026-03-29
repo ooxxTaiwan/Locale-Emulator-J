@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A1B2C3D4-5678-9ABC-DEF0-SMOKE0000001}</ProjectGuid>
+    <ProjectGuid>{A1B2C3D4-5678-9ABC-DEF0-500CE0000001}</ProjectGuid>
     <RootNamespace>LocaleTestApp</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

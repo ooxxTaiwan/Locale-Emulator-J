@@ -65,15 +65,29 @@ jobs:
         run: msbuild LocaleEmulator.sln /p:Configuration=Debug /p:Platform=Win32 /m /v:minimal
 
       # --------------------------------------------------------
-      # Step 6: 執行 .NET 測試（xUnit）
+      # Step 6: Build Debug|x64 (ShellExtension.Tests)
       # --------------------------------------------------------
-      # dotnet test 會自動探索並執行所有 xUnit 測試專案。
-      # --no-build 避免重複建置（已在 Step 5 以 Debug 建置過）。
-      - name: Run .NET tests
-        run: dotnet test LocaleEmulator.sln --no-build --configuration Debug --logger "console;verbosity=detailed"
+      - name: Build Solution (Debug|x64)
+        run: msbuild LocaleEmulator.sln /p:Configuration=Debug /p:Platform=x64 /m /v:minimal
 
       # --------------------------------------------------------
-      # Step 7: 執行 C++ 測試（Google Test）
+      # Step 7a: 執行 .NET 測試（xUnit, x64）
+      # --------------------------------------------------------
+      # LECommonLibrary.Tests 與 LEGUI.Tests 以 x64 執行（已在 Step 5 以 Debug 建置過）。
+      - name: Run .NET tests (x64)
+        run: |
+          dotnet test tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed"
+          dotnet test tests/LEGUI.Tests/LEGUI.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed"
+
+      # --------------------------------------------------------
+      # Step 7b: 執行 LEProc.Tests（xUnit, x86）
+      # --------------------------------------------------------
+      # LEProc.Tests 需要 x86 架構（LEProc 必須為 x86），無法使用 --no-build。
+      - name: Run LEProc.Tests (x86)
+        run: dotnet test tests/LEProc.Tests/LEProc.Tests.csproj --arch x86 --configuration Debug --logger "console;verbosity=detailed"
+
+      # --------------------------------------------------------
+      # Step 8: 執行 C++ 測試（Google Test）
       # --------------------------------------------------------
       # Google Test 產出獨立的 .exe，在 Debug 建置輸出中尋找。
       - name: Run C++ tests (Google Test)
@@ -88,23 +102,35 @@ jobs:
               $failed = $true
             }
           }
+          # Also search x64 tests
+          $testExes64 = Get-ChildItem -Path "Build\Debug\x64" -Filter "*Tests*.exe" -Recurse -ErrorAction SilentlyContinue
+          if ($testExes64) {
+            foreach ($exe in $testExes64) {
+              Write-Host "Running: $($exe.FullName)" -ForegroundColor Cyan
+              & $exe.FullName --gtest_output=xml:$($exe.DirectoryName)\$($exe.BaseName)_results.xml
+              if ($LASTEXITCODE -ne 0) {
+                Write-Host "FAILED: $($exe.Name)" -ForegroundColor Red
+                $failed = $true
+              }
+            }
+          }
           if ($failed) { exit 1 }
         shell: pwsh
 
       # --------------------------------------------------------
-      # Step 8: 建置 Release|Win32（產品建置，不含測試）
+      # Step 9: 建置 Release|Win32（產品建置，不含測試）
       # --------------------------------------------------------
       - name: Build Solution (Release|Win32)
         run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=Win32 /m /v:minimal
 
       # --------------------------------------------------------
-      # Step 9: 建置 Release|x64（僅 ShellExtension）
+      # Step 10: 建置 Release|x64（僅 ShellExtension）
       # --------------------------------------------------------
       - name: Build Solution (Release|x64)
         run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x64 /m /v:minimal
 
       # --------------------------------------------------------
-      # Step 10: 執行 Smoke Tests
+      # Step 11: 執行 Smoke Tests
       # --------------------------------------------------------
       - name: Smoke Tests
         run: .\tests\SmokeTest\Invoke-SmokeTest.ps1
@@ -112,7 +138,7 @@ jobs:
         if: success()
 
       # --------------------------------------------------------
-      # Step 11: 上傳建置產物（可選）
+      # Step 12: 上傳建置產物（可選）
       # --------------------------------------------------------
       # 將建置輸出上傳為 artifact，方便下載測試。
       - name: Upload build artifacts

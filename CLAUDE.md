@@ -133,8 +133,9 @@ XML files (`LEConfig.xml` and `*.le.config`) share the same schema:
 
 | Layer | Framework | Command |
 |-------|-----------|---------|
-| .NET unit tests | xUnit + NSubstitute | `dotnet test` |
-| C++ unit tests | Google Test | Run `*Tests*.exe` binaries from `Build/Release/x86/` |
+| .NET unit tests (LECommonLibrary, LEGUI) | xUnit + NSubstitute | `dotnet test` |
+| .NET unit tests (LEProc) | xUnit + NSubstitute | `dotnet test --arch x86` (requires Windows Desktop Runtime x86) |
+| C++ unit tests | Google Test | Run `*Tests*.exe` binaries from `Build/Debug/x86/` and `Build/Debug/x64/` |
 | Smoke tests | PowerShell + LocaleTestApp | `.\tests\SmokeTest\Invoke-SmokeTest.ps1` |
 
 ### Test Projects

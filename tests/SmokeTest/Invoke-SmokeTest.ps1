@@ -155,9 +155,23 @@ if (-not $allPresent) {
 Write-Host ""
 Write-Host "Running baseline (no locale emulation)..." -ForegroundColor White
 try {
-    $baselineOutput = & $testAppPath 2>&1
-    $baseline = Parse-LocaleTestOutput $baselineOutput
-    Write-Host "  System ACP=$($baseline.ACP), OEMCP=$($baseline.OEMCP), LCID=$($baseline.LCID)" -ForegroundColor Gray
+    $baselineResultFile = Join-Path (Split-Path $testAppPath) "locale_result.txt"
+    if (Test-Path $baselineResultFile) { Remove-Item $baselineResultFile -Force }
+    & $testAppPath 2>&1 | Out-Null
+    # 等待結果檔案產生
+    $waitCount = 0
+    while (-not (Test-Path $baselineResultFile) -and $waitCount -lt 20) {
+        Start-Sleep -Milliseconds 500
+        $waitCount++
+    }
+    if (Test-Path $baselineResultFile) {
+        $baselineLines = Get-Content $baselineResultFile
+        $baseline = Parse-LocaleTestOutput $baselineLines
+        Write-Host "  System ACP=$($baseline.ACP), OEMCP=$($baseline.OEMCP), LCID=$($baseline.LCID)" -ForegroundColor Gray
+        Remove-Item $baselineResultFile -Force
+    } else {
+        Write-Host "  [WARN] Baseline locale_result.txt not produced within timeout" -ForegroundColor Yellow
+    }
 } catch {
     Write-Host "  [ERROR] Failed to run baseline: $_" -ForegroundColor Red
 }
@@ -188,6 +202,7 @@ foreach ($test in $TestMatrix) {
 <LEConfig>
   <Profiles>
     <Profile Name="SmokeTest_$($test.Location)" Guid="{$(New-Guid)}" MainMenu="false">
+      <Parameter></Parameter>
       <Location>$($test.Location)</Location>
       <Timezone>Tokyo Standard Time</Timezone>
       <RunAsAdmin>false</RunAsAdmin>
