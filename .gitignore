@@ -1,29 +1,69 @@
-Thumbs.db
+## ----- 建置輸出 -----
+Build/
+**/bin/
+**/obj/
+
+## ----- .NET 產出物 -----
+*.runtimeconfig.json
+*.deps.json
+
+## ----- C++ 建置中間產物 -----
 *.obj
 *.pdb
-*.user
-*.aps
 *.pch
-*.vspscc
-*_i.c
-*_p.c
-*.ncb
-*.suo
-*.sln.docstates
-*.tlb
-*.tlh
-*.bak
-*.cache
 *.ilk
-*.log
-[Bb]in
-[Dd]ebug*/
+*.exp
+*.iobj
+*.ipdb
 *.lib
 *.sbr
-obj/
-[Rr]elease*/
+x64/
+Win32/
+
+## ----- Visual Studio -----
+.vs/
+*.user
+*.suo
+*.sln.docstates
+*.cache
 _ReSharper*/
-[Tt]est[Rr]esult*
+*.aps
+*.ncb
+
+## ----- Visual Studio C++ 特有 -----
+*.tlb
+*.tlh
+*_i.c
+*_p.c
+*.vspscc
 *.vssscc
 $tf*/
-.vs/
+
+## ----- NuGet -----
+packages/
+
+## ----- 測試結果 -----
+[Tt]est[Rr]esult*/
+*.trx
+TestResults/
+coverage/
+
+## ----- OS 產出物 -----
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+## ----- 臨時目錄 -----
+_tmp_*/
+
+## ----- Claude Code -----
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md
+
+## ----- 例外：Core 解壓後的二進位檔需要追蹤 -----
+## _Compilers、_Libs、_WDK 中的 .lib / .exe 等二進位檔
+## 是建置依賴，必須 commit。以下例外規則取消 *.lib 的忽略：
+!src/Core/_Libs/**/*.lib
+!src/Core/_Compilers/**
+!src/Core/_WDK/**
