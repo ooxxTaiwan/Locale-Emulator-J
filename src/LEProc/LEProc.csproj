@@ -4,8 +4,9 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>LEProc</RootNamespace>
     <AssemblyName>LEProc</AssemblyName>
-    <!-- PlatformTarget x86 is set at publish time; build as AnyCPU for testability.
-         Runtime x86 enforcement comes from app.manifest and publish -r win-x86. -->
+    <!-- LEProc 必須以 32 位元程序執行，才能 LoadLibrary 32 位元的 LoaderDll.dll。
+         x86 程式在 64 位元 Windows 上透過 WOW64 執行，不需要安裝 x86 runtime。 -->
+    <PlatformTarget>x86</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Version>3.0.0</Version>
     <Company>Locale Emulator Contributors</Company>
