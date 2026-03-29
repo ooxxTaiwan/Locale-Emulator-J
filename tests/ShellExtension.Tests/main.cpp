@@ -54,9 +54,13 @@ int wmain()
     _snwprintf_s(dllPath, _TRUNCATE, L"%sShellExtension.dll", exeDir);
     if (!FileExists(dllPath))
     {
-        // Try 2: relative from test exe to source build output
+        // Try 2: relative from Build\Release\x64\ to source build output
+        // Test exe is at Build\Release\x64\ShellExtension.Tests.exe
+        // ShellExtension.dll is also at Build\Release\x64\ShellExtension.dll
+        // (same directory, should be found by Try 1 above)
+        // Fallback: check the vcxproj output directory
         _snwprintf_s(dllPath, _TRUNCATE,
-                     L"%s..\\..\\src\\ShellExtension\\Build\\Release\\x64\\ShellExtension.dll",
+                     L"%s..\\..\\..\\src\\ShellExtension\\Build\\Release\\x64\\ShellExtension.dll",
                      exeDir);
     }
     if (!FileExists(dllPath))

@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstring>
+#include <mutex>
 
 #pragma comment(lib, "shlwapi.lib")
 
@@ -15,13 +16,13 @@ extern HMODULE g_hModule;
 std::wstring ConfigReader::GetModuleDirectory()
 {
     static std::wstring s_cachedDir;
-    if (s_cachedDir.empty())
-    {
+    static std::once_flag s_dirFlag;
+    std::call_once(s_dirFlag, [&]() {
         wchar_t path[MAX_PATH] = {};
         GetModuleFileNameW(g_hModule, path, MAX_PATH);
         PathRemoveFileSpecW(path);
         s_cachedDir = std::wstring(path) + L"\\";
-    }
+    });
     return s_cachedDir;
 }
 
@@ -38,7 +39,10 @@ bool ConfigReader::ParseBool(const char* value, bool defaultValue)
     return defaultValue;
 }
 
-// Cache for the default config file (next to this DLL)
+// Thread-safe profile cache.
+// Shell Extension runs in-process in Explorer.exe which may create
+// ContextMenuHandler instances on different threads.
+static std::mutex s_cacheMutex;
 static std::vector<LEProfile> s_cachedProfiles;
 static FILETIME s_cachedWriteTime = {};
 static bool s_cached = false;
@@ -47,15 +51,17 @@ std::vector<LEProfile> ConfigReader::LoadProfiles()
 {
     std::wstring configPath = GetModuleDirectory() + L"LEConfig.xml";
 
-    // Check file modification time; return cached result if unchanged
+    // Check file modification time
     WIN32_FILE_ATTRIBUTE_DATA fileInfo = {};
     if (!GetFileAttributesExW(configPath.c_str(), GetFileExInfoStandard, &fileInfo))
     {
-        // File doesn't exist or error — return empty
-        s_cached = false;
+        // File doesn't exist or error — return empty, don't cache failure
         return {};
     }
 
+    std::lock_guard<std::mutex> lock(s_cacheMutex);
+
+    // Double-check after acquiring lock
     if (s_cached &&
         fileInfo.ftLastWriteTime.dwHighDateTime == s_cachedWriteTime.dwHighDateTime &&
         fileInfo.ftLastWriteTime.dwLowDateTime == s_cachedWriteTime.dwLowDateTime)
@@ -63,10 +69,18 @@ std::vector<LEProfile> ConfigReader::LoadProfiles()
         return s_cachedProfiles;
     }
 
-    s_cachedProfiles = LoadProfiles(configPath);
-    s_cachedWriteTime = fileInfo.ftLastWriteTime;
-    s_cached = true;
-    return s_cachedProfiles;
+    // Parse XML (outside lock would be better for perf, but config is small)
+    auto profiles = LoadProfiles(configPath);
+
+    // Only cache successful parse (non-empty result)
+    if (!profiles.empty())
+    {
+        s_cachedProfiles = std::move(profiles);
+        s_cachedWriteTime = fileInfo.ftLastWriteTime;
+        s_cached = true;
+    }
+
+    return s_cached ? s_cachedProfiles : profiles;
 }
 
 std::vector<LEProfile> ConfigReader::LoadProfiles(const std::wstring& configPath)

@@ -10,9 +10,17 @@
 #include <stdio.h>
 
 // ========================================================================
-// Re-declare structs exactly as Core defines them (from LocaleEmulator.h).
-// We cannot #include LocaleEmulator.h directly because it pulls in ml.h
-// which has heavy dependencies. These definitions must stay in sync.
+// KNOWN LIMITATION: These are hand-copied struct definitions, not the actual
+// Core headers. If someone changes the struct layout in src/Core/LocaleEmulator/
+// LocaleEmulator.h, this test will NOT automatically detect the mismatch.
+//
+// Mitigations:
+// 1. Core is archived upstream code, rarely changed
+// 2. All Core changes must use [Core] commit prefix — reviewer should check this file
+// 3. End-to-end smoke test (Invoke-SmokeTest.ps1) catches ABI mismatches at runtime
+//
+// We cannot #include LocaleEmulator.h directly because it pulls in ml.h (~1.4MB)
+// which has heavy dependencies on WDK, custom ML framework, and inline assembly.
 // ========================================================================
 
 typedef struct {
