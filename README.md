@@ -1,7 +1,7 @@
 Locale Emulator
 ===============
 
-[![license](https://img.shields.io/github/license/xupefei/Locale-Emulator.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
+[![license](https://img.shields.io/github/license/ooxxTaiwan/Locale-Emulator-J.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 [![CI](https://github.com/ooxxTaiwan/Locale-Emulator-J/actions/workflows/ci.yml/badge.svg)](https://github.com/ooxxTaiwan/Locale-Emulator-J/actions/workflows/ci.yml)
 
 Yet Another System Region and Language Simulator
@@ -10,13 +10,20 @@ Yet Another System Region and Language Simulator
 
 Locale Emulator lets you run Windows applications under a different locale without changing the OS system locale. It works by hooking Windows API calls in target processes via native DLL injection.
 
-## Core Source Attribution
+## Project Origin
 
-The native hooking core (`src/Core/`) originates from [Locale-Emulator-Core](https://github.com/xupefei/Locale-Emulator-Core):
+This project is a continuation of [xupefei/Locale-Emulator](https://github.com/xupefei/Locale-Emulator), which was archived by its original author on 2022-04-15. This repository was forked from the original and has since been detached from the fork network for independent development.
 
-- **Upstream commit**: `ae7160dc5deb97947396abcd784f9b98b6ee38b3` (2021-08-23)
-- **Archive date**: 2022-04-15 (repository archived by original owner)
-- **Integration**: Source code copied directly into this repository for continued maintenance
+The native hooking core (`src/Core/`) originates from [Locale-Emulator-Core](https://github.com/xupefei/Locale-Emulator-Core) (upstream commit `ae7160d`, archived 2022-04-15), integrated directly into this repository for continued maintenance.
+
+### Major changes from the original
+
+- Migrated from .NET Framework 4.0 to **.NET 10**
+- Shell Extension rewritten from .NET COM to **native C++** (COM IShellExtInit + IContextMenu)
+- Integrated Locale-Emulator-Core source code directly into repository
+- Added CI/CD with GitHub Actions (build, test, code coverage)
+- LEUpdater removed (will be redesigned)
+- LEInstaller merged into LEGUI
 
 ## System Requirements
 
@@ -61,10 +68,14 @@ dotnet test tests/LEProc.Tests/ --arch x86    # needs Windows Desktop Runtime x8
 
 If you want to help translating Locale Emulator, you can find all strings in:
 
-- `DefaultLanguage.xaml` in `LEGUI/Lang/` folder (WPF UI)
+- `DefaultLanguage.xaml` in `src/LEGUI/Lang/` folder (WPF UI)
 - `DefaultLanguage.xml` in `src/ShellExtension/Lang/` folder (context menu)
 
-After you translated the above files into your language, please inform us by creating a pull request.
+After you translated the above files into your language, please submit a pull request.
+
+## Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests. Please ensure CI passes before requesting review.
 
 ## License
 
@@ -75,5 +86,3 @@ After you translated the above files into your language, please inform us by cre
 - Shell Extension uses [pugixml](https://pugixml.org/) (MIT license)
 
 [Flat icon set](commit/eae9fbc27f1a4c85986577202b61742c6287e10a) from [graphicex](https://graphicex.com/icon-and-logo/15983-flat-alphabet-in-9-colors-with-long-shadow-6913875.html).
-
-If you want to make any modification on these source codes while keeping new codes not protected by LGPL-3.0, please contact us for a sublicense instead.
