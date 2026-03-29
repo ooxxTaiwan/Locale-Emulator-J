@@ -143,8 +143,11 @@ void ConfigReader::WriteDefaultConfig(const std::wstring& path)
         auto p = profilesNode.append_child("Profile");
         p.append_attribute("Name") = "Run in Japanese";
 
-        // Convert wide GUID to UTF-8 for pugixml
-        std::string g1Utf8(g1.begin(), g1.end()); // ASCII-safe for GUIDs
+        // Convert wide GUID to narrow string for pugixml (GUIDs are ASCII-safe)
+        std::string g1Utf8;
+        g1Utf8.reserve(g1.size());
+        for (wchar_t ch : g1)
+            g1Utf8.push_back(static_cast<char>(ch));
         p.append_attribute("Guid") = g1Utf8.c_str();
         p.append_attribute("MainMenu") = "False";
 
@@ -162,7 +165,10 @@ void ConfigReader::WriteDefaultConfig(const std::wstring& path)
         auto p = profilesNode.append_child("Profile");
         p.append_attribute("Name") = "Run in Japanese (Admin)";
 
-        std::string g2Utf8(g2.begin(), g2.end());
+        std::string g2Utf8;
+        g2Utf8.reserve(g2.size());
+        for (wchar_t ch : g2)
+            g2Utf8.push_back(static_cast<char>(ch));
         p.append_attribute("Guid") = g2Utf8.c_str();
         p.append_attribute("MainMenu") = "False";
 

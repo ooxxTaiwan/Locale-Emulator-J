@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <guiddef.h>
 #include <shlobj.h>
+#include <stdio.h>          // for _snwprintf_s
 #include <new>              // for std::nothrow
 #include "ClassFactory.h"
 #include "Resource.h"
