@@ -1,136 +1,147 @@
 # ============================================================
 # Locale Emulator - CI Workflow
 # ============================================================
-# 觸發條件：push 至 master、所有 Pull Request
-# 執行內容：建置全部專案（x86 + x64）、執行 .NET 測試、執行 C++ 測試
-# Runner：windows-2025-vs2026（Windows Server 2025 + VS 2026 Build Tools）
+# .NET 專案用 dotnet build/test（自帶 SDK 解析）
+# C++ 專案用 msbuild（VS Build Tools）
+# Core 只有 Release|Win32 組態，不建 Debug
 # ============================================================
 
 name: CI
 
-# 觸發條件
 on:
   push:
-    branches: [ master ]        # push 至 master 時觸發
+    branches: [ master ]
   pull_request:
-    branches: [ master ]        # 對 master 發 PR 時觸發
+    branches: [ master ]
 
-# 環境變數（全域）
 env:
-  DOTNET_NOLOGO: true           # 不顯示 .NET 歡迎訊息
-  DOTNET_CLI_TELEMETRY_OPTOUT: true  # 關閉遙測
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
   build-and-test:
     name: Build & Test
-    runs-on: windows-2025-vs2026     # Windows Server 2025 + VS 2026 Build Tools（public preview，日後可能併入 windows-latest）
+    runs-on: windows-2025-vs2026
 
     steps:
       # --------------------------------------------------------
-      # Step 1: 取得原始碼
+      # Step 1: Checkout
       # --------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
       # --------------------------------------------------------
-      # Step 2: 安裝 .NET 10 SDK
+      # Step 2: Setup .NET 10 SDK
       # --------------------------------------------------------
-      # GitHub runner 預裝的 .NET 版本可能不含 .NET 10，
-      # 使用 actions/setup-dotnet 確保版本正確。
       - name: Setup .NET 10 SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
       # --------------------------------------------------------
-      # Step 3: 設定 MSBuild
+      # Step 3: Setup MSBuild (for C++ vcxproj)
       # --------------------------------------------------------
-      # 需要 MSBuild 來建置 C++ 專案（.vcxproj）。
-      # microsoft/setup-msbuild 會尋找 VS Build Tools 並加入 PATH。
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
       # --------------------------------------------------------
-      # Step 4: 還原 .NET 相依性
+      # Step 4: Restore .NET dependencies
       # --------------------------------------------------------
       - name: Restore .NET dependencies
-        run: dotnet restore LocaleEmulator.sln
+        run: |
+          dotnet restore src/LECommonLibrary/LECommonLibrary.csproj
+          dotnet restore src/LEProc/LEProc.csproj
+          dotnet restore src/LEGUI/LEGUI.csproj
+          dotnet restore tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj
+          dotnet restore tests/LEProc.Tests/LEProc.Tests.csproj
+          dotnet restore tests/LEGUI.Tests/LEGUI.Tests.csproj
 
       # --------------------------------------------------------
-      # Step 5: 建置 Debug|Win32（含測試專案）
+      # Step 5: Build .NET projects (Debug, for tests)
       # --------------------------------------------------------
-      # Debug 組態建置所有專案（含測試專案）。
-      # 根據 spec solution matrix，測試專案只在 Debug 建置。
-      - name: Build Solution (Debug|Win32)
-        run: msbuild LocaleEmulator.sln /p:Configuration=Debug /p:Platform=Win32 /m /v:minimal
+      - name: Build .NET projects (Debug)
+        run: |
+          dotnet build src/LECommonLibrary/LECommonLibrary.csproj --configuration Debug --no-restore
+          dotnet build src/LEProc/LEProc.csproj --configuration Debug --no-restore
+          dotnet build src/LEGUI/LEGUI.csproj --configuration Debug --no-restore
+          dotnet build tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj --configuration Debug --no-restore
+          dotnet build tests/LEProc.Tests/LEProc.Tests.csproj --configuration Debug --no-restore
+          dotnet build tests/LEGUI.Tests/LEGUI.Tests.csproj --configuration Debug --no-restore
 
       # --------------------------------------------------------
-      # Step 6: Build Debug|x64 (ShellExtension.Tests)
+      # Step 6: Run .NET tests (x64)
       # --------------------------------------------------------
-      - name: Build Solution (Debug|x64)
-        run: msbuild LocaleEmulator.sln /p:Configuration=Debug /p:Platform=x64 /m /v:minimal
-
-      # --------------------------------------------------------
-      # Step 7a: 執行 .NET 測試（xUnit, x64）
-      # --------------------------------------------------------
-      # LECommonLibrary.Tests 與 LEGUI.Tests 以 x64 執行（已在 Step 5 以 Debug 建置過）。
       - name: Run .NET tests (x64)
         run: |
           dotnet test tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed"
           dotnet test tests/LEGUI.Tests/LEGUI.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed"
 
       # --------------------------------------------------------
-      # Step 7b: 執行 LEProc.Tests（xUnit, x86）
+      # Step 7: Run LEProc.Tests (x86)
       # --------------------------------------------------------
-      # LEProc.Tests 需要 x86 架構（LEProc 必須為 x86），無法使用 --no-build。
+      # LEProc has PlatformTarget=x86, needs x86 test host.
+      # --arch x86 requires Windows Desktop Runtime x86.
+      # Cannot use --no-build (rebuilds for x86 architecture).
       - name: Run LEProc.Tests (x86)
         run: dotnet test tests/LEProc.Tests/LEProc.Tests.csproj --arch x86 --configuration Debug --logger "console;verbosity=detailed"
 
       # --------------------------------------------------------
-      # Step 8: 執行 C++ 測試（Google Test）
+      # Step 8: Build C++ projects (Release|Win32)
       # --------------------------------------------------------
-      # Google Test 產出獨立的 .exe，在 Debug 建置輸出中尋找。
-      - name: Run C++ tests (Google Test)
+      # Core only has Release|Win32 config. All x86 C++ projects
+      # built here: Core, ShellExtension, LocaleTestApp, Core.Tests.
+      - name: Build C++ (Release|Win32)
         run: |
-          $testExes = Get-ChildItem -Path "Build\Debug\x86" -Filter "*Tests*.exe" -Recurse
+          msbuild src/Core/LoaderDll/LoaderDll.vcxproj /p:Configuration=Release /p:Platform=Win32 /v:minimal
+          msbuild src/Core/LocaleEmulator/LocaleEmulator.vcxproj /p:Configuration=Release /p:Platform=Win32 /v:minimal
+          msbuild src/Core/Loader/Loader.vcxproj /p:Configuration=Release /p:Platform=Win32 /v:minimal
+          msbuild src/ShellExtension/ShellExtension.vcxproj /p:Configuration=Release /p:Platform=Win32 /v:minimal
+          msbuild tests/SmokeTest/LocaleTestApp/LocaleTestApp.vcxproj /p:Configuration=Release /p:Platform=Win32 /v:minimal
+          msbuild tests/Core.Tests/Core.Tests.vcxproj /p:Configuration=Release /p:Platform=Win32 /v:minimal
+
+      # --------------------------------------------------------
+      # Step 9: Build C++ projects (Release|x64)
+      # --------------------------------------------------------
+      # ShellExtension (x64 for 64-bit Explorer) and its tests.
+      - name: Build C++ (Release|x64)
+        run: |
+          msbuild src/ShellExtension/ShellExtension.vcxproj /p:Configuration=Release /p:Platform=x64 /v:minimal
+          msbuild tests/ShellExtension.Tests/ShellExtension.Tests.vcxproj /p:Configuration=Release /p:Platform=x64 /v:minimal
+
+      # --------------------------------------------------------
+      # Step 10: Run C++ tests
+      # --------------------------------------------------------
+      - name: Run C++ tests
+        run: |
           $failed = $false
-          foreach ($exe in $testExes) {
+
+          # x86 tests (Core.Tests)
+          $testExes86 = Get-ChildItem -Path "Build\Release\x86" -Filter "*Tests*.exe" -Recurse -ErrorAction SilentlyContinue
+          foreach ($exe in $testExes86) {
             Write-Host "Running: $($exe.FullName)" -ForegroundColor Cyan
-            & $exe.FullName --gtest_output=xml:$($exe.DirectoryName)\$($exe.BaseName)_results.xml
+            & $exe.FullName
             if ($LASTEXITCODE -ne 0) {
               Write-Host "FAILED: $($exe.Name)" -ForegroundColor Red
               $failed = $true
             }
           }
-          # Also search x64 tests
-          $testExes64 = Get-ChildItem -Path "Build\Debug\x64" -Filter "*Tests*.exe" -Recurse -ErrorAction SilentlyContinue
-          if ($testExes64) {
-            foreach ($exe in $testExes64) {
-              Write-Host "Running: $($exe.FullName)" -ForegroundColor Cyan
-              & $exe.FullName --gtest_output=xml:$($exe.DirectoryName)\$($exe.BaseName)_results.xml
-              if ($LASTEXITCODE -ne 0) {
-                Write-Host "FAILED: $($exe.Name)" -ForegroundColor Red
-                $failed = $true
-              }
+
+          # x64 tests (ShellExtension.Tests)
+          $testExes64 = Get-ChildItem -Path "Build\Release\x64" -Filter "*Tests*.exe" -Recurse -ErrorAction SilentlyContinue
+          foreach ($exe in $testExes64) {
+            Write-Host "Running: $($exe.FullName)" -ForegroundColor Cyan
+            & $exe.FullName
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "FAILED: $($exe.Name)" -ForegroundColor Red
+              $failed = $true
             }
           }
+
           if ($failed) { exit 1 }
         shell: pwsh
 
       # --------------------------------------------------------
-      # Step 9: 建置 Release|Win32（產品建置，不含測試）
-      # --------------------------------------------------------
-      - name: Build Solution (Release|Win32)
-        run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=Win32 /m /v:minimal
-
-      # --------------------------------------------------------
-      # Step 10: 建置 Release|x64（僅 ShellExtension）
-      # --------------------------------------------------------
-      - name: Build Solution (Release|x64)
-        run: msbuild LocaleEmulator.sln /p:Configuration=Release /p:Platform=x64 /m /v:minimal
-
-      # --------------------------------------------------------
-      # Step 11: 執行 Smoke Tests
+      # Step 11: Smoke Tests
       # --------------------------------------------------------
       - name: Smoke Tests
         run: .\tests\SmokeTest\Invoke-SmokeTest.ps1
@@ -138,9 +149,8 @@ jobs:
         if: success()
 
       # --------------------------------------------------------
-      # Step 12: 上傳建置產物（可選）
+      # Step 12: Upload build artifacts
       # --------------------------------------------------------
-      # 將建置輸出上傳為 artifact，方便下載測試。
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         if: always()
