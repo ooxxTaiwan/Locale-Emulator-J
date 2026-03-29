@@ -1,84 +1,85 @@
-﻿using System;
+#nullable disable
+
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Markup;
 
-namespace LEGUI
+namespace LEGUI;
+
+internal class I18n
 {
-    internal class I18n
+    internal static readonly CultureInfo CurrentCultureInfo = CultureInfo.CurrentUICulture;
+
+    private static ResourceDictionary cacheDictionary;
+
+    internal static string GetString(string key)
     {
-        internal static readonly CultureInfo CurrentCultureInfo = CultureInfo.CurrentUICulture;
-        //internal static readonly CultureInfo CurrentCultureInfo = CultureInfo.GetCultureInfo("zh-CN");
-
-        private static ResourceDictionary cacheDictionary;
-
-        internal static string GetString(string key)
+        var dict = LoadDictionary();
+        try
         {
-            var dict = LoadDictionary();
-            try
-            {
-                var s = (string)dict[key];
+            var s = (string)dict[key];
 
-                if (string.IsNullOrEmpty(s))
-                    return key;
-
-                return s;
-            }
-            catch
-            {
+            if (string.IsNullOrEmpty(s))
                 return key;
-            }
+
+            return s;
         }
-
-        private static ResourceDictionary LoadDictionary()
+        catch
         {
-            if (cacheDictionary != null)
-                return cacheDictionary;
+            return key;
+        }
+    }
 
-            ResourceDictionary dictionary = null;
-            try
-            {
-                var langDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Lang\");
-
-                var firstLangPath = Path.Combine(langDir, CurrentCultureInfo.Name + ".xaml");
-                var fallbackLangPath = Path.Combine(langDir,
-                                                    $@"{CurrentCultureInfo.TwoLetterISOLanguageName}.xaml");
-
-                if (File.Exists(firstLangPath))
-                    Application.Current.Resources.MergedDictionaries
-                               .Insert(0,
-                                       XamlReader.Load(new FileStream(firstLangPath, FileMode.Open))
-                                       as ResourceDictionary);
-                else
-                    Application.Current.Resources.MergedDictionaries
-                               .Insert(0,
-                                       XamlReader.Load(new FileStream(fallbackLangPath, FileMode.Open))
-                                       as ResourceDictionary);
-            }
-            catch
-            {
-            }
-
-            //If dictionary is still null, use default language.
-            if (dictionary == null)
-                if (Application.Current.Resources.MergedDictionaries.Count > 0)
-                    dictionary = Application.Current.Resources.MergedDictionaries[0];
-                else
-                    throw new Exception("No language file.");
-
-            cacheDictionary = dictionary;
-
+    private static ResourceDictionary LoadDictionary()
+    {
+        if (cacheDictionary != null)
             return cacheDictionary;
-        }
 
-        internal static void LoadLanguage()
+        ResourceDictionary dictionary = null;
+        try
         {
-            var dict = LoadDictionary();
+            var langDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Lang\");
 
-            Application.Current.Resources.MergedDictionaries.Clear();
-            Application.Current.Resources.MergedDictionaries.Add(dict);
+            var firstLangPath = Path.Combine(langDir, CurrentCultureInfo.Name + ".xaml");
+            var fallbackLangPath = Path.Combine(langDir,
+                                                $@"{CurrentCultureInfo.TwoLetterISOLanguageName}.xaml");
+
+            if (File.Exists(firstLangPath))
+            {
+                using var stream = new FileStream(firstLangPath, FileMode.Open);
+                Application.Current.Resources.MergedDictionaries
+                           .Insert(0, XamlReader.Load(stream) as ResourceDictionary);
+            }
+            else if (File.Exists(fallbackLangPath))
+            {
+                using var stream = new FileStream(fallbackLangPath, FileMode.Open);
+                Application.Current.Resources.MergedDictionaries
+                           .Insert(0, XamlReader.Load(stream) as ResourceDictionary);
+            }
         }
+        catch
+        {
+        }
+
+        //If dictionary is still null, use default language.
+        if (dictionary == null)
+            if (Application.Current.Resources.MergedDictionaries.Count > 0)
+                dictionary = Application.Current.Resources.MergedDictionaries[0];
+            else
+                throw new Exception("No language file.");
+
+        cacheDictionary = dictionary;
+
+        return cacheDictionary;
+    }
+
+    internal static void LoadLanguage()
+    {
+        var dict = LoadDictionary();
+
+        Application.Current.Resources.MergedDictionaries.Clear();
+        Application.Current.Resources.MergedDictionaries.Add(dict);
     }
 }

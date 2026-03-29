@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <FontFamily x:Key="UIFont">Segoe UI</FontFamily>
     <system:String x:Key="EnterArgument">Čia įveskite programos argumentus (jei reikia)</system:String>
     <system:String x:Key="Save">Įrašyti</system:String>
