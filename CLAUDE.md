@@ -143,6 +143,7 @@ XML files (`LEConfig.xml` and `*.le.config`) share the same schema:
 - `tests/LEProc.Tests/` -- codepage mapping, CultureInfo queries, CLI argument parsing, registry redirect
 - `tests/LEGUI.Tests/` -- Shell Extension registration logic, i18n loading, ViewModel logic
 - `tests/Core.Tests/` -- LEB/LEPEB struct layout, registry redirect entry serialization
+- `tests/ShellExtension.Tests/` -- COM export verification, DllRegisterServer/Unregister round-trip (x64)
 
 ### Smoke Test
 
