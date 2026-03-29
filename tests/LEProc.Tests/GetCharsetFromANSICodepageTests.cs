@@ -17,8 +17,8 @@ public class GetCharsetFromANSICodepageTests
     [InlineData(1255, 177)]  // Hebrew -> HEBREW_CHARSET
     [InlineData(1256, 178)]  // Arabic -> ARABIC_CHARSET
     [InlineData(1257, 186)]  // Baltic -> BALTIC_CHARSET
-    [InlineData(874, 0)]     // Thai -> not in switch, returns ANSI_CHARSET (0)
-    [InlineData(1258, 0)]    // Vietnamese -> not in switch, returns ANSI_CHARSET (0)
+    [InlineData(874, 222)]   // Thai -> THAI_CHARSET
+    [InlineData(1258, 163)]  // Vietnamese -> VIETNAMESE_CHARSET
     [InlineData(437, 0)]     // OEM US -> not in switch, returns ANSI_CHARSET (0)
     [InlineData(0, 0)]       // Unknown -> ANSI_CHARSET (0)
     public void GetCharsetFromANSICodepage_ReturnsExpectedCharset(int codepage, int expectedCharset)

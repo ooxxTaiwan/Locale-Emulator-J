@@ -317,6 +317,9 @@ internal static class Program
 
         switch (ansicp)
         {
+            case 874: // Thai
+                charset = THAI_CHARSET;
+                break;
             case 932: // Japanese
                 charset = SHIFTJIS_CHARSET;
                 break;
@@ -352,6 +355,9 @@ internal static class Program
                 break;
             case 1257: // Baltic
                 charset = BALTIC_CHARSET;
+                break;
+            case 1258: // Vietnamese
+                charset = VIETNAMESE_CHARSET;
                 break;
         }
 
