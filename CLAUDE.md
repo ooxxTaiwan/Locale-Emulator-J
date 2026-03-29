@@ -46,9 +46,24 @@ Build/Release/
     ShellExtension.dll      # Shell Extension (x64)
 ```
 
+### Build Configurations (C++ projects)
+
+| C++ Project | Debug\|Win32 | Release\|Win32 | Debug\|x64 | Release\|x64 |
+|-------------|:---:|:---:|:---:|:---:|
+| Core/LoaderDll | - | ✓ | - | - |
+| Core/LocaleEmulator | - | ✓ | - | - |
+| Core/Loader | - | ✓ | - | - |
+| ShellExtension | ✓ | ✓ | ✓ | ✓ |
+| LocaleTestApp | ✓ | ✓ | - | - |
+| Core.Tests | ✓ | ✓ | - | - |
+| ShellExtension.Tests | - | - | ✓ | ✓ |
+
+Note: Core only has Release. CI uses `dotnet build` for .NET projects and `msbuild` for C++ vcxproj individually.
+
 ### Build Prerequisites
 
 - .NET 10 SDK
+- .NET 10 Windows Desktop Runtime x86 (for LEProc.Tests `--arch x86`)
 - MSVC Build Tools 2026 (v145) -- via VS 2026 or standalone Build Tools
 - All assemblies are strong-name signed with `key.snk`
 - Shared build properties defined in `Directory.Build.props`
