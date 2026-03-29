@@ -34,14 +34,15 @@ jobs:
       # Step 2: Setup .NET 10 SDK
       # --------------------------------------------------------
       - name: Setup .NET 10 SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
       # LEProc.Tests needs x86 test host (LEProc has PlatformTarget=x86).
       # Install Windows Desktop Runtime x86 for dotnet test --arch x86.
+      # Note: architecture + runtime params require v5, not v4.
       - name: Setup .NET 10 Windows Desktop Runtime (x86)
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
           architecture: x86
