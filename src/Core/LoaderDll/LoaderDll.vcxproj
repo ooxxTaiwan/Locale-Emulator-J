@@ -10,12 +10,12 @@
     <SccProjectName />
     <SccLocalPath />
     <ProjectGuid>{7015572F-2B06-48AF-8CEA-340ACE68D25A}</ProjectGuid>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v141_xp</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -51,7 +51,7 @@
       <PrecompiledHeaderOutputFile>.\Release\LoaderDll.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Release\</ObjectFileName>
       <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
-      <AdditionalOptions> /GL /GS- /arch:SSE /MP </AdditionalOptions>
+      <AdditionalOptions>/Zc:templateScope- /GL /GS- /arch:SSE /MP </AdditionalOptions>
       <CallingConvention>FastCall</CallingConvention>
     </ClCompile>
     <Midl>
@@ -87,7 +87,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="LoaderDll.cpp">
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /GL /GS- /arch:SSE /MP   /GL /GS- /arch:SSE /MP </AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/Zc:templateScope- /GL /GS- /arch:SSE /MP   /GL /GS- /arch:SSE /MP </AdditionalOptions>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
