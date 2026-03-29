@@ -95,17 +95,16 @@ jobs:
         shell: pwsh
 
       # ---- Assemble runtime directory ----
-      # Smoke test expects all files in Build/Release/x86/:
-      #   LEProc.exe + LECommonLibrary.dll (.NET)
-      #   LoaderDll.dll + LocaleEmulator.dll (Core native)
+      # Build/Release/x86/ = complete product directory per README/CLAUDE.md:
+      #   LEProc.exe, LEGUI.exe, LECommonLibrary.dll (.NET)
+      #   LoaderDll.dll, LocaleEmulator.dll (Core native)
+      #   ShellExtension.dll (C++, already here via vcxproj OutDir)
       #   LocaleTestApp.exe (C++ test app, already here via vcxproj OutDir)
-      #
-      # dotnet publish puts LEProc + all .NET deps into the output dir.
-      # Core DLLs need manual copy (they output to src/Core/*/Release/).
 
       - name: Assemble runtime directory
         run: |
           dotnet publish src/LEProc/LEProc.csproj -c Release -o Build/Release/x86/
+          dotnet publish src/LEGUI/LEGUI.csproj -c Release -o Build/Release/x86/
           Copy-Item src/Core/LoaderDll/Release/LoaderDll.dll Build/Release/x86/ -Force
           Copy-Item src/Core/LocaleEmulator/Release/LocaleEmulator.dll Build/Release/x86/ -Force
           Write-Host "Assembled files:" -ForegroundColor Cyan
