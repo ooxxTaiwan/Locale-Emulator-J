@@ -9,7 +9,7 @@ public class ShellExtensionRegistrarTests
     private const string TestClsid = "{12345678-ABCD-EF01-2345-6789ABCDEF01}";
     private const string OldClsid = ShellExtensionRegistrar.OldClsid;
     private const string TestDllPath = @"C:\Program Files\LE\ShellExtension.dll";
-    private const string FriendlyName = "LocaleEmulator Shell Extension";
+    private const string FriendlyName = "Locale Emulator Shell Extension";
 
     private readonly IRegistryOperations _mockRegistry;
     private readonly Dictionary<string, List<(string? name, object value)>> _writtenKeys;
