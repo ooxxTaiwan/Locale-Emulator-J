@@ -1,0 +1,11 @@
+// src/ShellExtension/Resource.rc
+#include "Resource.h"
+
+IDB_PURPLE      BITMAP  "Resources\\purple.bmp"
+IDB_PURPLE_200  BITMAP  "Resources\\purple@200.bmp"
+IDB_GRAY        BITMAP  "Resources\\gray.bmp"
+IDB_GRAY_200    BITMAP  "Resources\\gray@200.bmp"
+IDB_BLUE        BITMAP  "Resources\\blue.bmp"
+IDB_BLUE_200    BITMAP  "Resources\\blue@200.bmp"
+IDB_YELLOW      BITMAP  "Resources\\yellow.bmp"
+IDB_YELLOW_200  BITMAP  "Resources\\yellow@200.bmp"
