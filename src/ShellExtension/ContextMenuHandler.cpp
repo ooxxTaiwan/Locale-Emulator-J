@@ -6,6 +6,7 @@
 #include <shlwapi.h>
 #include <shellapi.h>
 #include <strsafe.h>
+#include <mutex>
 
 #pragma comment(lib, "shlwapi.lib")
 
@@ -21,11 +22,22 @@ ContextMenuHandler::ContextMenuHandler()
 {
     InterlockedIncrement(&g_dllRefCount);
 
-    // Load bitmaps based on DPI
-    m_bmpPurple = LoadMenuBitmap(IDB_PURPLE, IDB_PURPLE_200);
-    m_bmpGray   = LoadMenuBitmap(IDB_GRAY, IDB_GRAY_200);
-    m_bmpBlue   = LoadMenuBitmap(IDB_BLUE, IDB_BLUE_200);
-    m_bmpYellow = LoadMenuBitmap(IDB_YELLOW, IDB_YELLOW_200);
+    // Load bitmaps once per DLL lifetime (static cache)
+    static std::once_flag s_bmpFlag;
+    static HBITMAP s_bmpPurple, s_bmpGray, s_bmpBlue, s_bmpYellow;
+
+    std::call_once(s_bmpFlag, [this]() {
+        bool hiDpi = Is4KDisplay();
+        s_bmpPurple = LoadMenuBitmap(IDB_PURPLE, IDB_PURPLE_200, hiDpi);
+        s_bmpGray   = LoadMenuBitmap(IDB_GRAY, IDB_GRAY_200, hiDpi);
+        s_bmpBlue   = LoadMenuBitmap(IDB_BLUE, IDB_BLUE_200, hiDpi);
+        s_bmpYellow = LoadMenuBitmap(IDB_YELLOW, IDB_YELLOW_200, hiDpi);
+    });
+
+    m_bmpPurple = s_bmpPurple;
+    m_bmpGray   = s_bmpGray;
+    m_bmpBlue   = s_bmpBlue;
+    m_bmpYellow = s_bmpYellow;
 
     // Build default menu items
     m_menuItems.push_back({I18n::GetString(L"Submenu"),
@@ -36,9 +48,6 @@ ContextMenuHandler::ContextMenuHandler()
                            true, -1, m_bmpGray, L"-manage \"%APP%\""});
     m_menuItems.push_back({I18n::GetString(L"ManageAll"),
                            true, -1, m_bmpBlue, L"-global"});
-
-    // Ensure config exists
-    ConfigReader::EnsureConfigExists();
 
     // Load user-defined profiles
     auto profiles = ConfigReader::LoadProfiles();
@@ -56,11 +65,7 @@ ContextMenuHandler::ContextMenuHandler()
 
 ContextMenuHandler::~ContextMenuHandler()
 {
-    if (m_bmpPurple) DeleteObject(m_bmpPurple);
-    if (m_bmpGray)   DeleteObject(m_bmpGray);
-    if (m_bmpBlue)   DeleteObject(m_bmpBlue);
-    if (m_bmpYellow) DeleteObject(m_bmpYellow);
-
+    // Bitmaps are static (live for DLL lifetime), do not DeleteObject here.
     InterlockedDecrement(&g_dllRefCount);
 }
 
@@ -311,7 +316,7 @@ IFACEMETHODIMP ContextMenuHandler::QueryContextMenu(HMENU hMenu, UINT indexMenu,
 
     // Return the count of items added (largest command ID offset + 1)
     return MAKE_HRESULT(SEVERITY_SUCCESS, 0,
-                        static_cast<USHORT>(m_menuItems.size()) + 3);
+                        static_cast<USHORT>(m_menuItems.size()));
 }
 
 IFACEMETHODIMP ContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
@@ -345,9 +350,9 @@ IFACEMETHODIMP ContextMenuHandler::GetCommandString(UINT_PTR /*idCmd*/,
 // Helper methods
 // ========================================================================
 
-HBITMAP ContextMenuHandler::LoadMenuBitmap(int normalId, int hiDpiId)
+HBITMAP ContextMenuHandler::LoadMenuBitmap(int normalId, int hiDpiId, bool hiDpi)
 {
-    int resId = Is4KDisplay() ? hiDpiId : normalId;
+    int resId = hiDpi ? hiDpiId : normalId;
     return static_cast<HBITMAP>(
         LoadImageW(g_hModule, MAKEINTRESOURCEW(resId),
                    IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR));
@@ -373,58 +378,51 @@ ContextMenuHandler::PEType ContextMenuHandler::GetPEType(const std::wstring& pat
     if (path.empty())
         return PEType::Unknown;
 
-    HANDLE hFile = CreateFileW(path.c_str(), GENERIC_READ,
-                               FILE_SHARE_READ | FILE_SHARE_WRITE,
-                               nullptr, OPEN_EXISTING,
-                               FILE_ATTRIBUTE_NORMAL, nullptr);
-    if (hFile == INVALID_HANDLE_VALUE)
+    // RAII wrapper for HANDLE — closes automatically on scope exit
+    struct HandleGuard
+    {
+        HANDLE h;
+        HandleGuard(HANDLE handle) : h(handle) {}
+        ~HandleGuard() { if (h != INVALID_HANDLE_VALUE) CloseHandle(h); }
+        HandleGuard(const HandleGuard&) = delete;
+        HandleGuard& operator=(const HandleGuard&) = delete;
+    };
+
+    HandleGuard file(CreateFileW(path.c_str(), GENERIC_READ,
+                                 FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                 nullptr, OPEN_EXISTING,
+                                 FILE_ATTRIBUTE_NORMAL, nullptr));
+    if (file.h == INVALID_HANDLE_VALUE)
         return PEType::Unknown;
 
     // Read DOS header to check MZ signature
     WORD dosSignature = 0;
     DWORD bytesRead = 0;
 
-    if (!ReadFile(hFile, &dosSignature, sizeof(dosSignature), &bytesRead, nullptr)
+    if (!ReadFile(file.h, &dosSignature, sizeof(dosSignature), &bytesRead, nullptr)
         || bytesRead != sizeof(dosSignature)
         || dosSignature != 0x5A4D) // "MZ"
-    {
-        CloseHandle(hFile);
         return PEType::Unknown;
-    }
 
     // Seek to e_lfanew offset (0x3C)
-    if (SetFilePointer(hFile, 0x3C, nullptr, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
-    {
-        CloseHandle(hFile);
+    if (SetFilePointer(file.h, 0x3C, nullptr, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
         return PEType::Unknown;
-    }
 
     DWORD peOffset = 0;
-    if (!ReadFile(hFile, &peOffset, sizeof(peOffset), &bytesRead, nullptr)
+    if (!ReadFile(file.h, &peOffset, sizeof(peOffset), &bytesRead, nullptr)
         || bytesRead != sizeof(peOffset))
-    {
-        CloseHandle(hFile);
         return PEType::Unknown;
-    }
 
     // Seek past PE signature ("PE\0\0") to COFF header Machine field
     // PE signature is 4 bytes, Machine is the first 2 bytes of COFF header
     LONG machineOffset = static_cast<LONG>(peOffset) + 4;
-    if (SetFilePointer(hFile, machineOffset, nullptr, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
-    {
-        CloseHandle(hFile);
+    if (SetFilePointer(file.h, machineOffset, nullptr, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
         return PEType::Unknown;
-    }
 
     WORD machine = 0;
-    if (!ReadFile(hFile, &machine, sizeof(machine), &bytesRead, nullptr)
+    if (!ReadFile(file.h, &machine, sizeof(machine), &bytesRead, nullptr)
         || bytesRead != sizeof(machine))
-    {
-        CloseHandle(hFile);
         return PEType::Unknown;
-    }
-
-    CloseHandle(hFile);
 
     if (machine == 0x014C) // IMAGE_FILE_MACHINE_I386
         return PEType::X32;

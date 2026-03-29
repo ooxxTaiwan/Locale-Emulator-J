@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <mutex>
 
 class I18n
 {
@@ -17,8 +18,8 @@ private:
     static void LoadDictionary();
     static std::wstring GetLangDirectory();
     static std::wstring DetectLanguageCode();
-    static std::wstring Utf8ToWide(const std::string& utf8);
 
+    static std::mutex s_mutex;
     static bool s_loaded;
     static std::unordered_map<std::wstring, std::wstring> s_dictionary;
 };

@@ -219,12 +219,12 @@ internal static class Program
             }
 
             var currentDirectory = Path.GetDirectoryName(absPath);
-            var ansiCodePage = (uint) CultureInfo.GetCultureInfo(profile.Location).TextInfo.ANSICodePage;
-            var oemCodePage = (uint) CultureInfo.GetCultureInfo(profile.Location).TextInfo.OEMCodePage;
-            var localeID = (uint) CultureInfo.GetCultureInfo(profile.Location).TextInfo.LCID;
-            var defaultCharset = (uint)
-                GetCharsetFromANSICodepage(CultureInfo.GetCultureInfo(profile.Location)
-                    .TextInfo.ANSICodePage);
+            var cultureInfo = CultureInfo.GetCultureInfo(profile.Location);
+            var textInfo = cultureInfo.TextInfo;
+            var ansiCodePage = (uint) textInfo.ANSICodePage;
+            var oemCodePage = (uint) textInfo.OEMCodePage;
+            var localeID = (uint) textInfo.LCID;
+            var defaultCharset = (uint) GetCharsetFromANSICodepage(textInfo.ANSICodePage);
 
             var registries = profile.RedirectRegistry
                 ? RegistryEntriesLoader.GetRegistryEntries(profile.IsAdvancedRedirection)
@@ -252,7 +252,7 @@ internal static class Program
                             item.Key,
                             item.Name,
                             item.Type,
-                            item.GetValue(CultureInfo.GetCultureInfo(profile.Location))));
+                            item.GetValue(cultureInfo)));
 
             uint ret;
             if ((ret = l.Start()) != 0)

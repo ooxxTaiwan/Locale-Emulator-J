@@ -1,30 +1,17 @@
 // src/ShellExtension/I18n.cpp
 #include "I18n.h"
+#include "StringUtils.h"
 #include "ConfigReader.h" // for GetModuleDirectory()
 #include "pugixml/pugixml.hpp"
 #include <windows.h>
 #include <shlwapi.h>
+#include <mutex>
 
 #pragma comment(lib, "shlwapi.lib")
 
+std::mutex I18n::s_mutex;
 bool I18n::s_loaded = false;
 std::unordered_map<std::wstring, std::wstring> I18n::s_dictionary;
-
-std::wstring I18n::Utf8ToWide(const std::string& utf8)
-{
-    if (utf8.empty())
-        return {};
-
-    int len = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(),
-                                  static_cast<int>(utf8.size()), nullptr, 0);
-    if (len <= 0)
-        return {};
-
-    std::wstring wide(len, L'\0');
-    MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(),
-                        static_cast<int>(utf8.size()), &wide[0], len);
-    return wide;
-}
 
 std::wstring I18n::GetLangDirectory()
 {
@@ -48,11 +35,9 @@ std::wstring I18n::DetectLanguageCode()
 
 void I18n::LoadDictionary()
 {
+    std::lock_guard<std::mutex> lock(s_mutex);
     if (s_loaded)
         return;
-
-    s_loaded = true;
-    s_dictionary.clear();
 
     std::wstring langDir = GetLangDirectory();
     std::wstring langCode = DetectLanguageCode();
@@ -100,11 +85,13 @@ void I18n::LoadDictionary()
 
     for (pugi::xml_node child : strings.children())
     {
-        std::wstring key = Utf8ToWide(child.name());
-        std::wstring value = Utf8ToWide(child.child_value());
+        std::wstring key = StringUtils::Utf8ToWide(child.name());
+        std::wstring value = StringUtils::Utf8ToWide(child.child_value());
         if (!key.empty())
             s_dictionary[key] = value;
     }
+
+    s_loaded = true;
 }
 
 std::wstring I18n::GetString(const std::wstring& key)
@@ -120,6 +107,7 @@ std::wstring I18n::GetString(const std::wstring& key)
 
 void I18n::Reset()
 {
+    std::lock_guard<std::mutex> lock(s_mutex);
     s_loaded = false;
     s_dictionary.clear();
 }

@@ -1,0 +1,147 @@
+# ============================================================
+# Locale Emulator - CI Workflow
+# ============================================================
+# .NET: dotnet build/test (self-contained SDK resolution)
+# C++:  msbuild individual vcxproj (VS Build Tools)
+# Core only has Release|Win32 config
+# ============================================================
+
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  SOLUTION_DIR: ${{ github.workspace }}\
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: windows-2025-vs2026
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK (x64)
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      # LEProc has PlatformTarget=x86 → dotnet test --arch x86 needs x86 SDK
+      - name: Setup .NET 10 SDK (x86)
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+          architecture: x86
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      # ---- .NET Build & Test ----
+
+      - name: Restore .NET dependencies
+        run: |
+          dotnet restore tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj
+          dotnet restore tests/LEProc.Tests/LEProc.Tests.csproj
+          dotnet restore tests/LEGUI.Tests/LEGUI.Tests.csproj
+
+      - name: Build .NET projects (Debug)
+        run: |
+          dotnet build tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj -c Debug --no-restore
+          dotnet build tests/LEProc.Tests/LEProc.Tests.csproj -c Debug --no-restore
+          dotnet build tests/LEGUI.Tests/LEGUI.Tests.csproj -c Debug --no-restore
+
+      - name: Run .NET tests (x64)
+        run: |
+          dotnet test tests/LECommonLibrary.Tests/LECommonLibrary.Tests.csproj --no-build -c Debug --logger "console;verbosity=detailed"
+          dotnet test tests/LEGUI.Tests/LEGUI.Tests.csproj --no-build -c Debug --logger "console;verbosity=detailed"
+
+      - name: Run LEProc.Tests (x86)
+        run: dotnet test tests/LEProc.Tests/LEProc.Tests.csproj --arch x86 -c Debug --logger "console;verbosity=detailed"
+
+      # ---- C++ Build ----
+      # Pass SolutionDir so $(SolutionDir) resolves correctly in vcxproj OutDir
+
+      - name: Build Core (Release|Win32)
+        run: |
+          msbuild src/Core/LoaderDll/LoaderDll.vcxproj /p:Configuration=Release /p:Platform=Win32 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+          msbuild src/Core/LocaleEmulator/LocaleEmulator.vcxproj /p:Configuration=Release /p:Platform=Win32 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+          msbuild src/Core/Loader/Loader.vcxproj /p:Configuration=Release /p:Platform=Win32 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+        shell: pwsh
+
+      - name: Build ShellExtension + C++ tests (Release|Win32)
+        run: |
+          msbuild src/ShellExtension/ShellExtension.vcxproj /p:Configuration=Release /p:Platform=Win32 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+          msbuild tests/SmokeTest/LocaleTestApp/LocaleTestApp.vcxproj /p:Configuration=Release /p:Platform=Win32 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+          msbuild tests/Core.Tests/Core.Tests.vcxproj /p:Configuration=Release /p:Platform=Win32 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+        shell: pwsh
+
+      - name: Build ShellExtension + tests (Release|x64)
+        run: |
+          msbuild src/ShellExtension/ShellExtension.vcxproj /p:Configuration=Release /p:Platform=x64 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+          msbuild tests/ShellExtension.Tests/ShellExtension.Tests.vcxproj /p:Configuration=Release /p:Platform=x64 "/p:SolutionDir=$env:SOLUTION_DIR" /v:minimal
+        shell: pwsh
+
+      # ---- Assemble runtime directory ----
+      # Build/Release/x86/ = complete product directory per README/CLAUDE.md:
+      #   LEProc.exe, LEGUI.exe, LECommonLibrary.dll (.NET)
+      #   LoaderDll.dll, LocaleEmulator.dll (Core native)
+      #   ShellExtension.dll (C++, already here via vcxproj OutDir)
+      #   LocaleTestApp.exe (C++ test app, already here via vcxproj OutDir)
+
+      - name: Assemble runtime directory
+        run: |
+          dotnet publish src/LEProc/LEProc.csproj -c Release -o Build/Release/x86/
+          dotnet publish src/LEGUI/LEGUI.csproj -c Release -o Build/Release/x86/
+          Copy-Item src/Core/LoaderDll/Release/LoaderDll.dll Build/Release/x86/ -Force
+          Copy-Item src/Core/LocaleEmulator/Release/LocaleEmulator.dll Build/Release/x86/ -Force
+          Write-Host "Assembled files:" -ForegroundColor Cyan
+          Get-ChildItem Build/Release/x86/ -Name | ForEach-Object { Write-Host "  $_" }
+        shell: pwsh
+
+      # ---- C++ Tests ----
+
+      - name: Run C++ tests
+        run: |
+          $failed = $false
+          # x86 tests
+          $exes86 = Get-ChildItem -Path "Build\Release\x86" -Filter "*Tests*.exe" -Recurse -ErrorAction SilentlyContinue
+          foreach ($exe in $exes86) {
+            Write-Host "Running: $($exe.FullName)" -ForegroundColor Cyan
+            & $exe.FullName
+            if ($LASTEXITCODE -ne 0) { Write-Host "FAILED: $($exe.Name)" -ForegroundColor Red; $failed = $true }
+          }
+          # x64 tests
+          $exes64 = Get-ChildItem -Path "Build\Release\x64" -Filter "*Tests*.exe" -Recurse -ErrorAction SilentlyContinue
+          foreach ($exe in $exes64) {
+            Write-Host "Running: $($exe.FullName)" -ForegroundColor Cyan
+            & $exe.FullName
+            if ($LASTEXITCODE -ne 0) { Write-Host "FAILED: $($exe.Name)" -ForegroundColor Red; $failed = $true }
+          }
+          if ($failed) { exit 1 }
+        shell: pwsh
+
+      # ---- Smoke Test ----
+
+      - name: Smoke Tests
+        run: .\tests\SmokeTest\Invoke-SmokeTest.ps1
+        shell: pwsh
+        if: success()
+
+      # ---- Artifacts ----
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-output
+          path: |
+            Build/Release/x86/
+            Build/Release/x64/
+          retention-days: 7
