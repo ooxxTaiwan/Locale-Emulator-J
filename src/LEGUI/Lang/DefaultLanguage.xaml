@@ -1,6 +1,6 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <FontFamily x:Key="UIFont">Segoe UI</FontFamily>
     <system:String x:Key="EnterArgument">Enter argument here (if any)</system:String>
     <system:String x:Key="Save">Save</system:String>
@@ -21,4 +21,13 @@
     <system:String x:Key="WithCREATESUSPENDED">Create process with CREATE__SUSPENDED</system:String>
     <system:String x:Key="Miscellaneous">Miscellaneous</system:String>
     <system:String x:Key="ShowInMainMenu">Show this profile in main menu</system:String>
+    <system:String x:Key="InstallSuccess">Shell Extension installed successfully. Please restart Explorer or log out to take effect.</system:String>
+    <system:String x:Key="UninstallSuccess">Shell Extension uninstalled successfully. Please restart Explorer or log out to take effect.</system:String>
+    <system:String x:Key="InstallShellExtTitle">Shell Extension</system:String>
+    <system:String x:Key="InstallCurrentUser">Install (Current User)</system:String>
+    <system:String x:Key="InstallAllUsers">Install (All Users)</system:String>
+    <system:String x:Key="Uninstall">Uninstall</system:String>
+    <system:String x:Key="InstallStatus">Status:</system:String>
+    <system:String x:Key="Installed">Installed</system:String>
+    <system:String x:Key="NotInstalled">Not Installed</system:String>
 </ResourceDictionary>

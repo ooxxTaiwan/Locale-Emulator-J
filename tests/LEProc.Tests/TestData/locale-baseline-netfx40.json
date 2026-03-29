@@ -1,0 +1,30 @@
+{
+  "framework": ".NET Framework 4.0",
+  "captureDate": "2026-03-29",
+  "locales": {
+    "ja-JP": { "ANSICodePage": 932, "OEMCodePage": 932, "LCID": 1041 },
+    "zh-TW": { "ANSICodePage": 950, "OEMCodePage": 950, "LCID": 1028 },
+    "zh-CN": { "ANSICodePage": 936, "OEMCodePage": 936, "LCID": 2052 },
+    "zh-HK": { "ANSICodePage": 950, "OEMCodePage": 950, "LCID": 3076 },
+    "ko-KR": { "ANSICodePage": 949, "OEMCodePage": 949, "LCID": 1042 },
+    "en-US": { "ANSICodePage": 1252, "OEMCodePage": 437, "LCID": 1033 },
+    "de-DE": { "ANSICodePage": 1252, "OEMCodePage": 850, "LCID": 1031 },
+    "fr-FR": { "ANSICodePage": 1252, "OEMCodePage": 850, "LCID": 1036 },
+    "it-IT": { "ANSICodePage": 1252, "OEMCodePage": 850, "LCID": 1040 },
+    "es-ES": { "ANSICodePage": 1252, "OEMCodePage": 850, "LCID": 3082 },
+    "pt-BR": { "ANSICodePage": 1252, "OEMCodePage": 850, "LCID": 1046 },
+    "ru-RU": { "ANSICodePage": 1251, "OEMCodePage": 866, "LCID": 1049 },
+    "pl-PL": { "ANSICodePage": 1250, "OEMCodePage": 852, "LCID": 1045 },
+    "cs-CZ": { "ANSICodePage": 1250, "OEMCodePage": 852, "LCID": 1029 },
+    "tr-TR": { "ANSICodePage": 1254, "OEMCodePage": 857, "LCID": 1055 },
+    "th-TH": { "ANSICodePage": 874, "OEMCodePage": 874, "LCID": 1054 },
+    "vi-VN": { "ANSICodePage": 1258, "OEMCodePage": 1258, "LCID": 1066 },
+    "ar-SA": { "ANSICodePage": 1256, "OEMCodePage": 720, "LCID": 1025 },
+    "he-IL": { "ANSICodePage": 1255, "OEMCodePage": 862, "LCID": 1037 },
+    "el-GR": { "ANSICodePage": 1253, "OEMCodePage": 737, "LCID": 1032 },
+    "nl-NL": { "ANSICodePage": 1252, "OEMCodePage": 850, "LCID": 1043 },
+    "nb-NO": { "ANSICodePage": 1252, "OEMCodePage": 850, "LCID": 1044 },
+    "lt-LT": { "ANSICodePage": 1257, "OEMCodePage": 775, "LCID": 1063 },
+    "ka-GE": { "ANSICodePage": 0, "OEMCodePage": 437, "LCID": 1079 }
+  }
+}

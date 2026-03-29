@@ -1,80 +1,81 @@
-﻿using System.Windows;
+#nullable disable
+
+using System.Windows;
 using System.Windows.Controls;
 
-namespace LEGUI
+namespace LEGUI;
+
+/// <summary>
+///     Interaction logic for MaskTextBox.xaml
+/// </summary>
+public partial class MaskedTextBox : TextBox
 {
-    /// <summary>
-    ///     Interaction logic for MaskTextBox.xaml
-    /// </summary>
-    public partial class MaskedTextBox : TextBox
+    private string _maskText = string.Empty;
+
+    public MaskedTextBox()
     {
-        private string _maskText = string.Empty;
+        InitializeComponent();
+    }
 
-        public MaskedTextBox()
+    public string MaskText
+    {
+        get { return _maskText; }
+        set
         {
-            InitializeComponent();
-        }
+            _maskText = value;
 
-        public string MaskText
-        {
-            get { return _maskText; }
-            set
-            {
-                _maskText = value;
-
-                if (string.IsNullOrEmpty(base.Text))
-                {
-                    base.Text = MaskText;
-                    FontStyle = FontStyles.Italic;
-                }
-            }
-        }
-
-        public new string Text
-        {
-            get
-            {
-                if (base.Text == MaskText && FontStyle == FontStyles.Italic)
-                {
-                    return string.Empty;
-                }
-                return base.Text;
-            }
-            set
-            {
-                if (string.IsNullOrEmpty(value))
-                {
-                    base.Text = MaskText;
-                    FontStyle = FontStyles.Italic;
-                }
-                else
-                {
-                    base.Text = value;
-                    FontStyle = FontStyles.Normal;
-                }
-            }
-        }
-
-        protected override void OnLostFocus(RoutedEventArgs e)
-        {
-            if (string.IsNullOrEmpty(Text))
+            if (string.IsNullOrEmpty(base.Text))
             {
                 base.Text = MaskText;
                 FontStyle = FontStyles.Italic;
             }
-
-            base.OnLostFocus(e);
         }
+    }
 
-        protected override void OnGotFocus(RoutedEventArgs e)
+    public new string Text
+    {
+        get
         {
             if (base.Text == MaskText && FontStyle == FontStyles.Italic)
             {
-                base.Text = string.Empty;
+                return string.Empty;
+            }
+            return base.Text;
+        }
+        set
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                base.Text = MaskText;
+                FontStyle = FontStyles.Italic;
+            }
+            else
+            {
+                base.Text = value;
                 FontStyle = FontStyles.Normal;
             }
-
-            base.OnGotFocus(e);
         }
+    }
+
+    protected override void OnLostFocus(RoutedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(Text))
+        {
+            base.Text = MaskText;
+            FontStyle = FontStyles.Italic;
+        }
+
+        base.OnLostFocus(e);
+    }
+
+    protected override void OnGotFocus(RoutedEventArgs e)
+    {
+        if (base.Text == MaskText && FontStyle == FontStyles.Italic)
+        {
+            base.Text = string.Empty;
+            FontStyle = FontStyles.Normal;
+        }
+
+        base.OnGotFocus(e);
     }
 }
