@@ -292,16 +292,17 @@ internal static class Program
 
     internal static int GetCharsetFromANSICodepage(int ansicp)
     {
+#pragma warning disable CS0219 // Charset constants kept for completeness per Win32 WINGDI.H
         const int ANSI_CHARSET = 0;
-        const int DEFAULT_CHARSET = 1;
-        const int SYMBOL_CHARSET = 2;
+        const int DEFAULT_CHARSET = 1;   // Not mapped: meta-value "use system default"
+        const int SYMBOL_CHARSET = 2;    // Not mapped: for symbol fonts, not a text encoding
         const int SHIFTJIS_CHARSET = 128;
         const int HANGEUL_CHARSET = 129;
-        const int HANGUL_CHARSET = 129;
+        const int HANGUL_CHARSET = 129;  // Not mapped: spelling variant of HANGEUL_CHARSET
         const int GB2312_CHARSET = 134;
         const int CHINESEBIG5_CHARSET = 136;
-        const int OEM_CHARSET = 255;
-        const int JOHAB_CHARSET = 130;
+        const int OEM_CHARSET = 255;     // Not mapped: meta-value "use OEM default"
+        const int JOHAB_CHARSET = 130;   // Not mapped: codepage 1361 is not a standard ANSI codepage
         const int HEBREW_CHARSET = 177;
         const int ARABIC_CHARSET = 178;
         const int GREEK_CHARSET = 161;
@@ -310,8 +311,9 @@ internal static class Program
         const int THAI_CHARSET = 222;
         const int EASTEUROPE_CHARSET = 238;
         const int RUSSIAN_CHARSET = 204;
-        const int MAC_CHARSET = 77;
+        const int MAC_CHARSET = 77;      // Not mapped: Mac codepages not in CultureInfo.TextInfo.ANSICodePage
         const int BALTIC_CHARSET = 186;
+#pragma warning restore CS0219
 
         var charset = ANSI_CHARSET;
 

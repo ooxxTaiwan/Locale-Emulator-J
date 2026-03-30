@@ -74,7 +74,7 @@ public partial class App : Application
                                                                      "LEGUI.exe"),
                                                         e.Args);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     MessageBox.Show("LEGUI requires administrator privilege to write to the current directory.",
                                     "Locale Emulator",
