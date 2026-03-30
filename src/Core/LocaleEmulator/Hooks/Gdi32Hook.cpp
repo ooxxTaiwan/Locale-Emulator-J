@@ -172,7 +172,7 @@ HGDIOBJ NTAPI LeGetStockObject(LONG Object)
 
         auto StockObjectIndexLast = StockObjectIndex + countof(StockObjectIndex);
 
-        if (std::find(StockObjectIndex, StockObjectIndexLast, Object) != StockObjectIndexLast) {
+        if (std::find(StockObjectIndex, StockObjectIndexLast, (ULONG_PTR)Object) != StockObjectIndexLast) {
             PROTECT_SECTION(&GlobalData->HookRoutineData.Gdi32.GdiLock) {
                 if (StockObject == nullptr)
                     return StockObject = GetFontFromFont(GlobalData, (HFONT)GlobalData->GetStockObject(Object));
@@ -833,7 +833,7 @@ NTSTATUS LeGlobalData::HookGdi32Routines(PVOID Gdi32)
         if (Win32uMod == nullptr)
             return STATUS_NOT_FOUND;
         NtGdiHfontCreate = Nt_GetProcAddress(Win32uMod, "NtGdiHfontCreate");
-        if (!NtGdiGetGlyphOutline)
+        if (!NtGdiHfontCreate)
             return STATUS_NOT_FOUND;
     }
     else

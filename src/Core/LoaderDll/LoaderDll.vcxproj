@@ -76,7 +76,7 @@
       <ImportLibrary>.\Release\LoaderDll.lib</ImportLibrary>
       <NoEntryPoint>true</NoEntryPoint>
       <AdditionalDependencies>undoc_ntdll.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions> /ltcg</AdditionalOptions>
+      <AdditionalOptions>/ltcg /ignore:4254</AdditionalOptions>
       <ModuleDefinitionFile>.\LoaderDll.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences>true</OptimizeReferences>

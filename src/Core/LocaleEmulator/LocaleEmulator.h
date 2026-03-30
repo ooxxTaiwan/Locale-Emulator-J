@@ -259,7 +259,7 @@ LeOpenDirectoryObject(
     UNICODE_STRING               DirectoryName;
 
     DirectoryName.Buffer          = DirectoryNameBuffer;
-    DirectoryName.Length          = wcslen(DirectoryNameBuffer) * sizeof(WCHAR);
+    DirectoryName.Length          = (USHORT)(wcslen(DirectoryNameBuffer) * sizeof(WCHAR));
     DirectoryName.MaximumLength   = DirectoryName.Length;
 
     InitializeObjectAttributes(&ObjectAttributes, &DirectoryName, OBJ_CASE_INSENSITIVE, RootHandle, nullptr);
