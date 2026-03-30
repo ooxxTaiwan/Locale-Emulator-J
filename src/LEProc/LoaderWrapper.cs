@@ -378,6 +378,8 @@ internal class LoaderWrapper
         }
     }
 
+#pragma warning disable CS0649 // Fields populated by Marshal.PtrToStructure in BytesToStruct<T>
+    [StructLayout(LayoutKind.Sequential)]
     private struct _REG_TZI_FORMAT
     {
         internal int Bias;
@@ -386,6 +388,7 @@ internal class LoaderWrapper
         internal _SYSTEMTIME StandardDate;
         internal _SYSTEMTIME DaylightDate;
     }
+#pragma warning restore CS0649
 
     [StructLayout(LayoutKind.Sequential)]
     internal struct _SYSTEMTIME
