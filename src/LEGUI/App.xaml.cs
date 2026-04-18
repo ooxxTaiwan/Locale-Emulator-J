@@ -23,6 +23,16 @@ public partial class App : Application
 
     private void App_OnStartup(object sender, StartupEventArgs e)
     {
+        // If running as a --shell-ext sub-process (e.g. spawned from ShellExtensionPanel
+        // to elevate for an HKLM write), bypass all UI startup and execute the command.
+        var cli = ShellExtCliCommand.Parse(e.Args);
+        if (cli != null)
+        {
+            int exitCode = ExecuteShellExtCommand(cli);
+            Current.Shutdown(exitCode);
+            return;
+        }
+
         if (e.Args.Length != 0)
         {
             StandaloneFilePath = SystemHelper.EnsureAbsolutePath(e.Args[0]);
@@ -93,5 +103,42 @@ public partial class App : Application
         Current.StartupUri = isGlobalProfile
                                  ? new Uri("GlobalConfig.xaml", UriKind.RelativeOrAbsolute)
                                  : new Uri("AppConfig.xaml", UriKind.RelativeOrAbsolute);
+    }
+
+    private int ExecuteShellExtCommand(ShellExtCliCommand cli)
+    {
+        try
+        {
+            var processPath = Environment.ProcessPath;
+            string basePath = null;
+            if (!string.IsNullOrEmpty(processPath))
+                basePath = Path.GetDirectoryName(Path.GetDirectoryName(processPath));
+            if (string.IsNullOrEmpty(basePath))
+                basePath = AppContext.BaseDirectory;
+
+            var dllPath = ShellExtensionRegistrar.AutoDetectDllPath(basePath);
+            var registrar = new ShellExtensionRegistrar(
+                new RegistryOperations(),
+                ShellExtensionConstants.NewClsid);
+
+            switch (cli.ActionVerb)
+            {
+                case ShellExtCliCommand.Verb.Install:
+                    registrar.Register(cli.Mode, dllPath);
+                    break;
+                case ShellExtCliCommand.Verb.Uninstall:
+                    registrar.Unregister(cli.Mode);
+                    break;
+                case ShellExtCliCommand.Verb.CleanupOld:
+                    registrar.CleanupOldRegistration();
+                    break;
+            }
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"--shell-ext failed: {ex}");
+            return 1;
+        }
     }
 }
