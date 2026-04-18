@@ -55,6 +55,10 @@ public partial class App : Application
 
         LEConfig.CheckGlobalConfigFile(true);
 
+        // Load locale dictionary before permission check so the error MessageBoxes
+        // below resolve in the user's language rather than always showing English.
+        I18n.LoadLanguage();
+
         // We check StandaloneFilePath before loading UI, because this wil be faster.
         if (
             !SystemHelper.CheckPermission(isGlobalProfile
@@ -105,8 +109,6 @@ public partial class App : Application
                 }
             }
         }
-
-        I18n.LoadLanguage();
 
         Current.StartupUri = isGlobalProfile
                                  ? new Uri("GlobalConfig.xaml", UriKind.RelativeOrAbsolute)
