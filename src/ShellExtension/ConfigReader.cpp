@@ -109,8 +109,8 @@ std::vector<LEProfile> ConfigReader::LoadProfiles(const std::wstring& configPath
         // Read child elements
         profile.parameter = StringUtils::Utf8ToWide(
             profileNode.child_value("Parameter"));
-        profile.location = StringUtils::Utf8ToWide(
-            profileNode.child_value("Location"));
+        profile.region = StringUtils::Utf8ToWide(
+            profileNode.child_value("Region"));
         profile.timezone = StringUtils::Utf8ToWide(
             profileNode.child_value("Timezone"));
         profile.runAsAdmin = ParseBool(
@@ -176,7 +176,7 @@ void ConfigReader::WriteDefaultConfig(const std::wstring& path)
         p.append_attribute("MainMenu") = "False";
 
         p.append_child("Parameter").text().set("");
-        p.append_child("Location").text().set("ja-JP");
+        p.append_child("Region").text().set("ja-JP");
         p.append_child("Timezone").text().set("Tokyo Standard Time");
         p.append_child("RunAsAdmin").text().set("False");
         p.append_child("RedirectRegistry").text().set("True");
@@ -197,7 +197,7 @@ void ConfigReader::WriteDefaultConfig(const std::wstring& path)
         p.append_attribute("MainMenu") = "False";
 
         p.append_child("Parameter").text().set("");
-        p.append_child("Location").text().set("ja-JP");
+        p.append_child("Region").text().set("ja-JP");
         p.append_child("Timezone").text().set("Tokyo Standard Time");
         p.append_child("RunAsAdmin").text().set("True");
         p.append_child("RedirectRegistry").text().set("True");

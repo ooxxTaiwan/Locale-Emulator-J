@@ -10,7 +10,7 @@ public class LEProfileTests
         var profile = new LEProfile(true);
 
         Assert.Equal("ja-JP", profile.Name);
-        Assert.Equal("ja-JP", profile.Location);
+        Assert.Equal("ja-JP", profile.Region);
         Assert.Equal("Tokyo Standard Time", profile.Timezone);
         Assert.False(profile.ShowInMainMenu);
         Assert.False(profile.RunAsAdmin);
@@ -30,7 +30,7 @@ public class LEProfileTests
             guid: "test-guid-123",
             showInMainMenu: true,
             parameter: "-somearg",
-            location: "zh-TW",
+            region: "zh-TW",
             timezone: "Taipei Standard Time",
             runAsAdmin: true,
             redirectRegistry: false,
@@ -41,7 +41,7 @@ public class LEProfileTests
         Assert.Equal("test-guid-123", profile.Guid);
         Assert.True(profile.ShowInMainMenu);
         Assert.Equal("-somearg", profile.Parameter);
-        Assert.Equal("zh-TW", profile.Location);
+        Assert.Equal("zh-TW", profile.Region);
         Assert.Equal("Taipei Standard Time", profile.Timezone);
         Assert.True(profile.RunAsAdmin);
         Assert.False(profile.RedirectRegistry);
@@ -56,7 +56,7 @@ public class LEProfileTests
 
         Assert.Null(profile.Name);
         Assert.Null(profile.Guid);
-        Assert.Null(profile.Location);
+        Assert.Null(profile.Region);
         Assert.Null(profile.Timezone);
         Assert.Null(profile.Parameter);
         Assert.False(profile.ShowInMainMenu);

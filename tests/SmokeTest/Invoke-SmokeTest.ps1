@@ -29,7 +29,7 @@ $ErrorActionPreference = "Stop"
 # ============================================================
 # 每個 locale profile 定義：
 #   - Name:    人類可讀名稱
-#   - Location: locale 名稱（傳給 LEProc -run）
+#   - Region:  locale 名稱（對應 LEConfig.xml <Region>；v3.x 從 <Location> 改名）
 #   - ACP:     預期 Active Code Page
 #   - OEMCP:   預期 OEM Code Page
 #   - LCID:    預期 Locale ID（十六進位字串，不含 0x 前綴）
@@ -37,39 +37,39 @@ $ErrorActionPreference = "Stop"
 
 $TestMatrix = @(
     @{
-        Name     = "Japanese (ja-JP)"
-        Location = "ja-JP"
-        ACP      = 932
-        OEMCP    = 932
-        LCID     = "0411"
+        Name   = "Japanese (ja-JP)"
+        Region = "ja-JP"
+        ACP    = 932
+        OEMCP  = 932
+        LCID   = "0411"
     },
     @{
-        Name     = "Traditional Chinese (zh-TW)"
-        Location = "zh-TW"
-        ACP      = 950
-        OEMCP    = 950
-        LCID     = "0404"
+        Name   = "Traditional Chinese (zh-TW)"
+        Region = "zh-TW"
+        ACP    = 950
+        OEMCP  = 950
+        LCID   = "0404"
     },
     @{
-        Name     = "Simplified Chinese (zh-CN)"
-        Location = "zh-CN"
-        ACP      = 936
-        OEMCP    = 936
-        LCID     = "0804"
+        Name   = "Simplified Chinese (zh-CN)"
+        Region = "zh-CN"
+        ACP    = 936
+        OEMCP  = 936
+        LCID   = "0804"
     },
     @{
-        Name     = "Korean (ko-KR)"
-        Location = "ko-KR"
-        ACP      = 949
-        OEMCP    = 949
-        LCID     = "0412"
+        Name   = "Korean (ko-KR)"
+        Region = "ko-KR"
+        ACP    = 949
+        OEMCP  = 949
+        LCID   = "0412"
     },
     @{
-        Name     = "English (en-US)"
-        Location = "en-US"
-        ACP      = 1252
-        OEMCP    = 437
-        LCID     = "0409"
+        Name   = "English (en-US)"
+        Region = "en-US"
+        ACP    = 1252
+        OEMCP  = 437
+        LCID   = "0409"
     }
 )
 
@@ -192,18 +192,19 @@ foreach ($test in $TestMatrix) {
 
     try {
         # 透過 LEProc -run 啟動 LocaleTestApp
-        # LEProc 會根據 Location 參數設定 locale 並建立程序
+        # LEProc 會根據 Region 參數設定 locale 並建立程序
         # 注意：實際參數格式可能因遷移後 LEProc CLI 變化而需調整
         $tempConfigPath = $testAppPath + ".le.config"
 
         # 產生臨時 .le.config 檔案（必須放在目標程式旁邊，LEProc -run 會讀取 <target-path>.le.config）
+        # Note: <Region> 是 v3.x 後的 XML schema（從 <Location> 重新命名）
         $configXml = @"
 <?xml version="1.0" encoding="utf-8"?>
 <LEConfig>
   <Profiles>
-    <Profile Name="SmokeTest_$($test.Location)" Guid="{$(New-Guid)}" MainMenu="false">
+    <Profile Name="SmokeTest_$($test.Region)" Guid="{$(New-Guid)}" MainMenu="false">
       <Parameter></Parameter>
-      <Location>$($test.Location)</Location>
+      <Region>$($test.Region)</Region>
       <Timezone>Tokyo Standard Time</Timezone>
       <RunAsAdmin>false</RunAsAdmin>
       <RedirectRegistry>false</RedirectRegistry>

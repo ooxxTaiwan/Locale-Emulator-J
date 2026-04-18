@@ -8,18 +8,18 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <GroupBox Grid.Row="0" Header="{DynamicResource LocationSettings}" Margin="4,2">
-            <ComboBox x:Name="cbLocation" Margin="4" />
+        <GroupBox Grid.Row="0" Header="{DynamicResource RegionSettings}" Margin="4,2">
+            <ComboBox x:Name="cbRegion" Margin="4" />
         </GroupBox>
         <GroupBox Grid.Row="1" Header="{DynamicResource TimezoneSettings}" Margin="4,2">
             <ComboBox x:Name="cbTimezone" Margin="4" />
         </GroupBox>
-        <GroupBox Grid.Row="2" Header="{DynamicResource DebugOptions}" Margin="4,2">
+        <GroupBox Grid.Row="2" Header="{DynamicResource AdvancedOptions}" Margin="4,2">
             <StackPanel Margin="4">
                 <CheckBox x:Name="cbStartAsAdmin" Content="{DynamicResource AsAdmin}" ToolTip="{DynamicResource AsAdminTip}" Margin="0,2" />
                 <CheckBox x:Name="cbRedirectRegistry" Content="{DynamicResource RedirectRegistry}" ToolTip="{DynamicResource RedirectRegistryTip}" Margin="0,2" />
                 <CheckBox x:Name="cbIsAdvancedRedirection" Content="{DynamicResource IsAdvancedRedirection}" ToolTip="{DynamicResource IsAdvancedRedirectionTip}" Margin="0,2" />
-                <CheckBox x:Name="cbStartAsSuspend" Content="{DynamicResource WithCREATESUSPENDED}" ToolTip="{DynamicResource WithCREATESUSPENDEDTip}" Margin="0,2" />
+                <CheckBox x:Name="cbStartAsSuspend" Content="{DynamicResource WithCreateSuspended}" ToolTip="{DynamicResource WithCreateSuspendedTip}" Margin="0,2" />
             </StackPanel>
         </GroupBox>
         <GroupBox x:Name="displayGroup" Grid.Row="3" Header="{DynamicResource Display}" Margin="4,2">

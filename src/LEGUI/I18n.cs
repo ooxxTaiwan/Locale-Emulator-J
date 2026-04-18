@@ -14,6 +14,8 @@ internal class I18n
 
     private static ResourceDictionary cacheDictionary;
 
+    internal static string AppName => GetString("AppName");
+
     internal static string GetString(string key)
     {
         try
@@ -31,6 +33,9 @@ internal class I18n
             return key;
         }
     }
+
+    internal static string Format(string key, params object[] args) =>
+        string.Format(GetString(key), args);
 
     private static ResourceDictionary LoadDictionary()
     {

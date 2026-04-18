@@ -34,13 +34,13 @@ public partial class ProfileEditorControl : UserControl
     public ProfileEditorControl()
     {
         InitializeComponent();
-        cbLocation.ItemsSource = s_cultureInfos.Select(c => c.DisplayName);
+        cbRegion.ItemsSource = s_cultureInfos.Select(c => c.DisplayName);
         cbTimezone.ItemsSource = s_timezones.Select(t => t.DisplayName);
     }
 
     public void LoadProfile(LEProfile source)
     {
-        cbLocation.SelectedIndex = s_cultureInfos.FindIndex(ci => ci.Name == source.Location);
+        cbRegion.SelectedIndex = s_cultureInfos.FindIndex(ci => ci.Name == source.Region);
         cbTimezone.SelectedIndex = s_timezones.FindIndex(tz => tz.Id == source.Timezone);
         cbStartAsAdmin.IsChecked = source.RunAsAdmin;
         cbRedirectRegistry.IsChecked = source.RedirectRegistry;
@@ -51,14 +51,14 @@ public partial class ProfileEditorControl : UserControl
 
     public LEProfile ReadProfile(LEProfile template)
     {
-        var locationIdx = cbLocation.SelectedIndex;
+        var regionIdx = cbRegion.SelectedIndex;
         var timezoneIdx = cbTimezone.SelectedIndex;
         return new LEProfile(
             template.Name,
             template.Guid,
             ShowDisplayOptions ? cbShowInMainMenu.IsChecked == true : template.ShowInMainMenu,
             template.Parameter,
-            locationIdx >= 0 ? s_cultureInfos[locationIdx].Name : template.Location,
+            regionIdx >= 0 ? s_cultureInfos[regionIdx].Name : template.Region,
             timezoneIdx >= 0 ? s_timezones[timezoneIdx].Id : template.Timezone,
             cbStartAsAdmin.IsChecked == true,
             cbRedirectRegistry.IsChecked == true,

@@ -50,7 +50,7 @@ public partial class AppConfig
             Guid.NewGuid().ToString(),
             defaults.ShowInMainMenu,
             tbAppParameter.Text,
-            defaults.Location, defaults.Timezone,
+            defaults.Region, defaults.Timezone,
             defaults.RunAsAdmin, defaults.RedirectRegistry,
             defaults.IsAdvancedRedirection, defaults.RunWithSuspend);
 
@@ -70,7 +70,7 @@ public partial class AppConfig
             link.SetArguments($"-run \"{path}\"");
             link.SetIconLocation(
                 AssociationReader.GetAssociatedIcon(Path.GetExtension(path)).Replace("%1", path), 0);
-            link.SetDescription($"Run {Path.GetFileName(path)} with Locale Emulator");
+            link.SetDescription(I18n.Format("ShortcutDescription", Path.GetFileName(path)));
             link.SetWorkingDirectory(Path.GetDirectoryName(path));
 
             var file = (IPersistFile)link;
@@ -82,7 +82,7 @@ public partial class AppConfig
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message + "\r\n\r\n" + ex.StackTrace, "Locale Emulator");
+            MessageBox.Show(ex.Message + "\r\n\r\n" + ex.StackTrace, I18n.AppName);
         }
     }
 
@@ -110,8 +110,8 @@ public partial class AppConfig
     private void bDeleteAppSetting_Click(object sender, RoutedEventArgs e)
     {
         if (MessageBoxResult.No == MessageBox.Show(
-            I18n.GetString("ConfirmDel"),
-            "Locale Emulator",
+            I18n.GetString("ConfirmDelete"),
+            I18n.AppName,
             MessageBoxButton.YesNo))
             return;
 

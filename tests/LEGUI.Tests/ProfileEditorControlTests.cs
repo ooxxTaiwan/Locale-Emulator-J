@@ -10,7 +10,7 @@ public class ProfileEditorControlTests
     private static LEProfile SampleProfile() => new LEProfile(
         "TestProfile", "{00000000-0000-0000-0000-000000000001}",
         showInMainMenu: true, parameter: "arg1",
-        location: "ja-JP", timezone: "Tokyo Standard Time",
+        region: "ja-JP", timezone: "Tokyo Standard Time",
         runAsAdmin: true, redirectRegistry: true,
         isAdvancedRedirection: true, runWithSuspend: true);
 
@@ -23,7 +23,7 @@ public class ProfileEditorControlTests
         ctrl.LoadProfile(original);
         var result = ctrl.ReadProfile(original);
 
-        Assert.Equal(original.Location, result.Location);
+        Assert.Equal(original.Region, result.Region);
         Assert.Equal(original.Timezone, result.Timezone);
         Assert.Equal(original.RunAsAdmin, result.RunAsAdmin);
         Assert.Equal(original.RedirectRegistry, result.RedirectRegistry);

@@ -11,6 +11,7 @@
 *.h         text diff=cpp
 *.hpp       text diff=cpp
 *.c         text diff=c
+# XAML / XML: UTF-8, no BOM
 *.xaml      text
 *.xml       text
 *.json      text

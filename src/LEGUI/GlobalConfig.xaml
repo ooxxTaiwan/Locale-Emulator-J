@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:legui="clr-namespace:LEGUI"
-        Title="LEGUI GLOBAL" Width="420" Height="470"
+        Title="{DynamicResource GlobalConfigTitle}" Width="420" Height="470"
         WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <Grid TextElement.FontFamily="{DynamicResource UIFont}">
         <Grid.RowDefinitions>

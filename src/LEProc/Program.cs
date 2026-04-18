@@ -219,7 +219,7 @@ internal static class Program
             }
 
             var currentDirectory = Path.GetDirectoryName(absPath);
-            var cultureInfo = CultureInfo.GetCultureInfo(profile.Location);
+            var cultureInfo = CultureInfo.GetCultureInfo(profile.Region);
             var textInfo = cultureInfo.TextInfo;
             var ansiCodePage = (uint) textInfo.ANSICodePage;
             var oemCodePage = (uint) textInfo.OEMCodePage;

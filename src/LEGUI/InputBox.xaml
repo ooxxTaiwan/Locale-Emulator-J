@@ -7,7 +7,7 @@
     <Grid>
         <Label x:Name="lText" Margin="10,10,10,10" Content="" />
         <TextBox x:Name="tbText" Margin="10,46,9.6,77.2" Height="Auto" PreviewKeyDown="tbText_PreviewKeyDown" />
-        <Button x:Name="bOk" Content="OK" Margin="68,98,140.6,21.2" Click="bOk_Click" />
-        <Button x:Name="bCancel" Content="Cancel" Margin="138,98,71.6,21.2" Click="bCancel_Click" />
+        <Button x:Name="bOk" Content="{DynamicResource Ok}" Margin="68,98,140.6,21.2" Click="bOk_Click" />
+        <Button x:Name="bCancel" Content="{DynamicResource Cancel}" Margin="138,98,71.6,21.2" Click="bCancel_Click" />
     </Grid>
 </Window>

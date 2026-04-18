@@ -35,7 +35,7 @@ public class LEConfigTests : IDisposable
               <Profiles>
                 <Profile Name="Run in Japanese" Guid="guid-1" MainMenu="true">
                   <Parameter>-test</Parameter>
-                  <Location>ja-JP</Location>
+                  <Region>ja-JP</Region>
                   <Timezone>Tokyo Standard Time</Timezone>
                   <RunAsAdmin>false</RunAsAdmin>
                   <RedirectRegistry>true</RedirectRegistry>
@@ -44,7 +44,7 @@ public class LEConfigTests : IDisposable
                 </Profile>
                 <Profile Name="Run in Chinese" Guid="guid-2" MainMenu="false">
                   <Parameter></Parameter>
-                  <Location>zh-TW</Location>
+                  <Region>zh-TW</Region>
                   <Timezone>Taipei Standard Time</Timezone>
                   <RunAsAdmin>true</RunAsAdmin>
                   <RedirectRegistry>true</RedirectRegistry>
@@ -64,7 +64,7 @@ public class LEConfigTests : IDisposable
         Assert.Equal("guid-1", profiles[0].Guid);
         Assert.True(profiles[0].ShowInMainMenu);
         Assert.Equal("-test", profiles[0].Parameter);
-        Assert.Equal("ja-JP", profiles[0].Location);
+        Assert.Equal("ja-JP", profiles[0].Region);
         Assert.Equal("Tokyo Standard Time", profiles[0].Timezone);
         Assert.False(profiles[0].RunAsAdmin);
         Assert.True(profiles[0].RedirectRegistry);
@@ -72,7 +72,7 @@ public class LEConfigTests : IDisposable
         Assert.False(profiles[0].RunWithSuspend);
 
         Assert.Equal("Run in Chinese", profiles[1].Name);
-        Assert.Equal("zh-TW", profiles[1].Location);
+        Assert.Equal("zh-TW", profiles[1].Region);
         Assert.True(profiles[1].RunAsAdmin);
         Assert.True(profiles[1].IsAdvancedRedirection);
     }
@@ -86,7 +86,7 @@ public class LEConfigTests : IDisposable
               <Profiles>
                 <Profile Name="Minimal" Guid="guid-min" MainMenu="false">
                   <Parameter></Parameter>
-                  <Location>ko-KR</Location>
+                  <Region>ko-KR</Region>
                   <Timezone>Korea Standard Time</Timezone>
                 </Profile>
               </Profiles>
@@ -150,7 +150,7 @@ public class LEConfigTests : IDisposable
         Assert.Equal("test-guid", loaded[0].Guid);
         Assert.True(loaded[0].ShowInMainMenu);
         Assert.Equal("-arg1", loaded[0].Parameter);
-        Assert.Equal("ja-JP", loaded[0].Location);
+        Assert.Equal("ja-JP", loaded[0].Region);
         Assert.Equal("Tokyo Standard Time", loaded[0].Timezone);
         Assert.True(loaded[0].RunAsAdmin);
         Assert.True(loaded[0].RedirectRegistry);

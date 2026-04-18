@@ -135,7 +135,7 @@ XML files (`LEConfig.xml` and `*.le.config`) share the same schema:
   <Profiles>
     <Profile Name="..." Guid="..." MainMenu="true|false">
       <Parameter>...</Parameter>
-      <Location>ja-JP</Location>
+      <Region>ja-JP</Region>
       <Timezone>Tokyo Standard Time</Timezone>
       <RunAsAdmin>false</RunAsAdmin>
       <RedirectRegistry>true</RedirectRegistry>

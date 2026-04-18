@@ -116,8 +116,8 @@ public partial class GlobalConfig
             return;
 
         if (MessageBoxResult.No == MessageBox.Show(
-            I18n.GetString("ConfirmDel"),
-            "Locale Emulator",
+            I18n.GetString("ConfirmDelete"),
+            I18n.AppName,
             MessageBoxButton.YesNo))
             return;
 
