@@ -74,7 +74,7 @@ public partial class ShellExtensionPanel : UserControl
     {
         if (_isAdmin)
         {
-            _command?.CleanupOldRegistration();
+            TryInProcess(() => _command?.CleanupOldRegistration());
         }
         else
         {
@@ -95,7 +95,11 @@ public partial class ShellExtensionPanel : UserControl
         }
         else
         {
-            _command?.Register(mode, _dllPath);
+            if (!TryInProcess(() => _command?.Register(mode, _dllPath)))
+            {
+                RefreshStatus();
+                return;
+            }
         }
         RefreshStatus();
         if (_command != null)
@@ -114,11 +118,30 @@ public partial class ShellExtensionPanel : UserControl
         }
         else
         {
-            _command?.Unregister(mode);
+            if (!TryInProcess(() => _command?.Unregister(mode)))
+            {
+                RefreshStatus();
+                return;
+            }
         }
         RefreshStatus();
         if (_command != null)
             ShowMessage(I18n.GetString("UninstallSuccess"));
+    }
+
+    /// <summary>Run an in-process registry operation, showing a localized error and returning false on failure.</summary>
+    private bool TryInProcess(Action op)
+    {
+        try
+        {
+            op();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ShowMessage(string.Format(I18n.GetString("ShellExtOperationFailed"), ex.Message));
+            return false;
+        }
     }
 
     /// <summary>
@@ -146,7 +169,7 @@ public partial class ShellExtensionPanel : UserControl
 
             if (p.ExitCode != 0)
             {
-                ShowMessage($"Operation failed with exit code {p.ExitCode}.");
+                ShowMessage(string.Format(I18n.GetString("ShellExtOperationFailed"), $"exit code {p.ExitCode}"));
                 return false;
             }
             return true;

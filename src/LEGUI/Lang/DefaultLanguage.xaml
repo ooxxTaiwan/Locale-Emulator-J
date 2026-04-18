@@ -44,4 +44,5 @@
     <system:String x:Key="ShellExtAllUsersHeader">All Users &#x1F6E1;</system:String>
     <system:String x:Key="ShellExtOldResidueDetected">&#x26A0; Old version residue detected</system:String>
     <system:String x:Key="ShellExtCleanupOld">Clean up old registration</system:String>
+    <system:String x:Key="ShellExtOperationFailed">Shell Extension operation failed: {0}</system:String>
 </ResourceDictionary>
