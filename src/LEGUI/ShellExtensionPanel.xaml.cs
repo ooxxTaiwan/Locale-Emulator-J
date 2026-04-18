@@ -10,6 +10,8 @@ public partial class ShellExtensionPanel : UserControl
     private IShellExtensionQuery _query;
     private IShellExtensionCommand _command;
     private string _dllPath;
+    // Reserved for Task 5.3: when false, AllUsers actions will be routed through
+    // a UAC-elevated sub-process. Until then, this field is stored but not read.
     private bool _isAdmin;
 
     /// <summary>

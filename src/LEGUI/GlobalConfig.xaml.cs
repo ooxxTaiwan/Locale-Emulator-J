@@ -33,9 +33,11 @@ public partial class GlobalConfig
     private void InitializeShellExtPanel()
     {
         var processPath = Environment.ProcessPath;
-        var basePath = !string.IsNullOrEmpty(processPath)
-            ? Path.GetDirectoryName(Path.GetDirectoryName(processPath))
-            : AppContext.BaseDirectory;
+        string basePath = null;
+        if (!string.IsNullOrEmpty(processPath))
+            basePath = Path.GetDirectoryName(Path.GetDirectoryName(processPath));
+        if (string.IsNullOrEmpty(basePath))
+            basePath = AppContext.BaseDirectory;
 
         var dllPath = ShellExtensionRegistrar.AutoDetectDllPath(basePath);
         var registrar = new ShellExtensionRegistrar(
