@@ -27,4 +27,10 @@
     <ProjectReference Include="..\..\src\LEGUI\LEGUI.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\src\LEGUI\Lang\*.xaml"
+          CopyToOutputDirectory="PreserveNewest"
+          Link="Lang\%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>
