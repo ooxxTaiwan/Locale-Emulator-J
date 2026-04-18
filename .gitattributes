@@ -11,6 +11,9 @@
 *.h         text diff=cpp
 *.hpp       text diff=cpp
 *.c         text diff=c
+# XAML / XML：UTF-8 編碼，**不**使用 BOM。
+# WPF XAML loader 與 .NET XmlDocument 兩者皆可解析有/無 BOM 的 UTF-8，
+# 但本 repo 統一採無 BOM（modern Web/XML 慣例，git diff 較乾淨）。
 *.xaml      text
 *.xml       text
 *.json      text
