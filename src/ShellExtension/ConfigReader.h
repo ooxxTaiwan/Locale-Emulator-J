@@ -12,7 +12,7 @@ struct LEProfile
     std::wstring guid;
     bool showInMainMenu = false;
     std::wstring parameter;
-    std::wstring location;
+    std::wstring region;
     std::wstring timezone;
     bool runAsAdmin = false;
     bool redirectRegistry = true;
