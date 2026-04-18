@@ -59,27 +59,53 @@ src/LEGUI/
 
 ### 3.2 ProfileEditorControl API
 
+**事實前提**：`LEProfile` 是 **`struct`**（value type）— 詳 `src/LECommonLibrary/LEProfile.cs`。這意味著 `ApplyTo(LEProfile)` 之類直接修改參數的寫法無效（參數是複本）；必須採「傳入 template、回傳新 struct」或 `ref` 參數。本設計採前者（immutable 風格，與既有 `bSaveGlobalSetting_Click` 的寫回模式一致）。
+
 ```csharp
 public partial class ProfileEditorControl : UserControl
 {
-    // 綁定當前編輯的 profile
-    public LEProfile Profile { get; set; }
-
     // AppConfig 設 false（單檔模式無 ShowInMainMenu 概念）
     public static readonly DependencyProperty ShowDisplayOptionsProperty =
         DependencyProperty.Register(nameof(ShowDisplayOptions), typeof(bool),
             typeof(ProfileEditorControl), new PropertyMetadata(true));
 
-    public bool ShowDisplayOptions { get; set; }
+    public bool ShowDisplayOptions
+    {
+        get => (bool)GetValue(ShowDisplayOptionsProperty);
+        set => SetValue(ShowDisplayOptionsProperty, value);
+    }
+
+    /// <summary>載入 profile 至 UI 控制項。</summary>
+    public void LoadProfile(LEProfile source) { /* 填 UI */ }
+
+    /// <summary>讀回 UI 當前值，以 template 為基礎建立新 LEProfile。</summary>
+    /// <remarks>保留 template 的 Name / Guid / Parameter（UserControl 不管這些欄位）。
+    /// ShowDisplayOptions=false 時，ShowInMainMenu 也沿用 template 的值，不被 UI 覆寫。</remarks>
+    public LEProfile ReadProfile(LEProfile template) { /* 回傳新 struct */ }
 }
 ```
 
-- 使用 `DependencyProperty` 讓 `ShowDisplayOptions` 可在 XAML 內直接設定並支援 binding。
-- `Profile` 屬性的同步模型：
-  - **Setter（載入）**：外部設定 `Profile = someLeProfile` 時，UserControl 將欄位值填入內部的 ComboBox / CheckBox 控制項
-  - **取值（儲存）**：UserControl 對外暴露 `LEProfile ReadCurrentValues()` 方法，從內部控制項讀出當前使用者編輯的值並回傳新 `LEProfile`
-  - **GlobalConfig 使用方式**：`cbGlobalProfiles_SelectionChanged` 時設定 `profileEditor.Profile = _profiles[selectedIndex]`；`bSaveGlobalSetting_Click` 時 `_profiles[selectedIndex] = profileEditor.ReadCurrentValues()`
-  - 不引入 MVVM framework、不使用 `INotifyPropertyChanged`，維持既有 code-behind 模式
+**呼叫模式（GlobalConfig）**：
+
+```csharp
+// 切換選取時
+private void cbGlobalProfiles_SelectionChanged(...)
+{
+    profileEditor.LoadProfile(_profiles[cbGlobalProfiles.SelectedIndex]);
+}
+
+// 儲存時
+private void bSaveGlobalSetting_Click(...)
+{
+    var idx = cbGlobalProfiles.SelectedIndex;
+    _profiles[idx] = profileEditor.ReadProfile(_profiles[idx]);
+    LEConfig.SaveGlobalConfigFile(_profiles.ToArray());
+}
+```
+
+- `DependencyProperty` 只用於 `ShowDisplayOptions`（支援 XAML 靜態設定，AppConfig 在 XAML 寫 `ShowDisplayOptions="False"`）。
+- `LoadProfile` / `ReadProfile` 為普通方法（非 Property），避免 getter/setter 語意被誤用為 data binding。
+- 不引入 MVVM framework、不使用 `INotifyPropertyChanged`。
 
 ### 3.3 Shell Extension 分頁內部佈局
 
@@ -118,7 +144,7 @@ public partial class ProfileEditorControl : UserControl
 ```
 LEGUI.exe --shell-ext <verb> <scope>
   verb  = install | uninstall | cleanup-old
-  scope = current-user | all-users
+  scope = current-user | all-users (cleanup-old 時可省略)
 ```
 
 範例：
@@ -128,6 +154,48 @@ LEGUI.exe --shell-ext install all-users      # 寫 HKLM（需 admin）
 LEGUI.exe --shell-ext uninstall current-user # 刪 HKCU
 LEGUI.exe --shell-ext cleanup-old            # 清 HKCU + HKLM 舊 CLSID（需 admin）
 ```
+
+**CLI 分支的執行流程（在 `App_OnStartup` 最前端加分支判斷）**：
+
+```csharp
+if (e.Args.Length >= 1 && e.Args[0] == "--shell-ext")
+{
+    int exitCode = HandleShellExtCommand(e.Args);
+    Current.Shutdown(exitCode);
+    return;   // 跳過 CheckPermission / LoadLanguage / StartupUri
+}
+```
+
+- **不執行** 既有的 `CheckPermission` 檢查（Shell Extension 操作不需要寫入 LEGUI 目錄）
+- **不執行** `I18n.LoadLanguage`（CLI 子 process 不顯示 UI）
+- **不設定** `StartupUri`（不開啟任何 Window）
+- `HandleShellExtCommand` 解析 verb/scope 後呼叫對應的 `ShellExtensionRegistrar` 方法，以 `ExitCode` 0/非 0 表示成功/失敗
+
+### 4.1.1 DLL 路徑解析
+
+`ShellExtensionRegistrar.AutoDetectDllPath(basePath, is64)` 期待 `basePath/x86/ShellExtension.dll` 或 `basePath/x64/ShellExtension.dll`。
+
+部署佈局（per CLAUDE.md）：
+
+```
+Build/Release/
+├─ x86/
+│   ├─ LEGUI.exe          ← Environment.ProcessPath 位置
+│   └─ ShellExtension.dll
+└─ x64/
+    └─ ShellExtension.dll
+```
+
+因此 `basePath` 必須是 `Build/Release/`（x86 的父目錄）：
+
+```csharp
+var legui = Environment.ProcessPath!;               // .../Build/Release/x86/LEGUI.exe
+var basePath = Path.GetDirectoryName(
+                    Path.GetDirectoryName(legui))!; // .../Build/Release/
+var dllPath = ShellExtensionRegistrar.AutoDetectDllPath(basePath);
+```
+
+**開發時（`dotnet run` / VS Debug）的邊界**：開發 LEGUI 輸出於 `src/LEGUI/bin/Debug/net10.0-windows/`，此目錄無 `x86/x64` 子目錄。嘗試安裝會因 `ShellExtension.dll` 不存在而失敗；此時顯示友善錯誤訊息「ShellExtension.dll not found at: {path}. Build the full solution first.」而非 crash。
 
 ### 4.2 執行流程
 
@@ -172,7 +240,7 @@ LEGUI.exe --shell-ext cleanup-old            # 清 HKCU + HKLM 舊 CLSID（需 a
 | `DebugOptions` GroupBox 變數名 | Header 寫 "Advanced Options"，變數叫 `DebugOptions` | 變數改名 `advancedOptionsGroup`，Header 維持 "Advanced Options" |
 | CheckBox tooltip | 無 | 每個 CheckBox 加 `ToolTip`（英文；其他語言翻譯屬 Issue 21） |
 | `CREATE__SUSPENDED` 錯字 | i18n key 值寫 `CREATE__SUSPENDED`（雙底線） | 改 `CREATE_SUSPENDED` |
-| Miscellaneous GroupBox | 只包含 `ShowInMainMenu` 一項 | 改名 `Display`，語意更精準；新增 i18n key `Display` |
+| Miscellaneous GroupBox | 只包含 `ShowInMainMenu` 一項 | 改名 `Display`，語意更精準；在 `DefaultLanguage.xaml` 新增 `<system:String x:Key="Display">Display</system:String>`（移除既有 `Miscellaneous` key） |
 
 ### 5.2 Tooltip 文案（英文版，放入 `DefaultLanguage.xaml`）
 
@@ -191,7 +259,7 @@ LEGUI.exe --shell-ext cleanup-old            # 清 HKCU + HKLM 舊 CLSID（需 a
 | 空標題對話框 | `MessageBox.Show(I18n.GetString("ConfirmDel"), "", ...)` | 第二參數改傳 `"Locale Emulator"` |
 | null check 樣板 | `IsChecked != null && (bool)IsChecked` | `IsChecked == true` |
 | `SaveAs` 的 `BlurEffect` | 手動套用 `BlurEffect` + 取消 | 移除，依賴 `ShowDialog()` 的 modal 行為 |
-| Save 成功提示 | 無任何視覺回饋 | 在視窗底部加一 `StatusBar`，儲存成功時顯示 "Saved"，3 秒後淡出（或改顏色） |
+| Save 成功提示 | 無任何視覺回饋 | 在**主視窗**（`GlobalConfig.xaml` / `AppConfig.xaml`）底部加一 `StatusBar`（不在 `ProfileEditorControl` 內），儲存成功時顯示 "Saved"，3 秒後淡出（以 `DispatcherTimer` 觸發） |
 
 ---
 
@@ -199,8 +267,8 @@ LEGUI.exe --shell-ext cleanup-old            # 清 HKCU + HKLM 舊 CLSID（需 a
 
 ```
 ┌──────────────────────────────────────────────┐
-│  Locale Emulator (Chu's fork)                │
-│  Version 3.0.0-dev                           │
+│  Locale Emulator (ooxxTaiwan fork)           │
+│  Version 3.0.0                               │
 │                                              │
 │  Original project: https://github.com/       │
 │    xupefei/Locale-Emulator                   │
@@ -214,8 +282,8 @@ LEGUI.exe --shell-ext cleanup-old            # 清 HKCU + HKLM 舊 CLSID（需 a
 └──────────────────────────────────────────────┘
 ```
 
-- 版本號從 `Assembly.GetExecutingAssembly().GetName().Version` 讀取。
-- 連結為 `Hyperlink`（WPF 原生），點擊以系統預設瀏覽器開啟。
+- 版本號從 `Assembly.GetExecutingAssembly().GetName().Version` 讀取（目前為 `3.0.0`，定義於 `src/LEGUI/LEGUI.csproj` 的 `<Version>` 屬性）。
+- 連結為 WPF `Hyperlink`，`NavigateUri` 綁定實際 URL，`RequestNavigate` 事件處理 `Process.Start(new ProcessStartInfo(uri) { UseShellExecute = true })`。
 - 內容不 i18n 到其他 22 種語言，僅英文（屬 Issue 21 範圍）。
 
 ---
@@ -249,10 +317,10 @@ LEGUI.exe --shell-ext cleanup-old            # 清 HKCU + HKLM 舊 CLSID（需 a
 
 ### 8.1 單元測試（`tests/LEGUI.Tests/`）
 
-- `ProfileEditorControlTests`：載入 / 儲存 LEProfile 的欄位雙向同步（Location、Timezone、各 CheckBox）、`ShowDisplayOptions = false` 時 Display GroupBox 隱藏
+- `ProfileEditorControlTests`：`LoadProfile` / `ReadProfile` 的欄位雙向同步（Location、Timezone、各 CheckBox）、`ShowDisplayOptions = false` 時 `ReadProfile` 不覆寫 template 的 `ShowInMainMenu`、Display GroupBox 隱藏
 - `ShellExtensionPanelTests`：按鈕啟用/停用狀態對應 `IsInstalled()` 結果、舊版清理區塊條件顯示邏輯
 - `CliArgumentParserTests`：`--shell-ext install all-users` 等組合正確解析成對應動作
-- 既有 `ShellExtensionRegistrarTests` 不受影響
+- 既有 `ShellExtensionRegistrarTests`、`I18nTests` 不受影響（命名慣例：`XxxTests`，無底線）
 
 ### 8.2 手動驗證（Release build 實測）
 
@@ -272,6 +340,8 @@ LEGUI.exe --shell-ext cleanup-old            # 清 HKCU + HKLM 舊 CLSID（需 a
 | `ProfileEditorControl` 的 `Profile` 屬性單向同步若處理不當會遺失編輯 | 中 | 單元測試覆蓋雙向同步；保留既有 `bSaveGlobalSetting_Click` 的完整欄位逐項寫回邏輯 |
 | `SizeToContent` 可能在某些 DPI 設定下產生視窗跳動 | 低 | 若實測出現問題，降級為固定尺寸（`MinWidth + MinHeight`） |
 | 既有使用者習慣 310×377 視窗尺寸，改 420 後不適應 | 低 | 視窗尺寸變化屬可接受的改善，不提供向下相容選項 |
+| DLL 路徑解析在開發環境（`bin/Debug`）無 x86/x64 子目錄結構，導致測試安裝失敗 | 低 | 顯示友善錯誤訊息而非 crash；開發時以 `regsvr32` 手動註冊測試；CI 環境使用完整 `Build/Release/` 結構 |
+| `SizeToContent="Height"` 在 TabControl 切換分頁時可能造成視窗跳動（不同分頁內容高度不同） | 中 | 實測若有跳動，改為固定 `MinHeight` + `MaxHeight=SizeToContent` 或手動設置各分頁容器 `MinHeight` 統一基線 |
 
 **回滾策略**：本改動集中在 LEGUI 專案，不動 LEProc / Core / ShellExtension，若出現嚴重問題可單獨 revert LEGUI 的 commits，其他元件不受影響。
 
@@ -329,3 +399,22 @@ LEGUI.exe --shell-ext cleanup-old            # 清 HKCU + HKLM 舊 CLSID（需 a
 - 相關 issue：#20 (ADS 移除)、#21 (i18n 翻譯)
 - 後端實作（已完成）：`src/LEGUI/ShellExtensionRegistrar.cs`
 - 先前設計文件：`docs/superpowers/specs/2026-03-28-dotnet10-migration-design.md`
+
+---
+
+## 13. 自審修正紀錄（2026-04-18 spec 提交後）
+
+本節記錄 spec 首次 commit（`7eb5540`）後的自審修正，便於追蹤決策演進。
+
+| 修正點 | 問題 | 處理方式 |
+|--------|------|----------|
+| `ProfileEditorControl.Profile { get; set; }` 設計 | `LEProfile` 是 **struct**（value type），單純 setter 無法表達「寫回」語意；且 UserControl 不該管 Name/Guid 這些外層欄位 | API 改為 `LoadProfile(LEProfile)` + `ReadProfile(LEProfile template) → LEProfile`，以 template 模式保留外層欄位 |
+| `AutoDetectDllPath` 的 `basePath` 未說明 | 實際部署時 `LEGUI.exe` 位於 `Build/Release/x86/`，但 `AutoDetectDllPath` 期望 basePath 為上一層 | 明訂 `basePath = Path.GetDirectoryName(Path.GetDirectoryName(Environment.ProcessPath))`；加入開發環境無 x86/x64 子目錄的錯誤處理 |
+| `App.xaml.cs` 的 `--shell-ext` 分支未定義 | 只說「不顯示 UI」，未列出要跳過哪些既有啟動步驟 | 明列跳過 `CheckPermission` / `LoadLanguage` / `StartupUri` 三項 |
+| About 版本號寫 `3.0.0-dev` | 實際 csproj 為 `3.0.0`（無 `-dev` 後綴） | 改為 `3.0.0`，並註明從 `Assembly.GetName().Version` 讀取 |
+| 測試類別命名 `ProfileEditorControl_Tests` 有底線 | 既有測試為 `ShellExtensionRegistrarTests`、`I18nTests`，無底線 | 改為 `XxxTests` 一致命名 |
+| StatusBar 位置未指定 | 容易誤實作在 `ProfileEditorControl` 內 | 明訂在主視窗（`GlobalConfig` / `AppConfig`）底部 |
+| Display i18n key 未指定新舊替換 | 可能遺漏更新 `Miscellaneous` key | 明訂新增 `Display` key、移除 `Miscellaneous` key |
+| `ShowInMainMenu` 在 AppConfig 的序列化副作用 | `ShowDisplayOptions=false` 時若 `ReadProfile` 仍讀 UI 預設值會覆寫 template | 明訂 `ReadProfile` 在 `ShowDisplayOptions=false` 時沿用 template 的 `ShowInMainMenu` |
+| `WaitForExit` 阻塞 UI | 原 spec 用同步 `WaitForExit` | 改 `await p.WaitForExitAsync()`，handler 改 `async void`（WPF 慣例） |
+| `SizeToContent` 切換分頁可能跳動 | 原 spec 未提分頁切換情境 | 新增風險項目與備援方案（統一 `MinHeight`） |
