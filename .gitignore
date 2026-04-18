@@ -19,6 +19,8 @@ Build/
 *.sbr
 x64/
 Win32/
+[Dd]ebug/
+[Rr]elease/
 
 ## ----- Visual Studio -----
 .vs/
