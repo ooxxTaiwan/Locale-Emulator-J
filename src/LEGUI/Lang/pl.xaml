@@ -9,16 +9,16 @@
     <system:String x:Key="SaveAs">Zapisz jako ...</system:String>
     <system:String x:Key="SaveAsInstruction">Nazwa nowego profilu:</system:String>
     <system:String x:Key="Delete">Usuń</system:String>
-    <system:String x:Key="ConfirmDel">Jesteś pewien że chcesz usunąć ten profil?</system:String>
+    <system:String x:Key="ConfirmDelete">Jesteś pewien że chcesz usunąć ten profil?</system:String>
     <system:String x:Key="Location">Lokalizacja</system:String>
     <system:String x:Key="LocationSettings">Ustawienia lokalizacji</system:String>
     <system:String x:Key="TimezoneSettings">Ustawienia strefy czasowej</system:String>
     <system:String x:Key="Timezone">Strefa czasowa</system:String>
-    <system:String x:Key="DebugOptions">Ustawienia zaawansowane</system:String>
+    <system:String x:Key="AdvancedOptions">Ustawienia zaawansowane</system:String>
     <system:String x:Key="AsAdmin">Uruchom jako administrator</system:String>
     <system:String x:Key="RedirectRegistry">Symuluj ustawienia języka w rejestrze</system:String>
     <system:String x:Key="IsAdvancedRedirection">Symuluj język Interfejsu Użytkownika systemu</system:String>
-    <system:String x:Key="WithCREATESUSPENDED">Utwórz proces z CREATE__SUSPENDED</system:String>
+    <system:String x:Key="WithCreateSuspended">Utwórz proces z CREATE__SUSPENDED</system:String>
     <system:String x:Key="Miscellaneous">Różne</system:String>
     <system:String x:Key="ShowInMainMenu">Wyświetlaj ten profil w menu kontekstowym</system:String>
 </ResourceDictionary>

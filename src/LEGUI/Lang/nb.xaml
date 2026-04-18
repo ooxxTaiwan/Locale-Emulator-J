@@ -9,16 +9,16 @@
     <system:String x:Key="SaveAs">Lagre som ...</system:String>
     <system:String x:Key="SaveAsInstruction">Navnet til den nye profilen:</system:String>
     <system:String x:Key="Delete">Slett</system:String>
-    <system:String x:Key="ConfirmDel">Er du sikker på at du vil slette denne profilen?</system:String>
+    <system:String x:Key="ConfirmDelete">Er du sikker på at du vil slette denne profilen?</system:String>
     <system:String x:Key="Location">Posisjon</system:String>
     <system:String x:Key="LocationSettings">Posisjonsinnstillinger</system:String>
     <system:String x:Key="TimezoneSettings">Tidssoneinnstillinger</system:String>
     <system:String x:Key="Timezone">Tidssone</system:String>
-    <system:String x:Key="DebugOptions">Avanserte innstillinger</system:String>
+    <system:String x:Key="AdvancedOptions">Avanserte innstillinger</system:String>
     <system:String x:Key="AsAdmin">Kjør som administrator</system:String>
     <system:String x:Key="RedirectRegistry">Imiter et systemregister</system:String>
     <system:String x:Key="IsAdvancedRedirection">Imiter et systemgrensesnittsspråk</system:String>
-    <system:String x:Key="WithCREATESUSPENDED">Lag en prosess med CREATE__SUSPENDED</system:String>
+    <system:String x:Key="WithCreateSuspended">Lag en prosess med CREATE__SUSPENDED</system:String>
     <system:String x:Key="Miscellaneous">Diverse</system:String>
     <system:String x:Key="ShowInMainMenu">Vis denne profilen i hovedmenyen</system:String>
 </ResourceDictionary>

@@ -9,16 +9,16 @@
     <system:String x:Key="SaveAs">Simpan sebagai ...</system:String>
     <system:String x:Key="SaveAsInstruction">Nama profil baru:</system:String>
     <system:String x:Key="Delete">Hapus</system:String>
-    <system:String x:Key="ConfirmDel">Anda yakin ingin menghapus profil ini?</system:String>
+    <system:String x:Key="ConfirmDelete">Anda yakin ingin menghapus profil ini?</system:String>
     <system:String x:Key="Location">Lokasi</system:String>
     <system:String x:Key="LocationSettings">Pengaturan Lokasi</system:String>
     <system:String x:Key="TimezoneSettings">Pengaturan Zona waktu</system:String>
     <system:String x:Key="Timezone">Zona waktu</system:String>
-    <system:String x:Key="DebugOptions">Opsi tingkat lanjut</system:String>
+    <system:String x:Key="AdvancedOptions">Opsi tingkat lanjut</system:String>
     <system:String x:Key="AsAdmin">Jalankan sebagai administrator</system:String>
     <system:String x:Key="RedirectRegistry">Palsukan bahasa di Registry</system:String>
     <system:String x:Key="IsAdvancedRedirection">Palsukan Bahasa UI sistem</system:String>
-    <system:String x:Key="WithCREATESUSPENDED">Buat proses dengan CREATE_SUSPENDED</system:String>
+    <system:String x:Key="WithCreateSuspended">Buat proses dengan CREATE_SUSPENDED</system:String>
     <system:String x:Key="Miscellaneous">Lain-Lain</system:String>
     <system:String x:Key="ShowInMainMenu">Tampilkan profil ini di menu utama</system:String>
 </ResourceDictionary>

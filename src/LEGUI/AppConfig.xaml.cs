@@ -110,7 +110,7 @@ public partial class AppConfig
     private void bDeleteAppSetting_Click(object sender, RoutedEventArgs e)
     {
         if (MessageBoxResult.No == MessageBox.Show(
-            I18n.GetString("ConfirmDel"),
+            I18n.GetString("ConfirmDelete"),
             "Locale Emulator",
             MessageBoxButton.YesNo))
             return;
