@@ -9,7 +9,6 @@ namespace LEGUI;
 
 public partial class ShellExtensionPanel : UserControl
 {
-    private IShellExtensionQuery _query;
     private IShellExtensionCommand _command;
     private string _dllPath;
     private bool _isAdmin;
@@ -26,8 +25,6 @@ public partial class ShellExtensionPanel : UserControl
         InitializeComponent();
     }
 
-    public void SetQuery(IShellExtensionQuery query) => _query = query;
-
     /// <summary>Wire up install/uninstall actions. AllUsers mode when !isAdmin is routed
     /// through a UAC-elevated sub-process via RunElevatedAsync.</summary>
     public void SetCommand(IShellExtensionCommand command, string dllPath, bool isAdmin)
@@ -35,15 +32,14 @@ public partial class ShellExtensionPanel : UserControl
         _command = command;
         _dllPath = dllPath;
         _isAdmin = isAdmin;
-        SetQuery(command);
     }
 
     public void RefreshStatus()
     {
-        if (_query == null) return;
+        if (_command == null) return;
 
-        var cuInstalled = _query.IsInstalled(ShellExtensionRegistrar.InstallMode.CurrentUser);
-        var auInstalled = _query.IsInstalled(ShellExtensionRegistrar.InstallMode.AllUsers);
+        var cuInstalled = _command.IsInstalled(ShellExtensionRegistrar.InstallMode.CurrentUser);
+        var auInstalled = _command.IsInstalled(ShellExtensionRegistrar.InstallMode.AllUsers);
 
         tStatusCurrentUser.Text = " " + I18n.GetString(cuInstalled ? "Installed" : "NotInstalled");
         tStatusAllUsers.Text = " " + I18n.GetString(auInstalled ? "Installed" : "NotInstalled");
@@ -53,7 +49,7 @@ public partial class ShellExtensionPanel : UserControl
         bInstallAllUsers.IsEnabled = !auInstalled;
         bUninstallAllUsers.IsEnabled = auInstalled;
 
-        cleanupSection.Visibility = _query.HasOldRegistration()
+        cleanupSection.Visibility = _command.HasOldRegistration()
             ? Visibility.Visible
             : Visibility.Collapsed;
     }
@@ -78,7 +74,7 @@ public partial class ShellExtensionPanel : UserControl
         }
         else
         {
-            await RunElevatedAsync("cleanup-old", null);
+            await RunElevatedAsync(ShellExtCliCommand.VerbCleanupOld, null);
         }
         RefreshStatus();
     }
@@ -87,7 +83,7 @@ public partial class ShellExtensionPanel : UserControl
     {
         if (mode == ShellExtensionRegistrar.InstallMode.AllUsers && !_isAdmin)
         {
-            if (!await RunElevatedAsync("install", "all-users"))
+            if (!await RunElevatedAsync(ShellExtCliCommand.VerbInstall, ShellExtCliCommand.ScopeAllUsers))
             {
                 RefreshStatus();
                 return;
@@ -110,7 +106,7 @@ public partial class ShellExtensionPanel : UserControl
     {
         if (mode == ShellExtensionRegistrar.InstallMode.AllUsers && !_isAdmin)
         {
-            if (!await RunElevatedAsync("uninstall", "all-users"))
+            if (!await RunElevatedAsync(ShellExtCliCommand.VerbUninstall, ShellExtCliCommand.ScopeAllUsers))
             {
                 RefreshStatus();
                 return;
@@ -153,7 +149,9 @@ public partial class ShellExtensionPanel : UserControl
         SetAllButtonsEnabled(false);
         try
         {
-            var args = scope != null ? $"--shell-ext {verb} {scope}" : $"--shell-ext {verb}";
+            var args = scope != null
+                ? $"{ShellExtCliCommand.Prefix} {verb} {scope}"
+                : $"{ShellExtCliCommand.Prefix} {verb}";
             var psi = new ProcessStartInfo
             {
                 FileName = Environment.ProcessPath,

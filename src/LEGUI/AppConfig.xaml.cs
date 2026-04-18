@@ -39,13 +39,20 @@ public partial class AppConfig
 
     private void SaveSetting()
     {
+        // ReadProfile overwrites every editable field from UI, so only Name / Guid /
+        // Parameter / (and ShowInMainMenu, which stays false thanks to
+        // ShowDisplayOptions=false on the editor) are actually consumed from this
+        // template. The remaining fields take LEProfile's defaults as harmless
+        // placeholders in case LoadProfile was never called and an index is -1.
+        var defaults = new LEProfile(true);
         var template = new LEProfile(
             Path.GetFileName(App.StandaloneFilePath),
             Guid.NewGuid().ToString(),
-            false, // ShowInMainMenu — preserved by ReadProfile because ShowDisplayOptions=false
+            defaults.ShowInMainMenu,
             tbAppParameter.Text,
-            "ja-JP", "Tokyo Standard Time",
-            false, false, false, false);
+            defaults.Location, defaults.Timezone,
+            defaults.RunAsAdmin, defaults.RedirectRegistry,
+            defaults.IsAdvancedRedirection, defaults.RunWithSuspend);
 
         var crt = profileEditor.ReadProfile(template);
         LEConfig.SaveApplicationConfigFile(App.StandaloneFilePath, crt);

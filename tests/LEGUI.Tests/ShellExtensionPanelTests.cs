@@ -9,12 +9,12 @@ public class ShellExtensionPanelTests
     public void RefreshStatus_WhenCurrentUserInstalled_DisablesInstallButton()
     {
         var panel = new ShellExtensionPanel();
-        var query = Substitute.For<IShellExtensionQuery>();
-        query.IsInstalled(ShellExtensionRegistrar.InstallMode.CurrentUser).Returns(true);
-        query.IsInstalled(ShellExtensionRegistrar.InstallMode.AllUsers).Returns(false);
-        query.HasOldRegistration().Returns(false);
+        var command = Substitute.For<IShellExtensionCommand>();
+        command.IsInstalled(ShellExtensionRegistrar.InstallMode.CurrentUser).Returns(true);
+        command.IsInstalled(ShellExtensionRegistrar.InstallMode.AllUsers).Returns(false);
+        command.HasOldRegistration().Returns(false);
 
-        panel.SetQuery(query);
+        panel.SetCommand(command, dllPath: string.Empty, isAdmin: true);
         panel.RefreshStatus();
 
         Assert.False(panel.bInstallCurrentUser.IsEnabled);
@@ -27,11 +27,11 @@ public class ShellExtensionPanelTests
     public void RefreshStatus_HasOldRegistration_ShowsCleanupSection()
     {
         var panel = new ShellExtensionPanel();
-        var query = Substitute.For<IShellExtensionQuery>();
-        query.IsInstalled(Arg.Any<ShellExtensionRegistrar.InstallMode>()).Returns(false);
-        query.HasOldRegistration().Returns(true);
+        var command = Substitute.For<IShellExtensionCommand>();
+        command.IsInstalled(Arg.Any<ShellExtensionRegistrar.InstallMode>()).Returns(false);
+        command.HasOldRegistration().Returns(true);
 
-        panel.SetQuery(query);
+        panel.SetCommand(command, dllPath: string.Empty, isAdmin: true);
         panel.RefreshStatus();
 
         Assert.Equal(System.Windows.Visibility.Visible, panel.cleanupSection.Visibility);

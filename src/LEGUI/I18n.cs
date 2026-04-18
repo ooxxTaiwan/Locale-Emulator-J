@@ -46,21 +46,18 @@ internal class I18n
             var fallbackLangPath = Path.Combine(langDir,
                                                 $@"{CurrentCultureInfo.TwoLetterISOLanguageName}.xaml");
 
+            // Append (not Insert at 0): WPF MergedDictionaries lookup walks in
+            // reverse index order, so the last-added dictionary takes priority.
+            // We want the locale dictionary to win over DefaultLanguage.xaml.
             if (File.Exists(firstLangPath))
             {
                 using var stream = new FileStream(firstLangPath, FileMode.Open);
-                // Append (not Insert at 0): WPF MergedDictionaries lookup walks in
-                // reverse index order, so the last-added dictionary takes priority.
-                // We want the locale dictionary to win over DefaultLanguage.xaml.
                 Application.Current.Resources.MergedDictionaries
                            .Add(XamlReader.Load(stream) as ResourceDictionary);
             }
             else if (File.Exists(fallbackLangPath))
             {
                 using var stream = new FileStream(fallbackLangPath, FileMode.Open);
-                // Append (not Insert at 0): WPF MergedDictionaries lookup walks in
-                // reverse index order, so the last-added dictionary takes priority.
-                // We want the locale dictionary to win over DefaultLanguage.xaml.
                 Application.Current.Resources.MergedDictionaries
                            .Add(XamlReader.Load(stream) as ResourceDictionary);
             }

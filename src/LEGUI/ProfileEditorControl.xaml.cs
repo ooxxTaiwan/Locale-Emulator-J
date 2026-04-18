@@ -9,8 +9,14 @@ namespace LEGUI;
 
 public partial class ProfileEditorControl : UserControl
 {
-    private readonly List<CultureInfo> _cultureInfos;
-    private readonly List<TimeZoneInfo> _timezones;
+    // Static cache: both lists are OS-wide and stable for the process lifetime.
+    // CultureInfo.GetCultures(AllCultures) returns 800+ entries and is noticeably
+    // expensive; rebuilding it per control instance (two windows × reopens) was
+    // wasteful.
+    private static readonly List<CultureInfo> s_cultureInfos =
+        CultureInfo.GetCultures(CultureTypes.AllCultures).OrderBy(i => i.DisplayName).ToList();
+    private static readonly List<TimeZoneInfo> s_timezones =
+        TimeZoneInfo.GetSystemTimeZones().ToList();
 
     public static readonly DependencyProperty ShowDisplayOptionsProperty =
         DependencyProperty.Register(
@@ -28,19 +34,14 @@ public partial class ProfileEditorControl : UserControl
     public ProfileEditorControl()
     {
         InitializeComponent();
-
-        _cultureInfos = CultureInfo.GetCultures(CultureTypes.AllCultures)
-            .OrderBy(i => i.DisplayName).ToList();
-        cbLocation.ItemsSource = _cultureInfos.Select(c => c.DisplayName);
-
-        _timezones = TimeZoneInfo.GetSystemTimeZones().ToList();
-        cbTimezone.ItemsSource = _timezones.Select(t => t.DisplayName);
+        cbLocation.ItemsSource = s_cultureInfos.Select(c => c.DisplayName);
+        cbTimezone.ItemsSource = s_timezones.Select(t => t.DisplayName);
     }
 
     public void LoadProfile(LEProfile source)
     {
-        cbLocation.SelectedIndex = _cultureInfos.FindIndex(ci => ci.Name == source.Location);
-        cbTimezone.SelectedIndex = _timezones.FindIndex(tz => tz.Id == source.Timezone);
+        cbLocation.SelectedIndex = s_cultureInfos.FindIndex(ci => ci.Name == source.Location);
+        cbTimezone.SelectedIndex = s_timezones.FindIndex(tz => tz.Id == source.Timezone);
         cbStartAsAdmin.IsChecked = source.RunAsAdmin;
         cbRedirectRegistry.IsChecked = source.RedirectRegistry;
         cbIsAdvancedRedirection.IsChecked = source.IsAdvancedRedirection;
@@ -57,8 +58,8 @@ public partial class ProfileEditorControl : UserControl
             template.Guid,
             ShowDisplayOptions ? cbShowInMainMenu.IsChecked == true : template.ShowInMainMenu,
             template.Parameter,
-            locationIdx >= 0 ? _cultureInfos[locationIdx].Name : template.Location,
-            timezoneIdx >= 0 ? _timezones[timezoneIdx].Id : template.Timezone,
+            locationIdx >= 0 ? s_cultureInfos[locationIdx].Name : template.Location,
+            timezoneIdx >= 0 ? s_timezones[timezoneIdx].Id : template.Timezone,
             cbStartAsAdmin.IsChecked == true,
             cbRedirectRegistry.IsChecked == true,
             cbIsAdvancedRedirection.IsChecked == true,

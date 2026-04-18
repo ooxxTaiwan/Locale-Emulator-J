@@ -14,6 +14,13 @@ namespace LEGUI;
 /// </summary>
 public sealed class ShellExtCliCommand
 {
+    public const string Prefix = "--shell-ext";
+    public const string VerbInstall = "install";
+    public const string VerbUninstall = "uninstall";
+    public const string VerbCleanupOld = "cleanup-old";
+    public const string ScopeCurrentUser = "current-user";
+    public const string ScopeAllUsers = "all-users";
+
     /// <summary>
     /// Verb (action) for Shell Extension command.
     /// </summary>
@@ -42,15 +49,15 @@ public sealed class ShellExtCliCommand
     /// <returns>Parsed command, or null if args do not match --shell-ext pattern.</returns>
     public static ShellExtCliCommand? Parse(string[] args)
     {
-        if (args.Length < 2 || args[0] != "--shell-ext") return null;
+        if (args.Length < 2 || args[0] != Prefix) return null;
 
         return args[1] switch
         {
-            "install" when args.Length == 3 && TryParseMode(args[2], out var im)
+            VerbInstall when args.Length == 3 && TryParseMode(args[2], out var im)
                 => new ShellExtCliCommand(Verb.Install, im),
-            "uninstall" when args.Length == 3 && TryParseMode(args[2], out var um)
+            VerbUninstall when args.Length == 3 && TryParseMode(args[2], out var um)
                 => new ShellExtCliCommand(Verb.Uninstall, um),
-            "cleanup-old" when args.Length == 2
+            VerbCleanupOld when args.Length == 2
                 => new ShellExtCliCommand(Verb.CleanupOld, ShellExtensionRegistrar.InstallMode.AllUsers),
             _ => null
         };
@@ -59,8 +66,8 @@ public sealed class ShellExtCliCommand
     private static bool TryParseMode(string s, out ShellExtensionRegistrar.InstallMode mode)
     {
         mode = default;
-        if (s == "current-user") { mode = ShellExtensionRegistrar.InstallMode.CurrentUser; return true; }
-        if (s == "all-users")    { mode = ShellExtensionRegistrar.InstallMode.AllUsers; return true; }
+        if (s == ScopeCurrentUser) { mode = ShellExtensionRegistrar.InstallMode.CurrentUser; return true; }
+        if (s == ScopeAllUsers)    { mode = ShellExtensionRegistrar.InstallMode.AllUsers; return true; }
         return false;
     }
 }

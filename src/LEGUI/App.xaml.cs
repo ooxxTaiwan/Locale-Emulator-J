@@ -35,9 +35,9 @@ public partial class App : Application
 
         // Reject malformed --shell-ext invocations instead of falling through to file-path
         // mode (which would treat "--shell-ext" as a dropped file and open AppConfig).
-        if (e.Args.Length > 0 && e.Args[0] == "--shell-ext")
+        if (e.Args.Length > 0 && e.Args[0] == ShellExtCliCommand.Prefix)
         {
-            System.Diagnostics.Debug.WriteLine($"Malformed --shell-ext invocation: {string.Join(' ', e.Args)}");
+            System.Diagnostics.Debug.WriteLine($"Malformed {ShellExtCliCommand.Prefix} invocation: {string.Join(' ', e.Args)}");
             Current.Shutdown(2);
             return;
         }
@@ -118,14 +118,8 @@ public partial class App : Application
     {
         try
         {
-            var processPath = Environment.ProcessPath;
-            string basePath = null;
-            if (!string.IsNullOrEmpty(processPath))
-                basePath = Path.GetDirectoryName(Path.GetDirectoryName(processPath));
-            if (string.IsNullOrEmpty(basePath))
-                basePath = AppContext.BaseDirectory;
-
-            var dllPath = ShellExtensionRegistrar.AutoDetectDllPath(basePath);
+            var dllPath = ShellExtensionRegistrar.AutoDetectDllPath(
+                ShellExtensionRegistrar.GetBuildOutputRoot());
             var registrar = new ShellExtensionRegistrar(
                 new RegistryOperations(),
                 ShellExtensionConstants.NewClsid);

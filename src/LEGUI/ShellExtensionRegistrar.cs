@@ -159,6 +159,25 @@ public sealed class ShellExtensionRegistrar : IShellExtensionCommand
     }
 
     /// <summary>
+    /// Resolve the Shell Extension build output root (the parent directory of the
+    /// x86/x64 sub-folders). Uses the current process's parent-of-parent directory
+    /// (e.g. Build/Release/x86/LEGUI.exe → Build/Release/), falling back to
+    /// AppContext.BaseDirectory when ProcessPath is unavailable or shallower than
+    /// two levels deep.
+    /// </summary>
+    public static string GetBuildOutputRoot()
+    {
+        var processPath = Environment.ProcessPath;
+        if (!string.IsNullOrEmpty(processPath))
+        {
+            var parent = Path.GetDirectoryName(Path.GetDirectoryName(processPath));
+            if (!string.IsNullOrEmpty(parent))
+                return parent;
+        }
+        return AppContext.BaseDirectory;
+    }
+
+    /// <summary>
     /// Auto-detect DLL path based on OS bitness.
     /// </summary>
     /// <param name="basePath">Build output root directory.</param>
