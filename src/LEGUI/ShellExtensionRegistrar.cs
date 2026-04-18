@@ -14,7 +14,7 @@ namespace LEGUI;
 /// - No DllRegisterServer, no LoadLibrary, no regsvr32
 /// - Responsible for detecting and cleaning old COM GUID residues
 /// </summary>
-public sealed class ShellExtensionRegistrar
+public sealed class ShellExtensionRegistrar : IShellExtensionCommand
 {
     /// <summary>
     /// Old LEContextMenuHandler COM GUID (needs cleanup).
@@ -133,6 +133,17 @@ public sealed class ShellExtensionRegistrar
         }
     }
 
+    // Explicit interface implementation: delegates to the overload with optional is64BitOs.
+    bool IShellExtensionQuery.IsInstalled(InstallMode mode) => IsInstalled(mode, null);
+
+    // Explicit interface implementation: delegates to the overload with optional is64BitOs.
+    bool IShellExtensionQuery.HasOldRegistration() => HasOldRegistration(null);
+
+    // Explicit IShellExtensionCommand implementations: delegate to the public overloads.
+    void IShellExtensionCommand.Register(InstallMode mode, string dllPath) => Register(mode, dllPath);
+    void IShellExtensionCommand.Unregister(InstallMode mode) => Unregister(mode);
+    void IShellExtensionCommand.CleanupOldRegistration() => CleanupOldRegistration();
+
     /// <summary>
     /// Check if the Shell Extension is installed.
     /// </summary>
@@ -145,6 +156,25 @@ public sealed class ShellExtensionRegistrar
         var subKey = $@"Software\Classes\*\shellex\ContextMenuHandlers\{_clsid}";
 
         return _registry.SubKeyExists(hive, subKey, view);
+    }
+
+    /// <summary>
+    /// Resolve the Shell Extension build output root (the parent directory of the
+    /// x86/x64 sub-folders). Uses the current process's parent-of-parent directory
+    /// (e.g. Build/Release/x86/LEGUI.exe → Build/Release/), falling back to
+    /// AppContext.BaseDirectory when ProcessPath is unavailable or shallower than
+    /// two levels deep.
+    /// </summary>
+    public static string GetBuildOutputRoot()
+    {
+        var processPath = Environment.ProcessPath;
+        if (!string.IsNullOrEmpty(processPath))
+        {
+            var parent = Path.GetDirectoryName(Path.GetDirectoryName(processPath));
+            if (!string.IsNullOrEmpty(parent))
+                return parent;
+        }
+        return AppContext.BaseDirectory;
     }
 
     /// <summary>

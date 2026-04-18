@@ -16,9 +16,9 @@ internal class I18n
 
     internal static string GetString(string key)
     {
-        var dict = LoadDictionary();
         try
         {
+            var dict = LoadDictionary();
             var s = (string)dict[key];
 
             if (string.IsNullOrEmpty(s))
@@ -46,29 +46,34 @@ internal class I18n
             var fallbackLangPath = Path.Combine(langDir,
                                                 $@"{CurrentCultureInfo.TwoLetterISOLanguageName}.xaml");
 
+            // Append (not Insert at 0): WPF MergedDictionaries lookup walks in
+            // reverse index order, so the last-added dictionary takes priority.
+            // We want the locale dictionary to win over DefaultLanguage.xaml.
             if (File.Exists(firstLangPath))
             {
                 using var stream = new FileStream(firstLangPath, FileMode.Open);
                 Application.Current.Resources.MergedDictionaries
-                           .Insert(0, XamlReader.Load(stream) as ResourceDictionary);
+                           .Add(XamlReader.Load(stream) as ResourceDictionary);
             }
             else if (File.Exists(fallbackLangPath))
             {
                 using var stream = new FileStream(fallbackLangPath, FileMode.Open);
                 Application.Current.Resources.MergedDictionaries
-                           .Insert(0, XamlReader.Load(stream) as ResourceDictionary);
+                           .Add(XamlReader.Load(stream) as ResourceDictionary);
             }
         }
         catch
         {
         }
 
-        //If dictionary is still null, use default language.
-        if (dictionary == null)
-            if (Application.Current.Resources.MergedDictionaries.Count > 0)
-                dictionary = Application.Current.Resources.MergedDictionaries[0];
-            else
-                throw new Exception("No language file.");
+        // Pick the highest-priority dictionary (last in MergedDictionaries — locale if
+        // available, otherwise DefaultLanguage). This cached reference is used by
+        // GetString for direct key lookup; DynamicResource lookups on UI elements
+        // walk the whole MergedDictionaries chain on their own.
+        var merged = Application.Current.Resources.MergedDictionaries;
+        if (merged.Count == 0)
+            throw new Exception("No language file.");
+        dictionary = merged[merged.Count - 1];
 
         cacheDictionary = dictionary;
 
@@ -77,9 +82,11 @@ internal class I18n
 
     internal static void LoadLanguage()
     {
-        var dict = LoadDictionary();
-
-        Application.Current.Resources.MergedDictionaries.Clear();
-        Application.Current.Resources.MergedDictionaries.Add(dict);
+        // Eagerly trigger the locale dictionary load so UI elements bound with
+        // {DynamicResource ...} resolve correctly on first render. We no longer
+        // replace MergedDictionaries wholesale — DefaultLanguage.xaml (declared in
+        // App.xaml) must remain as fallback so keys present only in the default
+        // dictionary still resolve when a locale file lacks them.
+        LoadDictionary();
     }
 }

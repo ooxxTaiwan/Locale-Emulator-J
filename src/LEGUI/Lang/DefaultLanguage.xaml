@@ -18,7 +18,7 @@
     <system:String x:Key="AsAdmin">Run as administrator</system:String>
     <system:String x:Key="RedirectRegistry">Fake language-related keys in Registry</system:String>
     <system:String x:Key="IsAdvancedRedirection">Fake system UI language</system:String>
-    <system:String x:Key="WithCREATESUSPENDED">Create process with CREATE__SUSPENDED</system:String>
+    <system:String x:Key="WithCREATESUSPENDED">Create process with CREATE_SUSPENDED</system:String>
     <system:String x:Key="Miscellaneous">Miscellaneous</system:String>
     <system:String x:Key="ShowInMainMenu">Show this profile in main menu</system:String>
     <system:String x:Key="InstallSuccess">Shell Extension installed successfully. Please restart Explorer or log out to take effect.</system:String>
@@ -30,4 +30,19 @@
     <system:String x:Key="InstallStatus">Status:</system:String>
     <system:String x:Key="Installed">Installed</system:String>
     <system:String x:Key="NotInstalled">Not Installed</system:String>
+    <system:String x:Key="Display">Display</system:String>
+    <system:String x:Key="AsAdminTip">Launch the target process with elevated privileges. Required for some games.</system:String>
+    <system:String x:Key="RedirectRegistryTip">Intercept Registry reads for locale-related keys, returning the emulated locale instead of the system's.</system:String>
+    <system:String x:Key="IsAdvancedRedirectionTip">Also redirect Registry keys that control system UI language, affecting some apps that query via MUI_LANGUAGE_NAME.</system:String>
+    <system:String x:Key="WithCREATESUSPENDEDTip">Create the target process in suspended state (advanced debugging option).</system:String>
+    <system:String x:Key="ShowInMainMenuTip">Display this profile directly in the right-click menu root instead of under a submenu.</system:String>
+    <system:String x:Key="TabProfile">Profile</system:String>
+    <system:String x:Key="TabShellExtension">Shell Extension</system:String>
+    <system:String x:Key="TabAbout">About</system:String>
+    <system:String x:Key="SavedStatus">Saved</system:String>
+    <system:String x:Key="ShellExtCurrentUserHeader">Current User</system:String>
+    <system:String x:Key="ShellExtAllUsersHeader">All Users &#x1F6E1;</system:String>
+    <system:String x:Key="ShellExtOldResidueDetected">&#x26A0; Old version residue detected</system:String>
+    <system:String x:Key="ShellExtCleanupOld">Clean up old registration</system:String>
+    <system:String x:Key="ShellExtOperationFailed">Shell Extension operation failed: {0}</system:String>
 </ResourceDictionary>
