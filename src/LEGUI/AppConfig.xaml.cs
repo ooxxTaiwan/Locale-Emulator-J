@@ -48,9 +48,6 @@ public partial class AppConfig
             false, false, false, false);
 
         var crt = profileEditor.ReadProfile(template);
-        // Parameter is owned by this window (not by editor), so re-assert it.
-        crt.Parameter = tbAppParameter.Text;
-
         LEConfig.SaveApplicationConfigFile(App.StandaloneFilePath, crt);
     }
 
