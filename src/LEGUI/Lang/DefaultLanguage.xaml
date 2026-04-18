@@ -36,4 +36,8 @@
     <system:String x:Key="IsAdvancedRedirectionTip">Also redirect Registry keys that control system UI language, affecting some apps that query via MUI_LANGUAGE_NAME.</system:String>
     <system:String x:Key="WithCREATESUSPENDEDTip">Create the target process in suspended state (advanced debugging option).</system:String>
     <system:String x:Key="ShowInMainMenuTip">Display this profile directly in the right-click menu root instead of under a submenu.</system:String>
+    <system:String x:Key="TabProfile">Profile</system:String>
+    <system:String x:Key="TabShellExtension">Shell Extension</system:String>
+    <system:String x:Key="TabAbout">About</system:String>
+    <system:String x:Key="SavedStatus">Saved</system:String>
 </ResourceDictionary>

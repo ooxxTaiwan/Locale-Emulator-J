@@ -1,37 +1,37 @@
 #nullable disable
 
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media.Effects;
+using System.Windows.Threading;
 using LECommonLibrary;
 
 namespace LEGUI;
 
-/// <summary>
-///     Interaction logic for GlobalConfig.xaml
-/// </summary>
 public partial class GlobalConfig
 {
-    private readonly List<CultureInfo> _cultureInfos = new List<CultureInfo>();
-    private readonly List<LEProfile> _profiles = new List<LEProfile>();
-    private readonly List<TimeZoneInfo> _timezones = new List<TimeZoneInfo>();
+    private readonly List<LEProfile> _profiles;
+    private readonly DispatcherTimer _statusClearTimer;
 
     public GlobalConfig()
     {
         InitializeComponent();
 
-        // Region.
-        _cultureInfos = CultureInfo.GetCultures(CultureTypes.AllCultures).OrderBy(i => i.DisplayName).ToList();
-        cbLocation.ItemsSource = _cultureInfos.Select(c => c.DisplayName);
-
-        //Timezone.
-        _timezones = TimeZoneInfo.GetSystemTimeZones().ToList();
-        cbTimezone.ItemsSource = _timezones.Select(t => t.DisplayName);
-
-        //Profiles.
         _profiles = LEConfig.GetProfiles().ToList();
         cbGlobalProfiles.ItemsSource = _profiles.Select(p => p.Name);
+
+        _statusClearTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+        _statusClearTimer.Tick += (_, _) =>
+        {
+            statusText.Text = string.Empty;
+            _statusClearTimer.Stop();
+        };
+    }
+
+    private void ShowSavedStatus()
+    {
+        statusText.Text = I18n.GetString("SavedStatus");
+        _statusClearTimer.Stop();
+        _statusClearTimer.Start();
     }
 
     private void bSaveGlobalSetting_Click(object sender, RoutedEventArgs e)
@@ -39,20 +39,10 @@ public partial class GlobalConfig
         if (cbGlobalProfiles.Items.Count == 0)
             return;
 
-        var crt = _profiles[cbGlobalProfiles.SelectedIndex];
-        crt.Location = _cultureInfos[cbLocation.SelectedIndex].Name;
-        crt.Timezone = _timezones[cbTimezone.SelectedIndex].Id;
-        crt.ShowInMainMenu = cbShowInMainMenu.IsChecked != null && (bool)cbShowInMainMenu.IsChecked;
-
-        crt.RunAsAdmin = cbStartAsAdmin.IsChecked != null && (bool)cbStartAsAdmin.IsChecked;
-        crt.RedirectRegistry = cbRedirectRegistry.IsChecked != null && (bool)cbRedirectRegistry.IsChecked;
-        crt.IsAdvancedRedirection = cbIsAdvancedRedirection.IsChecked != null
-                                    && (bool)cbIsAdvancedRedirection.IsChecked;
-        crt.RunWithSuspend = cbStartAsSuspend.IsChecked != null && (bool)cbStartAsSuspend.IsChecked;
-
-        _profiles[cbGlobalProfiles.SelectedIndex] = crt;
-
+        var idx = cbGlobalProfiles.SelectedIndex;
+        _profiles[idx] = profileEditor.ReadProfile(_profiles[idx]);
         LEConfig.SaveGlobalConfigFile(_profiles.ToArray());
+        ShowSavedStatus();
     }
 
     private void cbGlobalProfiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -61,63 +51,43 @@ public partial class GlobalConfig
         bSaveGlobalSetting.IsEnabled = cbGlobalProfiles.Items.Count != 0;
 
         if (cbGlobalProfiles.SelectedIndex == -1)
-        {
             return;
-        }
 
-        var crt = _profiles[cbGlobalProfiles.SelectedIndex];
-
-        cbTimezone.SelectedIndex = _timezones.FindIndex(tz => tz.Id == crt.Timezone);
-        cbLocation.SelectedIndex = _cultureInfos.FindIndex(ci => ci.Name == crt.Location);
-
-        cbShowInMainMenu.IsChecked = crt.ShowInMainMenu;
-        cbStartAsAdmin.IsChecked = crt.RunAsAdmin;
-        cbRedirectRegistry.IsChecked = crt.RedirectRegistry;
-        cbIsAdvancedRedirection.IsChecked = crt.IsAdvancedRedirection;
-        cbStartAsSuspend.IsChecked = crt.RunWithSuspend;
+        profileEditor.LoadProfile(_profiles[cbGlobalProfiles.SelectedIndex]);
     }
 
     private void bSaveGlobalSettingAs_Click(object sender, RoutedEventArgs e)
     {
-        mainGrid.Effect = new BlurEffect();
-
         var ib = new InputBox
-                 {
-                     Owner = this,
-                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                     Instruction = I18n.GetString("SaveAsInstruction"),
-                     OkText = I18n.GetString("Save"),
-                     CancelText = I18n.GetString("Cancel")
-                 };
+        {
+            Owner = this,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Instruction = I18n.GetString("SaveAsInstruction"),
+            OkText = I18n.GetString("Save"),
+            CancelText = I18n.GetString("Cancel")
+        };
 
         if (ib.ShowDialog() == true && !string.IsNullOrEmpty(ib.Text))
         {
             SaveProfileAs(ib.Text);
-
             cbGlobalProfiles.SelectedIndex = _profiles.Count - 1;
+            ShowSavedStatus();
         }
-
-        mainGrid.Effect = null;
     }
 
     private void SaveProfileAs(string name)
     {
-        var pro = new LEProfile(name,
-                                Guid.NewGuid().ToString(),
-                                cbShowInMainMenu.IsChecked != null && (bool)cbShowInMainMenu.IsChecked,
-                                string.Empty,
-                                _cultureInfos[cbLocation.SelectedIndex].Name,
-                                _timezones[cbTimezone.SelectedIndex].Id,
-                                cbStartAsAdmin.IsChecked != null && (bool)cbStartAsAdmin.IsChecked,
-                                cbRedirectRegistry.IsChecked != null && (bool)cbRedirectRegistry.IsChecked,
-                                cbIsAdvancedRedirection.IsChecked != null && (bool)cbIsAdvancedRedirection.IsChecked,
-                                cbStartAsSuspend.IsChecked != null && (bool)cbStartAsSuspend.IsChecked);
+        // Build template preserving outer-owned fields (Name/Guid/Parameter).
+        // Name uses user-provided text; Guid is freshly generated.
+        var baseProfile = cbGlobalProfiles.SelectedIndex >= 0
+            ? _profiles[cbGlobalProfiles.SelectedIndex]
+            : new LEProfile(true);
+        baseProfile.Name = name;
+        baseProfile.Guid = Guid.NewGuid().ToString();
+        var created = profileEditor.ReadProfile(baseProfile);
 
-        _profiles.Add(pro);
-
+        _profiles.Add(created);
         LEConfig.SaveGlobalConfigFile(_profiles.ToArray());
-
-        // Update cbGlobalProfiles.
         cbGlobalProfiles.ItemsSource = _profiles.Select(p => p.Name);
     }
 
@@ -126,14 +96,14 @@ public partial class GlobalConfig
         if (cbGlobalProfiles.SelectedIndex == -1)
             return;
 
-        if (MessageBoxResult.No == MessageBox.Show(I18n.GetString("ConfirmDel"), "", MessageBoxButton.YesNo))
+        if (MessageBoxResult.No == MessageBox.Show(
+            I18n.GetString("ConfirmDel"),
+            "Locale Emulator",
+            MessageBoxButton.YesNo))
             return;
 
         _profiles.RemoveAt(cbGlobalProfiles.SelectedIndex);
-
         LEConfig.SaveGlobalConfigFile(_profiles.ToArray());
-
-        // Update cbGlobalProfiles.
         cbGlobalProfiles.ItemsSource = _profiles.Select(p => p.Name);
         cbGlobalProfiles.SelectedIndex = 0;
     }
