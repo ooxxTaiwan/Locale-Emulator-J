@@ -5,7 +5,7 @@
     <system:String x:Key="AboutCore">Core (archived 2022-04)</system:String>
     <system:String x:Key="AboutCoreLicense">Core portion: LGPL-3.0 / GPL-3.0</system:String>
     <system:String x:Key="AboutLicense">License: LGPL-3.0</system:String>
-    <system:String x:Key="AboutOriginalProject">Original project</system:String>
+    <system:String x:Key="AboutOriginalProject">Original project (archived 2022-04)</system:String>
     <system:String x:Key="AboutThisFork">This fork</system:String>
     <system:String x:Key="AboutTitle">Locale Emulator (ooxxTaiwan fork)</system:String>
     <system:String x:Key="AboutVersion">Version </system:String>
@@ -31,13 +31,13 @@
     <system:String x:Key="InstallSuccess">Shell Extension installed successfully. Please restart Explorer or log out to take effect.</system:String>
     <system:String x:Key="IsAdvancedRedirection">Fake system UI language</system:String>
     <system:String x:Key="IsAdvancedRedirectionTip">Also redirect Registry keys that control system UI language, affecting some apps that query via MUI_LANGUAGE_NAME.</system:String>
-    <system:String x:Key="Location">Location</system:String>
-    <system:String x:Key="LocationSettings">Location Settings</system:String>
     <system:String x:Key="Miscellaneous">Miscellaneous</system:String>
     <system:String x:Key="NotInstalled">Not Installed</system:String>
     <system:String x:Key="Ok">OK</system:String>
     <system:String x:Key="RedirectRegistry">Fake language-related keys in Registry</system:String>
     <system:String x:Key="RedirectRegistryTip">Intercept Registry reads for locale-related keys, returning the emulated locale instead of the system's.</system:String>
+    <system:String x:Key="Region">Region</system:String>
+    <system:String x:Key="RegionSettings">Region Settings</system:String>
     <system:String x:Key="Save">Save</system:String>
     <system:String x:Key="SaveAs">Save As ...</system:String>
     <system:String x:Key="SaveAsInstruction">New profile name:</system:String>

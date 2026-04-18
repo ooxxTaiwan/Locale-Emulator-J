@@ -50,7 +50,7 @@ public partial class AppConfig
             Guid.NewGuid().ToString(),
             defaults.ShowInMainMenu,
             tbAppParameter.Text,
-            defaults.Location, defaults.Timezone,
+            defaults.Region, defaults.Timezone,
             defaults.RunAsAdmin, defaults.RedirectRegistry,
             defaults.IsAdvancedRedirection, defaults.RunWithSuspend);
 

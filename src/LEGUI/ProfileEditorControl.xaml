@@ -8,8 +8,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <GroupBox Grid.Row="0" Header="{DynamicResource LocationSettings}" Margin="4,2">
-            <ComboBox x:Name="cbLocation" Margin="4" />
+        <GroupBox Grid.Row="0" Header="{DynamicResource RegionSettings}" Margin="4,2">
+            <ComboBox x:Name="cbRegion" Margin="4" />
         </GroupBox>
         <GroupBox Grid.Row="1" Header="{DynamicResource TimezoneSettings}" Margin="4,2">
             <ComboBox x:Name="cbTimezone" Margin="4" />

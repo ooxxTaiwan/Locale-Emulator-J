@@ -6,10 +6,10 @@ public struct LEProfile
 {
     public string Guid;
     public bool IsAdvancedRedirection;
-    public string Location;
     public string Name;
     public string Parameter;
     public bool RedirectRegistry;
+    public string Region;
     public bool RunAsAdmin;
     public bool RunWithSuspend;
     public bool ShowInMainMenu;
@@ -41,7 +41,7 @@ public struct LEProfile
                      string guid,
                      bool showInMainMenu,
                      string parameter,
-                     string location,
+                     string region,
                      string timezone,
                      bool runAsAdmin,
                      bool redirectRegistry,
@@ -52,7 +52,7 @@ public struct LEProfile
         Guid = guid;
         ShowInMainMenu = showInMainMenu;
         Parameter = parameter;
-        Location = location;
+        Region = region;
         Timezone = timezone;
         RunAsAdmin = runAsAdmin;
         RedirectRegistry = redirectRegistry;
