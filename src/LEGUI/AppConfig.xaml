@@ -2,10 +2,10 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:legui="clr-namespace:LEGUI"
-        Title="LEGUI - " SizeToContent="Height" MinWidth="420" Width="420"
+        Title="LEGUI - " Width="420" Height="440"
         WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <Grid TextElement.FontFamily="{DynamicResource UIFont}">
-        <TabControl Margin="4" MinHeight="340">
+        <TabControl Margin="4">
             <TabItem Header="{DynamicResource TabProfile}">
                 <DockPanel Margin="4">
                     <Grid DockPanel.Dock="Top" Height="60" Background="#FFF1F1F1" Margin="0,0,0,6">

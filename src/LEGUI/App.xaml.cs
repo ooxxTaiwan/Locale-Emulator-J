@@ -33,6 +33,15 @@ public partial class App : Application
             return;
         }
 
+        // Reject malformed --shell-ext invocations instead of falling through to file-path
+        // mode (which would treat "--shell-ext" as a dropped file and open AppConfig).
+        if (e.Args.Length > 0 && e.Args[0] == "--shell-ext")
+        {
+            System.Diagnostics.Debug.WriteLine($"Malformed --shell-ext invocation: {string.Join(' ', e.Args)}");
+            Current.Shutdown(2);
+            return;
+        }
+
         if (e.Args.Length != 0)
         {
             StandaloneFilePath = SystemHelper.EnsureAbsolutePath(e.Args[0]);
