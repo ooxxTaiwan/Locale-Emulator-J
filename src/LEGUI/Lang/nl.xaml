@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Hier argument invoeren (indien aanwezig)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI vereist beheerdersrechten om naar de huidige map te schrijven.</system:String>
     <system:String x:Key="ErrorDirNotWritable">De map is niet beschrijfbaar.&#x0A;Gebruik in plaats daarvan het globale profiel.&#x0A;Huidige map: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">Hoofdmap is niet beschrijfbaar.&#x0A;Verplaats LE naar een andere locatie en probeer het opnieuw.&#x0A;Hoofdmap: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">Installatiemap is niet beschrijfbaar.&#x0A;Verplaats LE naar een andere locatie en probeer het opnieuw.&#x0A;Installatiemap: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAAL</system:String>
     <system:String x:Key="InstallAllUsers">Installeren (alle gebruikers)</system:String>
     <system:String x:Key="InstallCurrentUser">Installeren (huidige gebruiker)</system:String>

@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Wpisz argumenty tutaj (jeśli są)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI wymaga uprawnień administratora do zapisu w bieżącym katalogu.</system:String>
     <system:String x:Key="ErrorDirNotWritable">Katalog nie ma uprawnień do zapisu.&#x0A;Użyj profilu globalnego.&#x0A;Bieżący katalog: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">Katalog domowy nie ma uprawnień do zapisu.&#x0A;Przenieś LE w inne miejsce i spróbuj ponownie.&#x0A;Katalog domowy: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">Katalog instalacji nie ma uprawnień do zapisu.&#x0A;Przenieś LE w inne miejsce i spróbuj ponownie.&#x0A;Katalog instalacji: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBALNY</system:String>
     <system:String x:Key="InstallAllUsers">Zainstaluj (wszyscy użytkownicy)</system:String>
     <system:String x:Key="InstallCurrentUser">Zainstaluj (bieżący użytkownik)</system:String>

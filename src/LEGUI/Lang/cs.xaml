@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Zde vložte parametry (pokud jsou)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI vyžaduje oprávnění správce k zápisu do aktuálního adresáře.</system:String>
     <system:String x:Key="ErrorDirNotWritable">Do adresáře nelze zapisovat.&#x0A;Použijte místo toho globální profil.&#x0A;Aktuální adresář: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">Do domovského adresáře nelze zapisovat.&#x0A;Přesuňte LE na jiné místo a zkuste to znovu.&#x0A;Domovský adresář: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">Do instalačního adresáře nelze zapisovat.&#x0A;Přesuňte LE na jiné místo a zkuste to znovu.&#x0A;Instalační adresář: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
     <system:String x:Key="InstallAllUsers">Instalovat (všichni uživatelé)</system:String>
     <system:String x:Key="InstallCurrentUser">Instalovat (aktuální uživatel)</system:String>

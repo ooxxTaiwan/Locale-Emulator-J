@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Enter argument here (if any)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI requires administrator privilege to write to the current directory.</system:String>
     <system:String x:Key="ErrorDirNotWritable">The directory is not writable.&#x0A;Please use global profile instead.&#x0A;Current Directory: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">Home directory is not writable.&#x0A;Please move LE to another location and try again.&#x0A;Home directory: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">Installation directory is not writable.&#x0A;Please move LE to another location and try again.&#x0A;Installation directory: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
     <system:String x:Key="InstallAllUsers">Install (All Users)</system:String>
     <system:String x:Key="InstallCurrentUser">Install (Current User)</system:String>

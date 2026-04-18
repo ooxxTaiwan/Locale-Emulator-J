@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Masukkan argumen di sini (jika ada)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI memerlukan hak administrator untuk menulis ke direktori saat ini.</system:String>
     <system:String x:Key="ErrorDirNotWritable">Direktori tidak dapat ditulis.&#x0A;Silakan gunakan profil global sebagai gantinya.&#x0A;Direktori saat ini: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">Direktori home tidak dapat ditulis.&#x0A;Silakan pindahkan LE ke lokasi lain dan coba lagi.&#x0A;Direktori home: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">Direktori instalasi tidak dapat ditulis.&#x0A;Silakan pindahkan LE ke lokasi lain dan coba lagi.&#x0A;Direktori instalasi: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
     <system:String x:Key="InstallAllUsers">Pasang (Semua pengguna)</system:String>
     <system:String x:Key="InstallCurrentUser">Pasang (Pengguna saat ini)</system:String>

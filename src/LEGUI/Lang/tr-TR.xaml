@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Argümanı buraya gir (eğer varsa)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI, geçerli dizine yazmak için yönetici ayrıcalığı gerektirir.</system:String>
     <system:String x:Key="ErrorDirNotWritable">Bu dizine yazılamıyor.&#x0A;Lütfen genel profili kullanın.&#x0A;Geçerli dizin: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">Ana dizine yazılamıyor.&#x0A;Lütfen LE'yi başka bir konuma taşıyıp tekrar deneyin.&#x0A;Ana dizin: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">Kurulum dizinine yazılamıyor.&#x0A;Lütfen LE'yi başka bir konuma taşıyıp tekrar deneyin.&#x0A;Kurulum dizini: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GENEL</system:String>
     <system:String x:Key="InstallAllUsers">Yükle (Tüm kullanıcılar)</system:String>
     <system:String x:Key="InstallCurrentUser">Yükle (Geçerli kullanıcı)</system:String>

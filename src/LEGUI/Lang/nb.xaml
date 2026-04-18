@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Skriv inn argumenter her (Valgfritt)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI krever administratorrettigheter for å skrive til gjeldende mappe.</system:String>
     <system:String x:Key="ErrorDirNotWritable">Mappen kan ikke skrives til.&#x0A;Bruk global profil i stedet.&#x0A;Gjeldende mappe: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">Hjemmemappen kan ikke skrives til.&#x0A;Flytt LE til et annet sted og prøv igjen.&#x0A;Hjemmemappe: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">Installasjonsmappen kan ikke skrives til.&#x0A;Flytt LE til et annet sted og prøv igjen.&#x0A;Installasjonsmappe: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
     <system:String x:Key="InstallAllUsers">Installer (alle brukere)</system:String>
     <system:String x:Key="InstallCurrentUser">Installer (gjeldende bruker)</system:String>

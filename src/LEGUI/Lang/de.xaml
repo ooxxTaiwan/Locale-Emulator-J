@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Parameter (falls benötigt)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI benötigt Administratorrechte, um in das aktuelle Verzeichnis zu schreiben.</system:String>
     <system:String x:Key="ErrorDirNotWritable">Das Verzeichnis ist nicht beschreibbar.&#x0A;Bitte verwenden Sie stattdessen ein globales Profil.&#x0A;Aktuelles Verzeichnis: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">Das Home-Verzeichnis ist nicht beschreibbar.&#x0A;Bitte verschieben Sie LE an einen anderen Ort und versuchen Sie es erneut.&#x0A;Home-Verzeichnis: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">Das Installationsverzeichnis ist nicht beschreibbar.&#x0A;Bitte verschieben Sie LE an einen anderen Ort und versuchen Sie es erneut.&#x0A;Installationsverzeichnis: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
     <system:String x:Key="InstallAllUsers">Installieren (Alle Benutzer)</system:String>
     <system:String x:Key="InstallCurrentUser">Installieren (Aktueller Benutzer)</system:String>

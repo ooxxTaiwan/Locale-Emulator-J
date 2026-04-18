@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Escriure arguments aquí (si n'hi ha)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI requereix privilegis d'administrador per escriure al directori actual.</system:String>
     <system:String x:Key="ErrorDirNotWritable">El directori no es pot escriure.&#x0A;Utilitzeu el perfil global en lloc d'aquest.&#x0A;Directori actual: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">El directori d'inici no es pot escriure.&#x0A;Moveu LE a una altra ubicació i torneu-ho a provar.&#x0A;Directori d'inici: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">El directori d'instal·lació no es pot escriure.&#x0A;Moveu LE a una altra ubicació i torneu-ho a provar.&#x0A;Directori d'instal·lació: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
     <system:String x:Key="InstallAllUsers">Instal·lar (Tots els usuaris)</system:String>
     <system:String x:Key="InstallCurrentUser">Instal·lar (Usuari actual)</system:String>

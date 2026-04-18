@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">명령 입력</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI가 현재 디렉터리에 쓰려면 관리자 권한이 필요합니다.</system:String>
     <system:String x:Key="ErrorDirNotWritable">디렉터리에 쓸 수 없습니다.&#x0A;대신 전역 프로필을 사용하세요.&#x0A;현재 디렉터리: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">홈 디렉터리에 쓸 수 없습니다.&#x0A;LE를 다른 위치로 이동한 후 다시 시도하세요.&#x0A;홈 디렉터리: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">설치 디렉터리에 쓸 수 없습니다.&#x0A;LE를 다른 위치로 이동한 후 다시 시도하세요.&#x0A;설치 디렉터리: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI 전역 설정</system:String>
     <system:String x:Key="InstallAllUsers">설치 (모든 사용자)</system:String>
     <system:String x:Key="InstallCurrentUser">설치 (현재 사용자)</system:String>

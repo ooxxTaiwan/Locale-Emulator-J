@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Saisissez un ou des arguments ici (facultatif)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI nécessite des privilèges d'administrateur pour écrire dans le répertoire actuel.</system:String>
     <system:String x:Key="ErrorDirNotWritable">Le répertoire n'est pas accessible en écriture.&#x0A;Veuillez utiliser le profil global à la place.&#x0A;Répertoire actuel : {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">Le répertoire personnel n'est pas accessible en écriture.&#x0A;Veuillez déplacer LE à un autre emplacement et réessayer.&#x0A;Répertoire personnel : {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">Le répertoire d'installation n'est pas accessible en écriture.&#x0A;Veuillez déplacer LE à un autre emplacement et réessayer.&#x0A;Répertoire d'installation : {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
     <system:String x:Key="InstallAllUsers">Installer (tous les utilisateurs)</system:String>
     <system:String x:Key="InstallCurrentUser">Installer (utilisateur actuel)</system:String>

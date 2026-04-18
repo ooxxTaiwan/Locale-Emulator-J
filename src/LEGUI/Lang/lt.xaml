@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Čia įveskite programos argumentus (jei reikia)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI reikalingos administratoriaus teisės, kad galėtų rašyti į dabartinį katalogą.</system:String>
     <system:String x:Key="ErrorDirNotWritable">Katalogas nėra įrašomas.&#x0A;Vietoj to naudokite globalų profilį.&#x0A;Dabartinis katalogas: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">Pagrindinis katalogas nėra įrašomas.&#x0A;Perkelkite LE į kitą vietą ir bandykite dar kartą.&#x0A;Pagrindinis katalogas: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">Diegimo katalogas nėra įrašomas.&#x0A;Perkelkite LE į kitą vietą ir bandykite dar kartą.&#x0A;Diegimo katalogas: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
     <system:String x:Key="InstallAllUsers">Įdiegti (visi vartotojai)</system:String>
     <system:String x:Key="InstallCurrentUser">Įdiegti (esamas vartotojas)</system:String>

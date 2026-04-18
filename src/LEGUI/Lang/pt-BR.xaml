@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Insira o argumento aqui (se houver)</system:String>
     <system:String x:Key="ErrorAdminRequired">O LEGUI precisa de privilégios de administrador para gravar no diretório atual.</system:String>
     <system:String x:Key="ErrorDirNotWritable">O diretório não permite gravação.&#x0A;Use o perfil global em vez disso.&#x0A;Diretório atual: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">O diretório inicial não permite gravação.&#x0A;Mova o LE para outro local e tente novamente.&#x0A;Diretório inicial: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">O diretório de instalação não permite gravação.&#x0A;Mova o LE para outro local e tente novamente.&#x0A;Diretório de instalação: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
     <system:String x:Key="InstallAllUsers">Instalar (todos os usuários)</system:String>
     <system:String x:Key="InstallCurrentUser">Instalar (usuário atual)</system:String>

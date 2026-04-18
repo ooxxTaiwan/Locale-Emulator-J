@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Inserire l'argomento qui (se esistente)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI richiede privilegi di amministratore per scrivere nella directory corrente.</system:String>
     <system:String x:Key="ErrorDirNotWritable">La directory non è scrivibile.&#x0A;Utilizza invece il profilo globale.&#x0A;Directory corrente: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">La directory home non è scrivibile.&#x0A;Sposta LE in un'altra posizione e riprova.&#x0A;Directory home: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">La directory di installazione non è scrivibile.&#x0A;Sposta LE in un'altra posizione e riprova.&#x0A;Directory di installazione: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBALE</system:String>
     <system:String x:Key="InstallAllUsers">Installa (tutti gli utenti)</system:String>
     <system:String x:Key="InstallCurrentUser">Installa (utente corrente)</system:String>

@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Параметры командной строки для запуска приложения (если есть)</system:String>
     <system:String x:Key="ErrorAdminRequired">Для записи в текущий каталог LEGUI требуются права администратора.</system:String>
     <system:String x:Key="ErrorDirNotWritable">Каталог недоступен для записи.&#x0A;Используйте глобальный профиль.&#x0A;Текущий каталог: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">Домашний каталог недоступен для записи.&#x0A;Переместите LE в другое расположение и повторите попытку.&#x0A;Домашний каталог: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">Каталог установки недоступен для записи.&#x0A;Переместите LE в другое расположение и повторите попытку.&#x0A;Каталог установки: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
     <system:String x:Key="InstallAllUsers">Установить (все пользователи)</system:String>
     <system:String x:Key="InstallCurrentUser">Установить (текущий пользователь)</system:String>

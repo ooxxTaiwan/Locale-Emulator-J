@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">ใส่อาร์กิวเมนต์ (ถ้ามี)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI ต้องใช้สิทธิ์ผู้ดูแลระบบเพื่อเขียนลงในไดเรกทอรีปัจจุบัน</system:String>
     <system:String x:Key="ErrorDirNotWritable">ไม่สามารถเขียนลงในไดเรกทอรีนี้ได้&#x0A;กรุณาใช้โปรไฟล์ทั่วไปแทน&#x0A;ไดเรกทอรีปัจจุบัน: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">ไม่สามารถเขียนลงในโฮมไดเรกทอรีได้&#x0A;กรุณาย้าย LE ไปยังตำแหน่งอื่นแล้วลองใหม่&#x0A;โฮมไดเรกทอรี: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">ไม่สามารถเขียนลงในไดเรกทอรีการติดตั้งได้&#x0A;กรุณาย้าย LE ไปยังตำแหน่งอื่นแล้วลองใหม่&#x0A;ไดเรกทอรีการติดตั้ง: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
     <system:String x:Key="InstallAllUsers">ติดตั้ง (ผู้ใช้ทั้งหมด)</system:String>
     <system:String x:Key="InstallCurrentUser">ติดตั้ง (ผู้ใช้ปัจจุบัน)</system:String>

@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">コマンドを入力</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI が現在のディレクトリに書き込むには管理者権限が必要です。</system:String>
     <system:String x:Key="ErrorDirNotWritable">ディレクトリに書き込み権限がありません。&#x0A;代わりにグローバルプロファイルを使用してください。&#x0A;現在のディレクトリ：{0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">ホームディレクトリに書き込み権限がありません。&#x0A;LE を別の場所に移動してから再試行してください。&#x0A;ホームディレクトリ：{0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">インストールディレクトリに書き込み権限がありません。&#x0A;LE を別の場所に移動してから再試行してください。&#x0A;インストールディレクトリ：{0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI グローバル</system:String>
     <system:String x:Key="InstallAllUsers">インストール（すべてのユーザー）</system:String>
     <system:String x:Key="InstallCurrentUser">インストール（現在のユーザー）</system:String>

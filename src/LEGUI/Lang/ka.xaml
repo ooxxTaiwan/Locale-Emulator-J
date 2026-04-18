@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">შეიყვანეთ არგუმენტები (არსებობის შემთხვევაში)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI-ს მიმდინარე საქაღალდეში ჩასაწერად ესაჭიროება ადმინისტრატორის უფლებები.</system:String>
     <system:String x:Key="ErrorDirNotWritable">საქაღალდეში ჩაწერა შეუძლებელია.&#x0A;გთხოვთ, ნაცვლად გამოიყენოთ გლობალური პროფილი.&#x0A;მიმდინარე საქაღალდე: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">საწყის საქაღალდეში ჩაწერა შეუძლებელია.&#x0A;გთხოვთ, გადაიტანოთ LE სხვა ადგილას და სცადოთ თავიდან.&#x0A;საწყისი საქაღალდე: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">დაყენების საქაღალდეში ჩაწერა შეუძლებელია.&#x0A;გთხოვთ, გადაიტანოთ LE სხვა ადგილას და სცადოთ თავიდან.&#x0A;დაყენების საქაღალდე: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
     <system:String x:Key="InstallAllUsers">დაყენება (ყველა მომხმარებელი)</system:String>
     <system:String x:Key="InstallCurrentUser">დაყენება (მიმდინარე მომხმარებელი)</system:String>

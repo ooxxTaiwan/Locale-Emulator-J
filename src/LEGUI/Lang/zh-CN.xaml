@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">在此输入运行参数</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI 需要管理员权限才能写入当前目录。</system:String>
     <system:String x:Key="ErrorDirNotWritable">目录无写入权限。&#x0A;请改用全局配置。&#x0A;当前目录：{0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">主目录无写入权限。&#x0A;请将 LE 移至其他位置后重试。&#x0A;主目录：{0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">安装目录无写入权限。&#x0A;请将 LE 移至其他位置后重试。&#x0A;安装目录：{0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI 全局配置</system:String>
     <system:String x:Key="InstallAllUsers">安装（所有用户）</system:String>
     <system:String x:Key="InstallCurrentUser">安装（当前用户）</system:String>

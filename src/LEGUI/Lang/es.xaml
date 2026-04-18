@@ -21,7 +21,7 @@
     <system:String x:Key="EnterArgument">Insertar argumentos aquí (si existen)</system:String>
     <system:String x:Key="ErrorAdminRequired">LEGUI necesita privilegios de administrador para escribir en el directorio actual.</system:String>
     <system:String x:Key="ErrorDirNotWritable">No se puede escribir en el directorio.&#x0A;Use el perfil global en su lugar.&#x0A;Directorio actual: {0}</system:String>
-    <system:String x:Key="ErrorHomeDirNotWritable">No se puede escribir en el directorio principal.&#x0A;Mueva LE a otra ubicación y vuelva a intentarlo.&#x0A;Directorio principal: {0}</system:String>
+    <system:String x:Key="ErrorInstallDirNotWritable">No se puede escribir en el directorio de instalación.&#x0A;Mueva LE a otra ubicación y vuelva a intentarlo.&#x0A;Directorio de instalación: {0}</system:String>
     <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
     <system:String x:Key="InstallAllUsers">Instalar (Todos los usuarios)</system:String>
     <system:String x:Key="InstallCurrentUser">Instalar (Usuario actual)</system:String>

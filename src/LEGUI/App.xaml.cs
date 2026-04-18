@@ -66,7 +66,7 @@ public partial class App : Application
                 // We can do nothing now.
                 if (isGlobalProfile)
                     MessageBox.Show(
-                                    I18n.Format("ErrorHomeDirNotWritable",
+                                    I18n.Format("ErrorInstallDirNotWritable",
                                                 Path.GetDirectoryName(LEConfig.GlobalConfigPath)),
                                     I18n.AppName,
                                     MessageBoxButton.OK,
