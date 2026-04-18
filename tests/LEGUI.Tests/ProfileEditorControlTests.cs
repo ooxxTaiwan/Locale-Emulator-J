@@ -34,4 +34,28 @@ public class ProfileEditorControlTests
         Assert.Equal(original.Guid, result.Guid);
         Assert.Equal(original.Parameter, result.Parameter);
     }
+
+    [WpfFact]
+    public void ShowDisplayOptionsFalse_HidesDisplayGroup()
+    {
+        var ctrl = new ProfileEditorControl();
+        ctrl.ShowDisplayOptions = false;
+
+        Assert.Equal(System.Windows.Visibility.Collapsed, ctrl.displayGroup.Visibility);
+    }
+
+    [WpfFact]
+    public void ShowDisplayOptionsFalse_ReadProfilePreservesShowInMainMenuFromTemplate()
+    {
+        var ctrl = new ProfileEditorControl();
+        ctrl.ShowDisplayOptions = false;
+        var template = SampleProfile(); // ShowInMainMenu=true
+        ctrl.LoadProfile(template);
+
+        // Even if user changes cbShowInMainMenu via UI, ReadProfile should preserve template value.
+        ctrl.cbShowInMainMenu.IsChecked = false;
+        var result = ctrl.ReadProfile(template);
+
+        Assert.True(result.ShowInMainMenu); // preserved from template
+    }
 }
