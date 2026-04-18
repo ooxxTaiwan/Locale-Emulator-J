@@ -16,7 +16,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         AppDomain.CurrentDomain.UnhandledException +=
-            (sender, args) => MessageBox.Show(((Exception) args.ExceptionObject).Message);
+            (sender, args) => MessageBox.Show(((Exception) args.ExceptionObject).Message, I18n.GetString("AppName"));
 
         base.OnStartup(e);
     }
@@ -66,17 +66,16 @@ public partial class App : Application
                 // We can do nothing now.
                 if (isGlobalProfile)
                     MessageBox.Show(
-                                    "Home directory is not writable. \r\n"
-                                    + "Please move LE to another location and try again.\r\n"
-                                    + $"Home directory: {Path.GetDirectoryName(LEConfig.GlobalConfigPath)}",
-                                    "Locale Emulator",
+                                    string.Format(I18n.GetString("ErrorHomeDirNotWritable"),
+                                                  Path.GetDirectoryName(LEConfig.GlobalConfigPath)),
+                                    I18n.GetString("AppName"),
                                     MessageBoxButton.OK,
                                     MessageBoxImage.Error);
                 else
                     MessageBox.Show(
-                                    "The directory is not writable.\r\n" + "Please use global profile instead.\r\n"
-                                    + $"Current Directory: {Path.GetDirectoryName(StandaloneFilePath)}",
-                                    "Locale Emulator",
+                                    string.Format(I18n.GetString("ErrorDirNotWritable"),
+                                                  Path.GetDirectoryName(StandaloneFilePath)),
+                                    I18n.GetString("AppName"),
                                     MessageBoxButton.OK,
                                     MessageBoxImage.Error);
 
@@ -95,8 +94,8 @@ public partial class App : Application
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("LEGUI requires administrator privilege to write to the current directory.",
-                                    "Locale Emulator",
+                    MessageBox.Show(I18n.GetString("ErrorAdminRequired"),
+                                    I18n.GetString("AppName"),
                                     MessageBoxButton.OK,
                                     MessageBoxImage.Error);
                 }

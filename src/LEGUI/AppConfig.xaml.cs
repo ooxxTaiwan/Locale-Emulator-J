@@ -15,7 +15,7 @@ public partial class AppConfig
     {
         InitializeComponent();
 
-        Title += Path.GetFileName(App.StandaloneFilePath).Replace(".le.config", "");
+        Title = I18n.GetString("AppConfigTitle") + Path.GetFileName(App.StandaloneFilePath).Replace(".le.config", "");
 
         // Load existing config or fall back to default.
         var configs = LEConfig.GetProfiles(App.StandaloneFilePath);
@@ -70,7 +70,7 @@ public partial class AppConfig
             link.SetArguments($"-run \"{path}\"");
             link.SetIconLocation(
                 AssociationReader.GetAssociatedIcon(Path.GetExtension(path)).Replace("%1", path), 0);
-            link.SetDescription($"Run {Path.GetFileName(path)} with Locale Emulator");
+            link.SetDescription(string.Format(I18n.GetString("ShortcutDescription"), Path.GetFileName(path)));
             link.SetWorkingDirectory(Path.GetDirectoryName(path));
 
             var file = (IPersistFile)link;
@@ -82,7 +82,7 @@ public partial class AppConfig
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message + "\r\n\r\n" + ex.StackTrace, "Locale Emulator");
+            MessageBox.Show(ex.Message + "\r\n\r\n" + ex.StackTrace, I18n.GetString("AppName"));
         }
     }
 
@@ -111,7 +111,7 @@ public partial class AppConfig
     {
         if (MessageBoxResult.No == MessageBox.Show(
             I18n.GetString("ConfirmDelete"),
-            "Locale Emulator",
+            I18n.GetString("AppName"),
             MessageBoxButton.YesNo))
             return;
 
