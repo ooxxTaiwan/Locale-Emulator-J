@@ -10,9 +10,9 @@
                 </TextBlock>
                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                     <Button x:Name="bInstallCurrentUser" Content="{DynamicResource InstallCurrentUser}"
-                            MinWidth="120" Margin="0,0,8,0" />
+                            MinWidth="120" Margin="0,0,8,0" Click="bInstallCurrentUser_Click" />
                     <Button x:Name="bUninstallCurrentUser" Content="{DynamicResource Uninstall}"
-                            MinWidth="100" />
+                            MinWidth="100" Click="bUninstallCurrentUser_Click" />
                 </StackPanel>
             </StackPanel>
         </GroupBox>
@@ -24,16 +24,16 @@
                 </TextBlock>
                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                     <Button x:Name="bInstallAllUsers" Content="{DynamicResource InstallAllUsers}"
-                            MinWidth="120" Margin="0,0,8,0" />
+                            MinWidth="120" Margin="0,0,8,0" Click="bInstallAllUsers_Click" />
                     <Button x:Name="bUninstallAllUsers" Content="{DynamicResource Uninstall}"
-                            MinWidth="100" />
+                            MinWidth="100" Click="bUninstallAllUsers_Click" />
                 </StackPanel>
             </StackPanel>
         </GroupBox>
         <StackPanel x:Name="cleanupSection" Visibility="Collapsed" Margin="0,8">
             <TextBlock Text="{DynamicResource ShellExtOldResidueDetected}" Foreground="DarkRed" />
             <Button x:Name="bCleanupOld" Content="{DynamicResource ShellExtCleanupOld}" MinWidth="180"
-                    HorizontalAlignment="Left" Margin="0,4,0,0" />
+                    HorizontalAlignment="Left" Margin="0,4,0,0" Click="bCleanupOld_Click" />
         </StackPanel>
     </StackPanel>
 </UserControl>

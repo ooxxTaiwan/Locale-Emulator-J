@@ -1,5 +1,6 @@
 #nullable disable
 
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -25,6 +26,24 @@ public partial class GlobalConfig
             statusText.Text = string.Empty;
             _statusClearTimer.Stop();
         };
+
+        InitializeShellExtPanel();
+    }
+
+    private void InitializeShellExtPanel()
+    {
+        var processPath = Environment.ProcessPath;
+        var basePath = !string.IsNullOrEmpty(processPath)
+            ? Path.GetDirectoryName(Path.GetDirectoryName(processPath))
+            : AppContext.BaseDirectory;
+
+        var dllPath = ShellExtensionRegistrar.AutoDetectDllPath(basePath);
+        var registrar = new ShellExtensionRegistrar(
+            new RegistryOperations(),
+            ShellExtensionConstants.NewClsid);
+
+        shellExtPanel.SetCommand(registrar, dllPath, SystemHelper.IsAdministrator());
+        shellExtPanel.RefreshStatus();
     }
 
     private void ShowSavedStatus()

@@ -36,4 +36,23 @@ public class ShellExtensionPanelTests
 
         Assert.Equal(System.Windows.Visibility.Visible, panel.cleanupSection.Visibility);
     }
+
+    [WpfFact]
+    public void InstallCurrentUser_CallsRegisterWithCurrentUserMode()
+    {
+        var panel = new ShellExtensionPanel();
+        panel.ShowMessage = _ => { }; // suppress dialog in tests
+        var command = Substitute.For<IShellExtensionCommand>();
+        command.IsInstalled(Arg.Any<ShellExtensionRegistrar.InstallMode>()).Returns(false);
+        command.HasOldRegistration().Returns(false);
+
+        panel.SetCommand(command, dllPath: @"C:\fake\ShellExtension.dll", isAdmin: true);
+
+        panel.bInstallCurrentUser.RaiseEvent(
+            new System.Windows.RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+
+        command.Received().Register(
+            ShellExtensionRegistrar.InstallMode.CurrentUser,
+            @"C:\fake\ShellExtension.dll");
+    }
 }

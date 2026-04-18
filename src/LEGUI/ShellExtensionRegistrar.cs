@@ -14,7 +14,7 @@ namespace LEGUI;
 /// - No DllRegisterServer, no LoadLibrary, no regsvr32
 /// - Responsible for detecting and cleaning old COM GUID residues
 /// </summary>
-public sealed class ShellExtensionRegistrar : IShellExtensionQuery
+public sealed class ShellExtensionRegistrar : IShellExtensionCommand
 {
     /// <summary>
     /// Old LEContextMenuHandler COM GUID (needs cleanup).
@@ -138,6 +138,11 @@ public sealed class ShellExtensionRegistrar : IShellExtensionQuery
 
     // Explicit interface implementation: delegates to the overload with optional is64BitOs.
     bool IShellExtensionQuery.HasOldRegistration() => HasOldRegistration(null);
+
+    // Explicit IShellExtensionCommand implementations: delegate to the public overloads.
+    void IShellExtensionCommand.Register(InstallMode mode, string dllPath) => Register(mode, dllPath);
+    void IShellExtensionCommand.Unregister(InstallMode mode) => Unregister(mode);
+    void IShellExtensionCommand.CleanupOldRegistration() => CleanupOldRegistration();
 
     /// <summary>
     /// Check if the Shell Extension is installed.
