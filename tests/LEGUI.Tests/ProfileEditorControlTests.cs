@@ -5,12 +5,14 @@ namespace LEGUI.Tests;
 
 public class ProfileEditorControlTests
 {
+    // All booleans deliberately set to values that differ from an un-toggled CheckBox default (false),
+    // so a hypothetical no-op LoadProfile would fail this round-trip test instead of false-passing.
     private static LEProfile SampleProfile() => new LEProfile(
         "TestProfile", "{00000000-0000-0000-0000-000000000001}",
-        showInMainMenu: true, parameter: "",
+        showInMainMenu: true, parameter: "arg1",
         location: "ja-JP", timezone: "Tokyo Standard Time",
-        runAsAdmin: false, redirectRegistry: true,
-        isAdvancedRedirection: false, runWithSuspend: false);
+        runAsAdmin: true, redirectRegistry: true,
+        isAdvancedRedirection: true, runWithSuspend: true);
 
     [WpfFact]
     public void LoadThenRead_RoundTripsAllFields()
