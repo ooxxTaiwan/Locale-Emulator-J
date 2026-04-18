@@ -30,4 +30,5 @@
     <system:String x:Key="InstallStatus">Status:</system:String>
     <system:String x:Key="Installed">Installed</system:String>
     <system:String x:Key="NotInstalled">Not Installed</system:String>
+    <system:String x:Key="Display">Display</system:String>
 </ResourceDictionary>
