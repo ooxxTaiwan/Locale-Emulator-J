@@ -1,5 +1,7 @@
 #nullable disable
 
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -10,8 +12,6 @@ public partial class ShellExtensionPanel : UserControl
     private IShellExtensionQuery _query;
     private IShellExtensionCommand _command;
     private string _dllPath;
-    // Reserved for Task 5.3: when false, AllUsers actions will be routed through
-    // a UAC-elevated sub-process. Until then, this field is stored but not read.
     private bool _isAdmin;
 
     /// <summary>
@@ -28,8 +28,8 @@ public partial class ShellExtensionPanel : UserControl
 
     public void SetQuery(IShellExtensionQuery query) => _query = query;
 
-    /// <summary>Wire up install/uninstall actions. Task 4.2 is in-process admin path only;
-    /// Task 5.3 will add UAC-elevated sub-process for AllUsers mode when !isAdmin.</summary>
+    /// <summary>Wire up install/uninstall actions. AllUsers mode when !isAdmin is routed
+    /// through a UAC-elevated sub-process via RunElevatedAsync.</summary>
     public void SetCommand(IShellExtensionCommand command, string dllPath, bool isAdmin)
     {
         _command = command;
@@ -58,40 +58,116 @@ public partial class ShellExtensionPanel : UserControl
             : Visibility.Collapsed;
     }
 
-    private void bInstallCurrentUser_Click(object sender, RoutedEventArgs e)
-        => HandleInstall(ShellExtensionRegistrar.InstallMode.CurrentUser);
+    private async void bInstallCurrentUser_Click(object sender, RoutedEventArgs e)
+        => await HandleInstallAsync(ShellExtensionRegistrar.InstallMode.CurrentUser);
 
-    private void bInstallAllUsers_Click(object sender, RoutedEventArgs e)
-        => HandleInstall(ShellExtensionRegistrar.InstallMode.AllUsers);
+    private async void bInstallAllUsers_Click(object sender, RoutedEventArgs e)
+        => await HandleInstallAsync(ShellExtensionRegistrar.InstallMode.AllUsers);
 
-    private void bUninstallCurrentUser_Click(object sender, RoutedEventArgs e)
-        => HandleUninstall(ShellExtensionRegistrar.InstallMode.CurrentUser);
+    private async void bUninstallCurrentUser_Click(object sender, RoutedEventArgs e)
+        => await HandleUninstallAsync(ShellExtensionRegistrar.InstallMode.CurrentUser);
 
-    private void bUninstallAllUsers_Click(object sender, RoutedEventArgs e)
-        => HandleUninstall(ShellExtensionRegistrar.InstallMode.AllUsers);
+    private async void bUninstallAllUsers_Click(object sender, RoutedEventArgs e)
+        => await HandleUninstallAsync(ShellExtensionRegistrar.InstallMode.AllUsers);
 
-    private void bCleanupOld_Click(object sender, RoutedEventArgs e)
+    private async void bCleanupOld_Click(object sender, RoutedEventArgs e)
     {
-        // NOTE: AllUsers cleanup writes HKLM which requires admin. Task 5.3 will route
-        // non-admin requests through a UAC-elevated sub-process.
-        _command?.CleanupOldRegistration();
+        if (_isAdmin)
+        {
+            _command?.CleanupOldRegistration();
+        }
+        else
+        {
+            await RunElevatedAsync("cleanup-old", null);
+        }
         RefreshStatus();
     }
 
-    private void HandleInstall(ShellExtensionRegistrar.InstallMode mode)
+    private async Task HandleInstallAsync(ShellExtensionRegistrar.InstallMode mode)
     {
-        // NOTE: Task 5.3 will route non-admin AllUsers requests through sub-process with UAC.
-        _command?.Register(mode, _dllPath);
+        if (mode == ShellExtensionRegistrar.InstallMode.AllUsers && !_isAdmin)
+        {
+            if (!await RunElevatedAsync("install", "all-users"))
+            {
+                RefreshStatus();
+                return;
+            }
+        }
+        else
+        {
+            _command?.Register(mode, _dllPath);
+        }
         RefreshStatus();
         if (_command != null)
             ShowMessage(I18n.GetString("InstallSuccess"));
     }
 
-    private void HandleUninstall(ShellExtensionRegistrar.InstallMode mode)
+    private async Task HandleUninstallAsync(ShellExtensionRegistrar.InstallMode mode)
     {
-        _command?.Unregister(mode);
+        if (mode == ShellExtensionRegistrar.InstallMode.AllUsers && !_isAdmin)
+        {
+            if (!await RunElevatedAsync("uninstall", "all-users"))
+            {
+                RefreshStatus();
+                return;
+            }
+        }
+        else
+        {
+            _command?.Unregister(mode);
+        }
         RefreshStatus();
         if (_command != null)
             ShowMessage(I18n.GetString("UninstallSuccess"));
+    }
+
+    /// <summary>
+    /// Spawn LEGUI.exe with --shell-ext CLI and "runas" verb to trigger UAC.
+    /// Returns true on success (exit code 0), false on cancellation or failure.
+    /// </summary>
+    private async Task<bool> RunElevatedAsync(string verb, string scope)
+    {
+        SetAllButtonsEnabled(false);
+        try
+        {
+            var args = scope != null ? $"--shell-ext {verb} {scope}" : $"--shell-ext {verb}";
+            var psi = new ProcessStartInfo
+            {
+                FileName = Environment.ProcessPath,
+                Arguments = args,
+                Verb = "runas",
+                UseShellExecute = true
+            };
+
+            using var p = Process.Start(psi);
+            if (p == null) return false;
+
+            await p.WaitForExitAsync();
+
+            if (p.ExitCode != 0)
+            {
+                ShowMessage($"Operation failed with exit code {p.ExitCode}.");
+                return false;
+            }
+            return true;
+        }
+        catch (Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            // User cancelled UAC prompt — silently return, do not show error.
+            return false;
+        }
+        finally
+        {
+            SetAllButtonsEnabled(true);
+        }
+    }
+
+    private void SetAllButtonsEnabled(bool enabled)
+    {
+        bInstallCurrentUser.IsEnabled = enabled;
+        bUninstallCurrentUser.IsEnabled = enabled;
+        bInstallAllUsers.IsEnabled = enabled;
+        bUninstallAllUsers.IsEnabled = enabled;
+        bCleanupOld.IsEnabled = enabled;
     }
 }
