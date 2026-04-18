@@ -18,7 +18,7 @@ public partial class ShellExtensionPanel : UserControl
     /// Tests can swap this out to avoid blocking on a modal dialog.
     /// </summary>
     internal Action<string> ShowMessage = text =>
-        MessageBox.Show(text, I18n.GetString("AppName"));
+        MessageBox.Show(text, I18n.AppName);
 
     public ShellExtensionPanel()
     {

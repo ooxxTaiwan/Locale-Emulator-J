@@ -117,7 +117,7 @@ public partial class GlobalConfig
 
         if (MessageBoxResult.No == MessageBox.Show(
             I18n.GetString("ConfirmDelete"),
-            I18n.GetString("AppName"),
+            I18n.AppName,
             MessageBoxButton.YesNo))
             return;
 

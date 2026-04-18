@@ -16,6 +16,9 @@ public class LocaleCompletenessTests
     private static readonly XNamespace XamlNs =
         "http://schemas.microsoft.com/winfx/2006/xaml";
 
+    private static readonly Lazy<HashSet<string>> DefaultKeys =
+        new(() => LoadKeys("DefaultLanguage.xaml"));
+
     public static IEnumerable<object[]> LocaleFiles =>
         Directory.GetFiles(LangDir, "*.xaml")
                  .Where(f => Path.GetFileName(f) != "DefaultLanguage.xaml")
@@ -25,9 +28,8 @@ public class LocaleCompletenessTests
     [MemberData(nameof(LocaleFiles))]
     public void Locale_HasAllKeysFromDefaultLanguage(string localeFileName)
     {
-        var defaultKeys = LoadKeys("DefaultLanguage.xaml");
-        var localeKeys  = LoadKeys(localeFileName);
-        var missing     = defaultKeys.Except(localeKeys).OrderBy(k => k).ToList();
+        var localeKeys = LoadKeys(localeFileName);
+        var missing    = DefaultKeys.Value.Except(localeKeys).OrderBy(k => k).ToList();
 
         Assert.True(
             missing.Count == 0,
