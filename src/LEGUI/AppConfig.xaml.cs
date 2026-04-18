@@ -1,7 +1,6 @@
 #nullable disable
 
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices.ComTypes;
@@ -10,64 +9,47 @@ using LECommonLibrary;
 
 namespace LEGUI;
 
-/// <summary>
-///     Interaction logic for AppConfig.xaml
-/// </summary>
 public partial class AppConfig
 {
-    private readonly List<CultureInfo> _cultureInfos = new List<CultureInfo>();
-    private readonly List<TimeZoneInfo> _timezones = new List<TimeZoneInfo>();
-
     public AppConfig()
     {
         InitializeComponent();
 
         Title += Path.GetFileName(App.StandaloneFilePath).Replace(".le.config", "");
 
-        // Region.
-        _cultureInfos = CultureInfo.GetCultures(CultureTypes.AllCultures).OrderBy(i => i.DisplayName).ToList();
-        cbLocation.ItemsSource = _cultureInfos.Select(c => c.DisplayName);
-        cbLocation.SelectedIndex = _cultureInfos.FindIndex(c => c.Name == "ja-JP");
-
-        //Timezone.
-        _timezones = TimeZoneInfo.GetSystemTimeZones().ToList();
-        cbTimezone.ItemsSource = _timezones.Select(t => t.DisplayName);
-        cbTimezone.SelectedIndex = _timezones.FindIndex(tz => tz.Id == "Tokyo Standard Time");
-
-        // Load exists config.
+        // Load existing config or fall back to default.
         var configs = LEConfig.GetProfiles(App.StandaloneFilePath);
+        LEProfile initial;
         if (configs.Length > 0)
         {
-            var conf = configs[0];
-
-            if (!string.IsNullOrEmpty(conf.Parameter))
+            initial = configs[0];
+            if (!string.IsNullOrEmpty(initial.Parameter))
             {
                 tbAppParameter.FontStyle = FontStyles.Normal;
-                tbAppParameter.Text = conf.Parameter;
+                tbAppParameter.Text = initial.Parameter;
             }
-            cbTimezone.SelectedIndex = _timezones.FindIndex(tz => tz.Id == conf.Timezone);
-            cbLocation.SelectedIndex = _cultureInfos.FindIndex(ci => ci.Name == conf.Location);
-
-            cbStartAsAdmin.IsChecked = conf.RunAsAdmin;
-            cbRedirectRegistry.IsChecked = conf.RedirectRegistry;
-            cbIsAdvancedRedirection.IsChecked = conf.IsAdvancedRedirection;
-            cbStartAsSuspend.IsChecked = conf.RunWithSuspend;
         }
+        else
+        {
+            initial = new LEProfile(true);
+        }
+
+        profileEditor.LoadProfile(initial);
     }
 
     private void SaveSetting()
     {
-        var crt = new LEProfile(Path.GetFileName(App.StandaloneFilePath),
-                                Guid.NewGuid().ToString(),
-                                false,
-                                tbAppParameter.Text,
-                                _cultureInfos[cbLocation.SelectedIndex].Name,
-                                _timezones[cbTimezone.SelectedIndex].Id,
-                                cbStartAsAdmin.IsChecked != null && (bool)cbStartAsAdmin.IsChecked,
-                                cbRedirectRegistry.IsChecked != null && (bool)cbRedirectRegistry.IsChecked,
-                                cbIsAdvancedRedirection.IsChecked != null && (bool)cbIsAdvancedRedirection.IsChecked,
-                                cbStartAsSuspend.IsChecked != null && (bool)cbStartAsSuspend.IsChecked
-            );
+        var template = new LEProfile(
+            Path.GetFileName(App.StandaloneFilePath),
+            Guid.NewGuid().ToString(),
+            false, // ShowInMainMenu — preserved by ReadProfile because ShowDisplayOptions=false
+            tbAppParameter.Text,
+            "ja-JP", "Tokyo Standard Time",
+            false, false, false, false);
+
+        var crt = profileEditor.ReadProfile(template);
+        // Parameter is owned by this window (not by editor), so re-assert it.
+        crt.Parameter = tbAppParameter.Text;
 
         LEConfig.SaveApplicationConfigFile(App.StandaloneFilePath, crt);
     }
@@ -78,54 +60,55 @@ public partial class AppConfig
         {
             var link = (IShellLink)new ShellLink();
 
-            link.SetPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                                      "LEProc.exe"));
+            link.SetPath(Path.Combine(
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "LEProc.exe"));
             link.SetArguments($"-run \"{path}\"");
-            link.SetIconLocation(AssociationReader.GetAssociatedIcon(Path.GetExtension(path)).Replace("%1", path), 0);
-
+            link.SetIconLocation(
+                AssociationReader.GetAssociatedIcon(Path.GetExtension(path)).Replace("%1", path), 0);
             link.SetDescription($"Run {Path.GetFileName(path)} with Locale Emulator");
             link.SetWorkingDirectory(Path.GetDirectoryName(path));
 
             var file = (IPersistFile)link;
             file.Save(
-                      Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
-                                   Path.GetFileNameWithoutExtension(path) + ".lnk"),
-                      false);
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+                    Path.GetFileNameWithoutExtension(path) + ".lnk"),
+                false);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            MessageBox.Show(e.Message + "\r\n\r\n" + e.StackTrace);
+            MessageBox.Show(ex.Message + "\r\n\r\n" + ex.StackTrace, "Locale Emulator");
         }
     }
 
     private void RunAndShutdown()
     {
-        //Run the application.
-        Process.Start(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "LEProc.exe"),
-                      $"-run \"{App.StandaloneFilePath.Replace(".le.config", "")}\"");
-
+        Process.Start(
+            Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "LEProc.exe"),
+            $"-run \"{App.StandaloneFilePath.Replace(".le.config", "")}\"");
         Application.Current.Shutdown();
     }
 
     private void bSaveAppSetting_Click(object sender, RoutedEventArgs e)
     {
         SaveSetting();
-
         RunAndShutdown();
     }
 
     private void bShortcut_Click(object sender, RoutedEventArgs e)
     {
         SaveSetting();
-
         CreateShortcut(App.StandaloneFilePath.Replace(".le.config", ""));
-
         RunAndShutdown();
     }
 
     private void bDeleteAppSetting_Click(object sender, RoutedEventArgs e)
     {
-        if (MessageBoxResult.No == MessageBox.Show(I18n.GetString("ConfirmDel"), "", MessageBoxButton.YesNo))
+        if (MessageBoxResult.No == MessageBox.Show(
+            I18n.GetString("ConfirmDel"),
+            "Locale Emulator",
+            MessageBoxButton.YesNo))
             return;
 
         if (File.Exists(App.StandaloneFilePath))
