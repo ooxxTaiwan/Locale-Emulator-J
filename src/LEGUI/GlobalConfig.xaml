@@ -41,8 +41,7 @@
                 <legui:ShellExtensionPanel x:Name="shellExtPanel" />
             </TabItem>
             <TabItem Header="{DynamicResource TabAbout}">
-                <!-- Filled by Task 6.1 -->
-                <Grid />
+                <legui:AboutPanel />
             </TabItem>
         </TabControl>
     </DockPanel>
