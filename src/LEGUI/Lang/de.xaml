@@ -18,7 +18,50 @@
     <system:String x:Key="AsAdmin">Als Administrator ausführen</system:String>
     <system:String x:Key="RedirectRegistry">Registrierungseinträge vortäuschen</system:String>
     <system:String x:Key="IsAdvancedRedirection">System-UI Sprache vortäuschen</system:String>
-    <system:String x:Key="WithCreateSuspended">Prozess mit CREATE__SUSPENDED aufrufen</system:String>
+    <system:String x:Key="WithCreateSuspended">Prozess angehalten starten (zum Debuggen)</system:String>
     <system:String x:Key="Miscellaneous">Sonstiges</system:String>
     <system:String x:Key="ShowInMainMenu">Profil im Kontextmenü anzeigen</system:String>
+
+    <!-- PR 29 neu hinzugefügte 24 Keys (Issue #21) -->
+    <system:String x:Key="InstallSuccess">Shell-Erweiterung erfolgreich installiert. Bitte Explorer neu starten oder abmelden, damit die Änderung wirksam wird.</system:String>
+    <system:String x:Key="UninstallSuccess">Shell-Erweiterung erfolgreich deinstalliert. Bitte Explorer neu starten oder abmelden, damit die Änderung wirksam wird.</system:String>
+    <system:String x:Key="InstallShellExtTitle">Shell-Erweiterung</system:String>
+    <system:String x:Key="InstallCurrentUser">Installieren (Aktueller Benutzer)</system:String>
+    <system:String x:Key="InstallAllUsers">Installieren (Alle Benutzer)</system:String>
+    <system:String x:Key="Uninstall">Deinstallieren</system:String>
+    <system:String x:Key="InstallStatus">Status:</system:String>
+    <system:String x:Key="Installed">Installiert</system:String>
+    <system:String x:Key="NotInstalled">Nicht installiert</system:String>
+    <system:String x:Key="Display">Anzeige</system:String>
+    <system:String x:Key="AsAdminTip">Startet den Zielprozess mit erhöhten Rechten. Für einige Spiele erforderlich.</system:String>
+    <system:String x:Key="RedirectRegistryTip">Fängt Registry-Lesezugriffe auf Locale-bezogene Schlüssel ab und gibt statt der Systemwerte die emulierte Locale zurück.</system:String>
+    <system:String x:Key="IsAdvancedRedirectionTip">Leitet zusätzlich Registry-Schlüssel um, die die System-UI-Sprache steuern, und beeinflusst dadurch Anwendungen, die über MUI_LANGUAGE_NAME abfragen.</system:String>
+    <system:String x:Key="WithCreateSuspendedTip">Erstellt den Zielprozess im angehaltenen Zustand (erweiterte Debug-Option).</system:String>
+    <system:String x:Key="ShowInMainMenuTip">Dieses Profil direkt im Kontextmenü anzeigen, statt in einem Untermenü.</system:String>
+    <system:String x:Key="TabProfile">Profil</system:String>
+    <system:String x:Key="TabShellExtension">Shell-Erweiterung</system:String>
+    <system:String x:Key="TabAbout">Info</system:String>
+    <system:String x:Key="SavedStatus">Gespeichert</system:String>
+    <system:String x:Key="ShellExtCurrentUserHeader">Aktueller Benutzer</system:String>
+    <system:String x:Key="ShellExtAllUsersHeader">Alle Benutzer &#x1F6E1;</system:String>
+    <system:String x:Key="ShellExtOldResidueDetected">&#x26A0; Rückstände einer alten Version erkannt</system:String>
+    <system:String x:Key="ShellExtCleanupOld">Alte Registrierung bereinigen</system:String>
+    <system:String x:Key="ShellExtOperationFailed">Vorgang der Shell-Erweiterung fehlgeschlagen: {0}</system:String>
+
+    <!-- Task 2: aus fest codierten Zeichenfolgen extrahierte 15 neue Keys -->
+    <system:String x:Key="AppName">Locale Emulator</system:String>
+    <system:String x:Key="Ok">OK</system:String>
+    <system:String x:Key="AboutTitle">Locale Emulator (ooxxTaiwan fork)</system:String>
+    <system:String x:Key="AboutVersion">Version </system:String>
+    <system:String x:Key="AboutOriginalProject">Ursprüngliches Projekt</system:String>
+    <system:String x:Key="AboutCore">Core (archiviert 2022-04)</system:String>
+    <system:String x:Key="AboutThisFork">Dieser Fork</system:String>
+    <system:String x:Key="AboutLicense">Lizenz: LGPL-3.0</system:String>
+    <system:String x:Key="AboutCoreLicense">Core-Teil: LGPL-3.0 / GPL-3.0</system:String>
+    <system:String x:Key="AppConfigTitle">LEGUI - </system:String>
+    <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
+    <system:String x:Key="ErrorHomeDirNotWritable">Das Home-Verzeichnis ist nicht beschreibbar.&#x0A;Bitte verschieben Sie LE an einen anderen Ort und versuchen Sie es erneut.&#x0A;Home-Verzeichnis: {0}</system:String>
+    <system:String x:Key="ErrorDirNotWritable">Das Verzeichnis ist nicht beschreibbar.&#x0A;Bitte verwenden Sie stattdessen ein globales Profil.&#x0A;Aktuelles Verzeichnis: {0}</system:String>
+    <system:String x:Key="ErrorAdminRequired">LEGUI benötigt Administratorrechte, um in das aktuelle Verzeichnis zu schreiben.</system:String>
+    <system:String x:Key="ShortcutDescription">{0} mit Locale Emulator ausführen</system:String>
 </ResourceDictionary>

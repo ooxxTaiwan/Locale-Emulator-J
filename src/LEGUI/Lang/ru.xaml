@@ -18,7 +18,50 @@
     <system:String x:Key="AsAdmin">Запуск от имени администратора</system:String>
     <system:String x:Key="RedirectRegistry">Подменять реестр</system:String>
     <system:String x:Key="IsAdvancedRedirection">Подменять язык интерфейса системы</system:String>
-    <system:String x:Key="WithCreateSuspended">Создать процесс с параметром CREATE__SUSPENDED</system:String>
+    <system:String x:Key="WithCreateSuspended">Запустить процесс в приостановленном состоянии (для отладки)</system:String>
     <system:String x:Key="Miscellaneous">Разное</system:String>
     <system:String x:Key="ShowInMainMenu">Показать этот профиль в главном меню</system:String>
+
+    <!-- PR 29 新增的 24 個 key（Issue #21） -->
+    <system:String x:Key="InstallSuccess">Расширение оболочки успешно установлено. Перезапустите Explorer или выйдите из системы, чтобы изменения вступили в силу.</system:String>
+    <system:String x:Key="UninstallSuccess">Расширение оболочки успешно удалено. Перезапустите Explorer или выйдите из системы, чтобы изменения вступили в силу.</system:String>
+    <system:String x:Key="InstallShellExtTitle">Расширение оболочки</system:String>
+    <system:String x:Key="InstallCurrentUser">Установить (текущий пользователь)</system:String>
+    <system:String x:Key="InstallAllUsers">Установить (все пользователи)</system:String>
+    <system:String x:Key="Uninstall">Удалить</system:String>
+    <system:String x:Key="InstallStatus">Состояние:</system:String>
+    <system:String x:Key="Installed">Установлено</system:String>
+    <system:String x:Key="NotInstalled">Не установлено</system:String>
+    <system:String x:Key="Display">Отображение</system:String>
+    <system:String x:Key="AsAdminTip">Запускать целевой процесс с повышенными правами. Требуется для некоторых игр.</system:String>
+    <system:String x:Key="RedirectRegistryTip">Перехватывать чтение реестра для ключей, связанных с локалью, возвращая эмулируемую локаль вместо системной.</system:String>
+    <system:String x:Key="IsAdvancedRedirectionTip">Также подменять ключи реестра, управляющие языком интерфейса системы; влияет на приложения, использующие MUI_LANGUAGE_NAME.</system:String>
+    <system:String x:Key="WithCreateSuspendedTip">Создавать целевой процесс в приостановленном состоянии (расширенная опция отладки).</system:String>
+    <system:String x:Key="ShowInMainMenuTip">Показывать этот профиль прямо в корне контекстного меню, а не во вложенном подменю.</system:String>
+    <system:String x:Key="TabProfile">Профиль</system:String>
+    <system:String x:Key="TabShellExtension">Расширение оболочки</system:String>
+    <system:String x:Key="TabAbout">О программе</system:String>
+    <system:String x:Key="SavedStatus">Сохранено</system:String>
+    <system:String x:Key="ShellExtCurrentUserHeader">Текущий пользователь</system:String>
+    <system:String x:Key="ShellExtAllUsersHeader">Все пользователи &#x1F6E1;</system:String>
+    <system:String x:Key="ShellExtOldResidueDetected">&#x26A0; Обнаружены остатки старой версии</system:String>
+    <system:String x:Key="ShellExtCleanupOld">Очистить старую регистрацию</system:String>
+    <system:String x:Key="ShellExtOperationFailed">Ошибка операции расширения оболочки: {0}</system:String>
+
+    <!-- Task 2 從寫死字串抽出的 15 個新 key -->
+    <system:String x:Key="AppName">Locale Emulator</system:String>
+    <system:String x:Key="Ok">OK</system:String>
+    <system:String x:Key="AboutTitle">Locale Emulator (ooxxTaiwan fork)</system:String>
+    <system:String x:Key="AboutVersion">Версия </system:String>
+    <system:String x:Key="AboutOriginalProject">Оригинальный проект</system:String>
+    <system:String x:Key="AboutCore">Core (архивирован в 2022-04)</system:String>
+    <system:String x:Key="AboutThisFork">Этот форк</system:String>
+    <system:String x:Key="AboutLicense">Лицензия: LGPL-3.0</system:String>
+    <system:String x:Key="AboutCoreLicense">Часть Core: LGPL-3.0 / GPL-3.0</system:String>
+    <system:String x:Key="AppConfigTitle">LEGUI - </system:String>
+    <system:String x:Key="GlobalConfigTitle">LEGUI GLOBAL</system:String>
+    <system:String x:Key="ErrorHomeDirNotWritable">Домашний каталог недоступен для записи.&#x0A;Переместите LE в другое расположение и повторите попытку.&#x0A;Домашний каталог: {0}</system:String>
+    <system:String x:Key="ErrorDirNotWritable">Каталог недоступен для записи.&#x0A;Используйте глобальный профиль.&#x0A;Текущий каталог: {0}</system:String>
+    <system:String x:Key="ErrorAdminRequired">Для записи в текущий каталог LEGUI требуются права администратора.</system:String>
+    <system:String x:Key="ShortcutDescription">Запустить {0} через Locale Emulator</system:String>
 </ResourceDictionary>

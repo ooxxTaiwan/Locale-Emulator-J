@@ -14,11 +14,54 @@
     <system:String x:Key="LocationSettings">위치 설정</system:String>
     <system:String x:Key="TimezoneSettings">시간대 설정</system:String>
     <system:String x:Key="Timezone">시간대</system:String>
-    <system:String x:Key="AdvancedOptions">고급사용자 옵션</system:String>
+    <system:String x:Key="AdvancedOptions">고급 옵션</system:String>
     <system:String x:Key="AsAdmin">관리자 권한으로 실행</system:String>
     <system:String x:Key="RedirectRegistry">레지스트리 위조</system:String>
     <system:String x:Key="IsAdvancedRedirection">시스템 UI 언어 위조</system:String>
-    <system:String x:Key="WithCreateSuspended">CREATE__SUSPENDED로 프로세스를 실행</system:String>
+    <system:String x:Key="WithCreateSuspended">프로세스를 일시 중단 상태로 시작 (디버깅용)</system:String>
     <system:String x:Key="Miscellaneous">기타</system:String>
     <system:String x:Key="ShowInMainMenu">메인 메뉴에 이 프로필을 보이기</system:String>
+
+    <!-- PR 29 新增的 24 個 key（Issue #21） -->
+    <system:String x:Key="InstallSuccess">셸 확장이 성공적으로 설치되었습니다. 변경 사항을 적용하려면 Explorer를 다시 시작하거나 로그아웃하세요.</system:String>
+    <system:String x:Key="UninstallSuccess">셸 확장이 성공적으로 제거되었습니다. 변경 사항을 적용하려면 Explorer를 다시 시작하거나 로그아웃하세요.</system:String>
+    <system:String x:Key="InstallShellExtTitle">셸 확장</system:String>
+    <system:String x:Key="InstallCurrentUser">설치 (현재 사용자)</system:String>
+    <system:String x:Key="InstallAllUsers">설치 (모든 사용자)</system:String>
+    <system:String x:Key="Uninstall">제거</system:String>
+    <system:String x:Key="InstallStatus">상태:</system:String>
+    <system:String x:Key="Installed">설치됨</system:String>
+    <system:String x:Key="NotInstalled">설치되지 않음</system:String>
+    <system:String x:Key="Display">표시</system:String>
+    <system:String x:Key="AsAdminTip">상승된 권한으로 대상 프로세스를 실행합니다. 일부 게임에 필요합니다.</system:String>
+    <system:String x:Key="RedirectRegistryTip">로케일 관련 레지스트리 키 읽기를 가로채서 시스템 값 대신 에뮬레이트된 로케일을 반환합니다.</system:String>
+    <system:String x:Key="IsAdvancedRedirectionTip">시스템 UI 언어를 제어하는 레지스트리 키도 리디렉션하여 MUI_LANGUAGE_NAME을 통해 조회하는 일부 앱에 영향을 줍니다.</system:String>
+    <system:String x:Key="WithCreateSuspendedTip">대상 프로세스를 일시 중단 상태로 생성합니다 (고급 디버깅 옵션).</system:String>
+    <system:String x:Key="ShowInMainMenuTip">하위 메뉴가 아닌 마우스 오른쪽 버튼 메뉴의 최상단에 이 프로필을 직접 표시합니다.</system:String>
+    <system:String x:Key="TabProfile">프로필</system:String>
+    <system:String x:Key="TabShellExtension">셸 확장</system:String>
+    <system:String x:Key="TabAbout">정보</system:String>
+    <system:String x:Key="SavedStatus">저장됨</system:String>
+    <system:String x:Key="ShellExtCurrentUserHeader">현재 사용자</system:String>
+    <system:String x:Key="ShellExtAllUsersHeader">모든 사용자 &#x1F6E1;</system:String>
+    <system:String x:Key="ShellExtOldResidueDetected">&#x26A0; 이전 버전 잔여물 감지됨</system:String>
+    <system:String x:Key="ShellExtCleanupOld">이전 등록 정리</system:String>
+    <system:String x:Key="ShellExtOperationFailed">셸 확장 작업 실패: {0}</system:String>
+
+    <!-- Task 2 從寫死字串抽出的 15 個新 key -->
+    <system:String x:Key="AppName">Locale Emulator</system:String>
+    <system:String x:Key="Ok">확인</system:String>
+    <system:String x:Key="AboutTitle">Locale Emulator (ooxxTaiwan fork)</system:String>
+    <system:String x:Key="AboutVersion">버전 </system:String>
+    <system:String x:Key="AboutOriginalProject">원본 프로젝트</system:String>
+    <system:String x:Key="AboutCore">Core (2022-04 보관됨)</system:String>
+    <system:String x:Key="AboutThisFork">이 fork</system:String>
+    <system:String x:Key="AboutLicense">라이선스: LGPL-3.0</system:String>
+    <system:String x:Key="AboutCoreLicense">Core 부분: LGPL-3.0 / GPL-3.0</system:String>
+    <system:String x:Key="AppConfigTitle">LEGUI - </system:String>
+    <system:String x:Key="GlobalConfigTitle">LEGUI 전역 설정</system:String>
+    <system:String x:Key="ErrorHomeDirNotWritable">홈 디렉터리에 쓸 수 없습니다.&#x0A;LE를 다른 위치로 이동한 후 다시 시도하세요.&#x0A;홈 디렉터리: {0}</system:String>
+    <system:String x:Key="ErrorDirNotWritable">디렉터리에 쓸 수 없습니다.&#x0A;대신 전역 프로필을 사용하세요.&#x0A;현재 디렉터리: {0}</system:String>
+    <system:String x:Key="ErrorAdminRequired">LEGUI가 현재 디렉터리에 쓰려면 관리자 권한이 필요합니다.</system:String>
+    <system:String x:Key="ShortcutDescription">Locale Emulator로 {0} 실행</system:String>
 </ResourceDictionary>
