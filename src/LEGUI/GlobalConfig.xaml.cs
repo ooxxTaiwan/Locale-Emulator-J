@@ -19,6 +19,10 @@ public partial class GlobalConfig
 
         _profiles = LEConfig.GetProfiles().ToList();
         cbGlobalProfiles.ItemsSource = _profiles.Select(p => p.Name);
+        if (_profiles.Count > 0)
+            cbGlobalProfiles.SelectedIndex = 0;     // triggers LoadProfile via SelectionChanged
+        else
+            profileEditor.LoadProfile(new LEProfile(true));
 
         _statusClearTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
         _statusClearTimer.Tick += (_, _) =>
