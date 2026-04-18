@@ -23,8 +23,8 @@ public partial class ShellExtensionPanel : UserControl
         var cuInstalled = _query.IsInstalled(ShellExtensionRegistrar.InstallMode.CurrentUser);
         var auInstalled = _query.IsInstalled(ShellExtensionRegistrar.InstallMode.AllUsers);
 
-        tStatusCurrentUser.Text = " " + GetStatusText(cuInstalled);
-        tStatusAllUsers.Text = " " + GetStatusText(auInstalled);
+        tStatusCurrentUser.Text = " " + I18n.GetString(cuInstalled ? "Installed" : "NotInstalled");
+        tStatusAllUsers.Text = " " + I18n.GetString(auInstalled ? "Installed" : "NotInstalled");
 
         bInstallCurrentUser.IsEnabled = !cuInstalled;
         bUninstallCurrentUser.IsEnabled = cuInstalled;
@@ -34,17 +34,5 @@ public partial class ShellExtensionPanel : UserControl
         cleanupSection.Visibility = _query.HasOldRegistration()
             ? Visibility.Visible
             : Visibility.Collapsed;
-    }
-
-    private static string GetStatusText(bool installed)
-    {
-        try
-        {
-            return I18n.GetString(installed ? "Installed" : "NotInstalled");
-        }
-        catch
-        {
-            return installed ? "Installed" : "Not Installed";
-        }
     }
 }

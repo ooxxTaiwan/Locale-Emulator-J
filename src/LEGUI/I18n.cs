@@ -16,9 +16,9 @@ internal class I18n
 
     internal static string GetString(string key)
     {
-        var dict = LoadDictionary();
         try
         {
+            var dict = LoadDictionary();
             var s = (string)dict[key];
 
             if (string.IsNullOrEmpty(s))

@@ -40,4 +40,8 @@
     <system:String x:Key="TabShellExtension">Shell Extension</system:String>
     <system:String x:Key="TabAbout">About</system:String>
     <system:String x:Key="SavedStatus">Saved</system:String>
+    <system:String x:Key="ShellExtCurrentUserHeader">Current User</system:String>
+    <system:String x:Key="ShellExtAllUsersHeader">All Users &#x1F6E1;</system:String>
+    <system:String x:Key="ShellExtOldResidueDetected">&#x26A0; Old version residue detected</system:String>
+    <system:String x:Key="ShellExtCleanupOld">Clean up old registration</system:String>
 </ResourceDictionary>
