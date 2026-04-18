@@ -4,5 +4,5 @@
   <RunDefault>เปิดด้วยโปรไฟล์แอป</RunDefault>
   <Submenu>Locale Emulator</Submenu>
   <ManageApp>แก้ไขโปรไฟล์แอป</ManageApp>
-  <ManageAll>แก้ไขโปรไฟล์โดยรวม</ManageAll>
+  <ManageAll>แก้ไขรายการโปรไฟล์ทั่วไป</ManageAll>
 </Strings>
